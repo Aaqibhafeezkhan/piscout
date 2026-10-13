@@ -81,6 +81,9 @@
 </style>
 </head>
 <body>
+<div id="demoBar" class="hidden" style="background:#b36b00;color:#fff;text-align:center;padding:6px;font-size:13px">
+  DEMO MODE: simulated device and shell, not real hardware
+</div>
 <main>
   <div class="row"><h1>piscout</h1>
     <select id="langSel" title="Language"><option value="zh">中文</option><option value="en">English</option></select>
@@ -128,12 +131,22 @@
   <section id="flash" class="hidden">
     <div class="card">
       <h2>1. 要重灌哪一台？</h2>
-      <label class="toggle" style="font-size:15px;color:var(--text)"><input type="radio" name="target" value="remote" checked>
-        區網裡的樹莓派（SD 卡留在 Pi 上，從這裡遠端重灌）</label>
-      <label class="toggle" style="font-size:15px;color:var(--text);margin-top:4px"><input type="radio" name="target" value="local">
-        插在這台電腦上的 SD 卡</label>
+      <label class="toggle" style="font-size:15px;color:var(--text)"><input type="radio" name="target" value="local" checked>
+        插在這台電腦上的 SD 卡（建議）</label>
+      <label class="toggle" style="font-size:15px;color:var(--text);margin-top:4px"><input type="radio" name="target" value="remote" id="remoteRadio" disabled>
+        區網裡的樹莓派（SD 卡留在 Pi 上，從這裡遠端重灌）· 進階功能，預設關閉</label>
 
-      <div id="remoteBox" style="margin-top:12px">
+      <div class="rec" id="advBox" style="margin-top:12px">
+        <label class="toggle" style="font-size:14px;color:var(--text)"><input type="checkbox" id="advOn">
+          啟用進階功能：遠端重灌（有風險）</label>
+        <div class="muted" style="margin-top:6px">
+          遠端重灌是在「執行中」的樹莓派上覆寫它自己的 SD 卡。如果中途關閉程式、斷電、
+          斷網或電腦睡眠，那張卡會變成寫了一半、開不了機，而且無法從遠端修復，只能把卡拿到電腦上重燒。
+          請先準備讀卡機或備用的 SD 卡。
+        </div>
+      </div>
+
+      <div id="remoteBox" class="hidden" style="margin-top:12px">
         <div class="grid">
           <div class="field"><label>樹莓派</label><select id="rDevice"></select></div>
           <div class="field"><label>目前的登入帳號</label><input id="rUser" value="pi"></div>
@@ -153,12 +166,13 @@
         </div>
       </div>
 
-      <div id="localBox" class="hidden" style="margin-top:12px">
+      <div id="localBox" style="margin-top:12px">
         <div class="row">
           <select id="drive" style="flex:1"></select>
           <button id="refreshDrives">重新整理</button>
         </div>
         <div class="muted" id="driveNote" style="margin-top:6px"></div>
+        <button id="elevate" class="hidden" style="margin-top:8px">以系統管理員身分重新啟動</button>
       </div>
     </div>
 
@@ -246,6 +260,7 @@ function h(tag, attrs, ...kids) {
 }
 
 const TOKEN = '__PISCOUT_TOKEN__';
+const DEMO = '__PISCOUT_DEMO__' === 'true';
 async function api(path, opts) {
   opts = opts || {};
   opts.headers = {...(opts.headers || {}), 'X-Piscout-Token': TOKEN, 'X-Lang': window.PISCOUT_LANG || 'zh'};
@@ -330,7 +345,7 @@ function card(d) {
       h('div', {class: 'muted'}, d.ip + ' · ' + d.mac +
         (d.model ? ' · ' + d.model : d.hint_model ? ' · 新款樹莓派（登入後可確認型號）' : ''))),
     h('div', {class: 'row'}, tags,
-      d.is_pi && d.ssh_open
+      d.is_pi && d.ssh_open && advanced
         ? h('button', {onclick: () => startReflash(d.ip)}, '重灌系統') : '',
       h('button', {class: d.is_pi && d.ssh_open ? 'primary' : '',
                    onclick: () => { openIp = openIp === d.ip ? null : d.ip; render(); }},
@@ -533,6 +548,19 @@ function modelFromText(t) {
   return null;
 }
 
+let advanced = false;   // 進階功能：每次啟動都是關閉，不記住
+
+$('#advOn').addEventListener('change', () => {
+  advanced = $('#advOn').checked;
+  $('#remoteRadio').disabled = !advanced;
+  if (!advanced) {
+    document.querySelector('input[name=target][value=local]').checked = true;
+    $('#rAck').checked = false;
+  }
+  syncTarget();
+  render();
+});
+
 function syncTarget() {
   const remote = target() === 'remote';
   $('#remoteBox').classList.toggle('hidden', !remote);
@@ -681,8 +709,9 @@ async function loadDrives() {
     for (const d of drives) sel.append(h('option', {value: d.number}, driveLabel(d)));
     if (prev && drives.some(d => String(d.number) === prev)) sel.value = prev;
     const note = $('#driveNote');
+    $('#elevate').classList.toggle('hidden', !!r.admin);
     if (!r.admin) {
-      note.textContent = '目前不是系統管理員身分，可以先設定，但寫入時會失敗。請用「以系統管理員身分執行」開啟。';
+      note.textContent = '寫入 SD 卡需要系統管理員權限。其他功能（掃描、終端機、遠端桌面）不需要。';
       note.className = 'warn';
     } else {
       note.textContent = '只列出 USB / SD 類的可移除磁碟，不會列出系統碟。';
@@ -694,6 +723,16 @@ async function loadDrives() {
   }
 }
 $('#refreshDrives').addEventListener('click', loadDrives);
+$('#elevate').addEventListener('click', async () => {
+  try {
+    await api('/api/elevate', {method: 'POST'});
+    $('#driveNote').className = 'muted';
+    $('#driveNote').textContent = '正在以系統管理員身分重新啟動…';
+  } catch (e) {
+    $('#driveNote').className = 'err';
+    $('#driveNote').textContent = e.message;
+  }
+});
 $('#drive').addEventListener('change', disarm);
 $('#rDevice').addEventListener('change', () => { disarm(); applyDeviceModel(); prefillLogin(); });
 
@@ -723,6 +762,7 @@ $('#go').addEventListener('click', async () => {
   const remote = target() === 'remote';
   let what, drive = null, ip = null;
   if (remote) {
+    if (!advanced) return fail('遠端重灌是進階功能，請先啟用上方的「進階功能」並確認風險。');
     ip = $('#rDevice').value;
     if (!ip) return fail('請先選一台樹莓派');
     if (!$('#rUser').value) return fail('請填目前的登入帳號');
@@ -748,7 +788,7 @@ $('#go').addEventListener('click', async () => {
   try {
     const r = remote
       ? await postJson('/api/flash/remote/start', {
-          host: ip, username: $('#rUser').value, password: $('#rPass').value || null,
+          risk_ack: advanced && $('#rAck').checked, host: ip, username: $('#rUser').value, password: $('#rPass').value || null,
           image_url: image.url, config: flashConfig(),
         })
       : await postJson('/api/flash/start', {
@@ -953,7 +993,9 @@ $('#langSel').addEventListener('change', e => window.setLang(e.target.value));
 
 /* ================= 啟動 ================= */
 (async function boot() {
+  if (DEMO) $('#demoBar').classList.remove('hidden');
   render();
+  syncTarget();          // 預設是本機燒錄，先列出可移除磁碟
   loadImages();          // 先載入系統清單與型號
   await doScan();        // 一打開就自動掃描
   fillDeviceSelect();

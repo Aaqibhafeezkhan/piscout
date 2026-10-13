@@ -88,6 +88,17 @@ EN = {
     "帳號或密碼不對（或這台沒開密碼登入）":
         "Wrong username or password (or password login is disabled on this Pi)",
     "連不上 {host}：{e}": "Cannot connect to {host}: {e}",
+    "{host} 拒絕連線：這台沒有開啟 SSH。請在樹莓派上啟用 SSH（raspi-config → Interface Options → SSH，或燒錄時勾選啟用 SSH）。":
+        "{host} refused the connection: SSH is not enabled on this Pi. Enable SSH on the Pi "
+        "(raspi-config → Interface Options → SSH, or enable it when flashing).",
+    "連線 {host} 逾時：請確認樹莓派已開機，而且和這台電腦在同一個網路。":
+        "Connecting to {host} timed out: make sure the Pi is powered on and on the same network as this computer.",
+    "{host} 一建立 SSH 連線就被切斷：樹莓派可能剛開機還沒準備好、負載過高，或它的系統損壞。請等一分鐘再試，仍不行就重新開機。":
+        "{host} closed the SSH connection immediately: the Pi may still be booting, overloaded, or its system "
+        "may be damaged. Wait a minute and retry; if it keeps failing, reboot it.",
+    "找不到 {host}：請確認這台電腦和樹莓派在同一個網路，並重新掃描。":
+        "{host} was not found: make sure this computer and the Pi are on the same network, then rescan.",
+    "沒有取得系統管理員權限": "Administrator permission was not granted",
     "找不到桌面 session。這台可能是 Lite 版（沒有桌面），或桌面還沒登入完成，請稍等一下再試。":
         "No desktop session found. This may be a Lite edition (no desktop), "
         "or the desktop has not finished logging in. Wait a moment and try again.",
@@ -140,5 +151,7 @@ EN = {
     # fleet / batch
     "不支援的操作": "Unsupported action",
     "沒有儲存帳密": "No saved login",
+    "遠端重灌是進階功能，請先在「燒錄系統」頁啟用並確認風險":
+        "Remote re-imaging is an advanced feature. Enable it on the \"Flash OS\" tab and confirm the risk first.",
     "操作逾時": "The operation timed out",
 }

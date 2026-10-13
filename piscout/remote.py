@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 
+import socket
+
 import paramiko
 
 from .i18n import tr
@@ -27,6 +29,22 @@ class RemoteError(Exception):
     pass
 
 
+def connect_error_message(host, e):
+    """把底層連線錯誤翻成「發生什麼事、下一步怎麼做」。"""
+    text = str(e)
+    if isinstance(e, ConnectionRefusedError) or "10061" in text or "refused" in text.lower():
+        return tr("{host} 拒絕連線：這台沒有開啟 SSH。請在樹莓派上啟用 SSH"
+                  "（raspi-config → Interface Options → SSH，或燒錄時勾選啟用 SSH）。", host=host)
+    if isinstance(e, (socket.timeout, TimeoutError)) or "timed out" in text.lower() or "10060" in text:
+        return tr("連線 {host} 逾時：請確認樹莓派已開機，而且和這台電腦在同一個網路。", host=host)
+    if "banner" in text.lower() or "10054" in text or isinstance(e, ConnectionResetError):
+        return tr("{host} 一建立 SSH 連線就被切斷：樹莓派可能剛開機還沒準備好、"
+                  "負載過高，或它的系統損壞。請等一分鐘再試，仍不行就重新開機。", host=host)
+    if "10051" in text or "10065" in text or "unreachable" in text.lower() or "no route" in text.lower():
+        return tr("找不到 {host}：請確認這台電腦和樹莓派在同一個網路，並重新掃描。", host=host)
+    return tr("連不上 {host}：{e}", host=host, e=e)
+
+
 def connect(host, username, password=None, key_path=None, timeout=8):
     client = paramiko.SSHClient()
     # 區網內第一次連線，沒辦法事先知道 host key，所以直接接受
@@ -45,7 +63,7 @@ def connect(host, username, password=None, key_path=None, timeout=8):
     except paramiko.AuthenticationException:
         raise RemoteError(tr("帳號或密碼不對（或這台沒開密碼登入）"))
     except (OSError, paramiko.SSHException) as e:
-        raise RemoteError(tr("連不上 {host}：{e}", host=host, e=e))
+        raise RemoteError(connect_error_message(host, e))
     return client
 
 

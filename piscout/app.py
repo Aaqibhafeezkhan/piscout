@@ -1,5 +1,9 @@
 import asyncio
+import ctypes
 import ipaddress
+import os
+import sys
+import threading
 import json
 import re
 import secrets
@@ -89,6 +93,7 @@ class FlashConfig(BaseModel):
 
 
 class RemoteFlashReq(BaseModel):
+    risk_ack: bool = False  # 使用者已啟用進階功能並確認風險
     host: str
     username: str
     password: Optional[str] = None
@@ -120,7 +125,8 @@ def _check_host(host):
 def index():
     html = (STATIC / "index.html").read_text(encoding="utf-8")
     return HTMLResponse(
-        html.replace("__PISCOUT_TOKEN__", API_TOKEN),
+        html.replace("__PISCOUT_TOKEN__", API_TOKEN)
+            .replace("__PISCOUT_DEMO__", "true" if DEMO else "false"),
         headers={"Cache-Control": "no-store"},
     )
 
@@ -203,8 +209,25 @@ def api_vault_clear():
 
 # ------------------------------------------------------------ 掃描 / 連線
 
+# 錄製 README 示範用：PISCOUT_DEMO=1 時回傳模擬的裝置，搭配 tools/demo_shell.py。
+# 畫面上會一直顯示「DEMO」橫幅，不會被誤認成真機。
+DEMO = os.environ.get("PISCOUT_DEMO") == "1"
+DEMO_SCAN = {
+    "network": "192.168.0.0/24",
+    "devices": [
+        {"ip": "127.0.0.1", "mac": "b8:27:eb:00:de:01", "hostname": "raspberrypi",
+         "ssh_open": True, "is_pi": True, "hint_model": "pi4"},
+        {"ip": "192.168.0.1", "mac": "18:00:00:00:00:01", "hostname": "",
+         "ssh_open": False, "is_pi": False, "hint_model": None},
+    ],
+}
+
+
 @app.get("/api/scan")
 async def api_scan():
+    if DEMO:
+        await asyncio.sleep(2.5)
+        return DEMO_SCAN
     return await run_in_threadpool(scanner.scan)
 
 
@@ -402,6 +425,25 @@ async def api_stats(host: str):
 
 # ------------------------------------------------------------ 燒錄
 
+@app.post("/api/elevate")
+def api_elevate():
+    """本機燒錄才需要系統管理員權限：使用者要求時，才用管理員身分重新啟動自己。"""
+    if os.name != "nt":
+        raise HTTPException(400, tr("燒錄功能目前只支援 Windows"))
+    if flasher.is_admin():
+        return {"already": True}
+    exe = sys.executable
+    if getattr(sys, "frozen", False):
+        args = ""
+    else:
+        args = '"' + str(Path(__file__).resolve().parent.parent / "run_gui.py") + '"'
+    rc = ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, args, None, 1)
+    if rc <= 32:  # 使用者在 UAC 按了「否」
+        raise HTTPException(400, tr("沒有取得系統管理員權限"))
+    threading.Timer(1.0, lambda: os._exit(0)).start()  # 讓這個回應先送出去
+    return {"ok": True}
+
+
 @app.get("/api/flash/drives")
 async def api_drives():
     try:
@@ -440,6 +482,8 @@ async def api_flash_start(req: FlashReq):
 
 @app.post("/api/flash/remote/start")
 async def api_flash_remote(req: RemoteFlashReq):
+    if not req.risk_ack:
+        raise HTTPException(400, tr("遠端重灌是進階功能，請先在「燒錄系統」頁啟用並確認風險"))
     host = _check_host(req.host)
     login = {"username": req.username, "password": req.password or None,
              "key_path": req.key_path}

@@ -25,7 +25,7 @@ jobs:
 
       - name: Build exe
         run: >
-          pyinstaller --noconfirm --clean --onefile --windowed --uac-admin
+          pyinstaller --noconfirm --clean --onefile --windowed
           --name piscout
           --add-data "piscout/static;piscout/static"
           --add-data "piscout/agent;piscout/agent"

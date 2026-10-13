@@ -8,13 +8,17 @@
 `ssh-terminal` `remote-desktop` `vnc` `sd-card` `flasher` `imager` `netboot` `pxe`
 `mdns` `fastapi` `pywebview` `windows` `desktop-app`
 
+![piscout demo: scan, connect, built-in terminal](docs/demo.gif)
+
+<sub>Recorded with a simulated device and shell (`PISCOUT_DEMO=1`, see [docs/DEMO.md](docs/DEMO.md)); no real Raspberry Pi appears in it.</sub>
+
 Managing a few Raspberry Pis usually means digging IPs out of the router, opening SSH
 windows and pulling SD cards to re-flash them. piscout puts all of that in one window:
 
 - **Auto-discovery** – scans the LAN on launch and recognizes Raspberry Pis
 - **Built-in terminal** – click *Connect*, enter the login, and get an SSH terminal inside the app
 - **Remote desktop** – view and control the Pi's desktop through the SSH tunnel
-- **Remote re-imaging** – write a new OS to the Pi's own SD card without taking it out, with a recommended OS for the model
+- **Remote re-imaging (advanced, off by default)** – write a new OS to the Pi's own SD card without taking it out, with a recommended OS for the model. Read [Known risks](#known-risks) first
 - **Local flashing** – or flash an SD card inserted into this computer
 - **Overview and batch actions** – temperature / load / memory of every Pi at a glance; reboot, shut down or update several at once
 - **Saved logins** – encrypted with Windows DPAPI; the model is detected automatically
@@ -25,11 +29,20 @@ It is an early version. Scanning, the terminal, the overview and agent stats are
 on real hardware; remote desktop, remote re-imaging and local flashing still need more
 real-device validation (see below).
 
+## Screenshots
+
+| Devices | Flash OS (recommended image per model) |
+|---|---|
+| ![Devices tab](docs/devices.png) | ![Flash OS tab](docs/flash.png) |
+
+The Devices screenshot uses the simulated device; the Flash OS screenshot uses the real official OS list.
+
 ## Usage
 
-Download `piscout.exe` from [Releases](../../releases) (or build it yourself, see below) and run it. Windows will ask for administrator rights because
-writing to disks requires it. The file is not code-signed, so SmartScreen may warn you
-("More info → Run anyway").
+Download `piscout.exe` from [Releases](../../releases) (or build it yourself, see below) and run it.
+Normal use (scanning, terminal, remote desktop, overview) does **not** need administrator rights.
+Only *local SD card flashing* does, and the app offers a "Restart as administrator" button when
+you get there. The file is not code-signed, so SmartScreen may warn you ("More info → Run anyway").
 
 **Remote re-imaging requires a Pi that still boots and has SSH enabled.** A completely
 blank SD card cannot be seen on the network by any software; flash it once from this
@@ -72,6 +85,32 @@ Build an exe: `pip install pyinstaller` then `build.bat`. Run tests: `pytest`.
 piscout does not replace Imager. Imager writes an image to a card; piscout handles what
 comes after the card is already in the Pi: find it, log in, see its screen, change its OS.
 
+## Known risks
+
+### Remote re-imaging can leave a card unbootable
+
+This happened during the first real-hardware test, so it is documented here on purpose.
+
+**What happened.** The app was closed while the image was still streaming to the Pi. The card was left partly overwritten. The Pi kept running from memory for a while (ping, the agent and VNC still answered) but every new SSH connection was dropped immediately, and after a power cycle it never came back on the network. The only fix was to re-flash the card from a computer with a card reader.
+
+**Why it can happen.** Remote re-imaging overwrites the disk of a system that is running. Anything that interrupts the transfer (closing the app, the computer sleeping, a network or power drop) leaves a half-written card, and a Pi in that state cannot be repaired remotely.
+
+**What the app does about it now**
+
+- Remote re-imaging is an **advanced feature, off by default**. It is only enabled after you tick the switch on the *Flash OS* tab, and the backend refuses the request without that confirmation
+- You must also confirm that you have a card reader or a spare SD card
+- The computer is kept awake during the transfer and SSH keep-alive is enabled
+- The image checksum is verified before anything is written, the first part of the card is read back and hashed, and **the Pi only reboots if it matches**
+- If a failure happens after writing started, the app says the card needs to be re-flashed from a computer
+
+**What you should do.** Use it only with a card reader or spare card within reach, on stable power, ideally with the PC on Ethernet and plugged in. Do not close the app until it reports success. If you do not have a reader, use *An SD card inserted in this computer* instead.
+
+### Other things to know
+
+- A completely blank card cannot be reached over the network by any software
+- SSH host keys are trusted on first use (see Security notes)
+- Remote desktop starts an unauthenticated VNC bound to `127.0.0.1` on the Pi while a session is open
+
 ## FAQ
 
 **How do I find the IP address of a Raspberry Pi on my network from Windows?**
@@ -109,7 +148,7 @@ It binds to `127.0.0.1` only. Do not publish its port. See the security notes ab
 
 Tested: LAN scan and Pi detection, built-in terminal, overview via agent, image pre-processing and boot-settings injection (also run against the real Raspberry Pi OS 64-bit image: source SHA-256 verified, `user-data` written into the boot partition), the Pi-side write script's flow and verification (simulated locally), unit tests.
 
-**Not yet verified on real hardware:** the actual remote write, remote desktop, local SD flashing.
+**Not yet verified on real hardware:** a completed remote write (the first real attempt was interrupted, see Known risks), remote desktop, local SD flashing.
 
 - [ ] Validate the three items above on real devices and publish the results per model
 - [ ] Network install (netboot) for blank cards: works out of the box on Pi 3B+, needs a one-time bootloader change on Pi 4/5
@@ -132,13 +171,17 @@ Tested: LAN scan and Pi detection, built-in terminal, overview via agent, image 
 `ssh-terminal` `remote-desktop` `vnc` `sd-card` `flasher` `imager` `netboot` `pxe`
 `mdns` `fastapi` `pywebview` `windows` `desktop-app`
 
+![piscout 示範：掃描、連線、內建終端機](docs/demo.gif)
+
+<sub>示範影片使用模擬的裝置與終端機錄製（`PISCOUT_DEMO=1`，說明見 [docs/DEMO.md](docs/DEMO.md)），畫面中沒有真實的樹莓派。</sub>
+
 家裡有好幾台樹莓派，每次都要去路由器後台翻 IP、開 SSH 視窗、插拔 SD 卡重灌，
 很煩。所以寫了這個 Windows 桌面程式，把這些事放在同一個視窗裡：
 
 - **自動掃描**：一打開就掃區網，找出樹莓派
 - **內建終端機**：點「連線」輸入帳密，直接在程式裡開 SSH 終端機，不用另外開視窗
 - **遠端桌面**：一鍵看到樹莓派的桌面畫面並操作（走 SSH 通道）
-- **遠端重灌**：SD 卡不用拔，從電腦直接把新系統寫進 Pi 的卡，並依型號給出最佳建議
+- **遠端重灌（進階功能，預設關閉）**：SD 卡不用拔，從電腦直接把新系統寫進 Pi 的卡，並依型號給出最佳建議。使用前請先看[已知風險](#已知風險)
 - **本機燒錄**：也可以把 SD 卡插在電腦上燒錄
 - **總覽與批次操作**：多台 Pi 的溫度、負載、記憶體一覽，勾選後可批次重開機、關機、更新套件
 - **記住帳密**：以 Windows DPAPI 加密儲存，下次自動填入、自動偵測型號
@@ -151,7 +194,7 @@ Tested: LAN scan and Pi detection, built-in terminal, overview via agent, image 
 ## 使用
 
 到 [Releases](../../releases) 下載 `piscout.exe` 雙擊即可（尚未發佈時請依下方「從原始碼執行」自行打包）。
-要寫入磁碟所以會跳出系統管理員確認，這是正常的。
+一般使用（掃描、終端機、遠端桌面、總覽）不需要系統管理員權限；只有「本機燒錄」寫入 SD 卡時，才會請你以系統管理員身分重新啟動。
 
 > 檔案沒有簽章，SmartScreen 可能警告，按「其他資訊 → 仍要執行」。
 
@@ -165,7 +208,7 @@ Tested: LAN scan and Pi detection, built-in terminal, overview via agent, image 
   需要 Raspberry Pi OS 桌面版（Wayland），Lite 版沒有桌面所以不行
 - **系統資訊**：型號、溫度、記憶體、磁碟，並可安裝監控用的 agent
 
-帳密只存在這個視窗的記憶體裡，關閉連線就沒了。
+勾選「記住」時，帳密會以 Windows DPAPI 加密存在這台電腦（只有同一個 Windows 帳號解得開）；沒勾就只存在這個視窗的記憶體裡，關閉連線就沒了。可以用「清除已存帳密」全部刪除。
 
 ### 遠端重灌（SD 卡留在 Pi 上）
 
@@ -209,6 +252,36 @@ Pi 上」之後的事——找到它、連進去、看畫面、換系統。網�
 [rpi-pxe-server](https://github.com/beta-tester/install-pxe-server)，
 這部分 piscout 還在規劃中。
 
+## 已知風險
+
+### 遠端重灌可能讓卡變成開不了機
+
+這件事在第一次真機測試時發生了，所以刻意寫在這裡。
+
+**發生了什麼。** 映像還在傳輸時程式被關掉，卡被覆寫到一半。樹莓派有一段時間還靠記憶體運作
+（ping、agent、VNC 都還有回應），但每個新的 SSH 連線都被立刻切斷，重新通電後再也沒有回到網路上。
+唯一的解法是把卡拿到有讀卡機的電腦上重燒。
+
+**為什麼會這樣。** 遠端重灌是在「執行中」的系統上覆寫它自己的磁碟。任何中斷（關閉程式、電腦睡眠、
+斷網、斷電）都會留下寫了一半的卡，而且這種狀態無法從遠端修復。
+
+**現在程式做了哪些防護**
+
+- 遠端重灌是**進階功能，預設關閉**，要在「燒錄系統」頁勾選開關才會啟用；後端沒有收到確認也會拒絕
+- 還必須確認你有讀卡機或備用的 SD 卡
+- 傳輸期間禁止電腦睡眠，並啟用 SSH 保持連線
+- 寫入前先校驗映像，寫完讀回前段資料算 SHA-256，**一致才會重新開機**
+- 如果在開始寫入之後失敗，會明確提示這張卡要拿到電腦上重燒
+
+**你該怎麼做。** 只在讀卡機或備用卡就在手邊、電源穩定的時候使用，最好電腦接網路線並插著電源。
+程式回報成功之前不要關掉它。沒有讀卡機的話，請改用「插在這台電腦上的 SD 卡」。
+
+### 其他要注意的
+
+- 完全空白的卡在網路上看不到，沒有任何軟體能遠端連上它
+- SSH 的 host key 是「第一次連線就信任」（見安全注意事項）
+- 開著遠端桌面連線時，Pi 上會有一個只聽 `127.0.0.1`、沒有密碼的 VNC
+
 ## 常見問題
 
 **Windows 上怎麼找到區網裡樹莓派的 IP？**
@@ -245,7 +318,7 @@ pip install -r requirements.txt
 python run_gui.py
 ```
 
-寫入本機磁碟需要系統管理員權限，請用系統管理員身分開啟終端機。
+本機燒錄寫入 SD 卡需要系統管理員權限；程式會在需要時提供「以系統管理員身分重新啟動」按鈕。
 
 打包成 exe：
 
@@ -289,14 +362,13 @@ tests/
 已實測：區網掃描與 Pi 辨識、內建終端機（含縮放）、映像預處理與開機設定寫入（含用真實的 Raspberry Pi OS 64 位元映像跑過：來源 SHA-256 校驗通過、`user-data` 已寫入 boot 分割區）、
 Pi 端寫入腳本的流程與校驗邏輯（用本機模擬）、單元測試。
 
-**還沒在真機上實測**：遠端重灌的實際寫入、遠端桌面、本機 SD 卡燒錄。
+**還沒在真機上實測**：遠端重灌的完整寫入（第一次真機嘗試中途被中斷，見「已知風險」）、遠端桌面、本機 SD 卡燒錄。
 Pi 專屬的部分（記憶體內執行環境、sysrq 重開機、wayvnc）是依文件寫的，
 第一次實機測試很可能需要微調。
 
 - [ ] 實機驗證以上三項，並補上各型號的測試結果
 - [ ] 遠端桌面支援 X11 / RealVNC 的舊系統
-- [ ] 儲存已知裝置、SSH key 登入的介面
-- [ ] 多台 Pi 總覽頁
+- [ ] SSH key 登入的介面（後端已支援，前端還沒接）
 - [ ] Linux / macOS 的本機燒錄
 - [ ] 空白 Pi 用 PXE / 網路開機安裝
 
