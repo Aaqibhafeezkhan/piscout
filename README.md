@@ -44,6 +44,8 @@ Normal use (scanning, terminal, remote desktop, overview) does **not** need admi
 Only *local SD card flashing* does, and the app offers a "Restart as administrator" button when
 you get there. The file is not code-signed, so SmartScreen may warn you ("More info → Run anyway").
 
+Packaging for **winget** and the **Microsoft Store** is being prepared (see [`packaging/`](packaging/)); until it is published, install from Releases. Not code-signed yet, hence the SmartScreen prompt.
+
 **Remote re-imaging requires a Pi that still boots and has SSH enabled.** A completely
 blank SD card cannot be seen on the network by any software; flash it once from this
 computer, after which it can be re-imaged remotely.
@@ -197,6 +199,8 @@ Tested: LAN scan and Pi detection, built-in terminal, overview via agent, image 
 一般使用（掃描、終端機、遠端桌面、總覽）不需要系統管理員權限；只有「本機燒錄」寫入 SD 卡時，才會請你以系統管理員身分重新啟動。
 
 > 檔案沒有簽章，SmartScreen 可能警告，按「其他資訊 → 仍要執行」。
+
+**winget** 與 **Microsoft Store** 的上架準備中（見 [`packaging/`](packaging/)），在發佈之前請從 Releases 下載。目前尚未簽章，所以會看到 SmartScreen 提示。
 
 ### 連線、終端機、遠端桌面
 
