@@ -366,6 +366,7 @@ def _run(job, host, login, image, cfg):
 
     workdir = tempfile.mkdtemp(prefix="piscout-")
     client = None
+    flasher.keep_awake(True)
     try:
         files = flasher.make_config(image["init_format"], cfg)
 
@@ -378,6 +379,7 @@ def _run(job, host, login, image, cfg):
 
         progress("connect", 0, 0)
         client = remote.connect(host, login["username"], login.get("password"), login.get("key_path"))
+        client.get_transport().set_keepalive(15)  # 長時間傳輸不要被中間設備斷線
         disk, mode = check_pi(client, login.get("password"), image)
         ldso = stage_tools(client)
 
@@ -395,12 +397,16 @@ def _run(job, host, login, image, cfg):
     except Exception as e:
         job.update(state="error", error=tr("發生未預期的錯誤：{e}", e=e))
     finally:
+        flasher.keep_awake(False)
         if client is not None:
             try:
                 client.close()
             except Exception:
                 pass
         shutil.rmtree(workdir, ignore_errors=True)
+        # 已經開始寫入 Pi 的卡卻沒成功，這張卡就是半成品
+        if job.get("state") == "error" and job.get("phase") in ("stream", "verify"):
+            job["recover"] = True
 
 
 def start_job(host, login, image_url, cfg):

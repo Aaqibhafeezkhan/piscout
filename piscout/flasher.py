@@ -34,6 +34,19 @@ class FlashError(Exception):
     pass
 
 
+def keep_awake(on):
+    """燒錄期間禁止 Windows 進入睡眠（設定是以執行緒為單位，開始與結束都要在同一個執行緒呼叫）。"""
+    if os.name != "nt":
+        return
+    ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
+    try:
+        ctypes.windll.kernel32.SetThreadExecutionState(
+            ES_CONTINUOUS | (ES_SYSTEM_REQUIRED if on else 0)
+        )
+    except OSError:
+        pass
+
+
 # ---------------------------------------------------------------- 映像清單
 
 def _flatten(items, out, in_pi_group):
@@ -469,6 +482,7 @@ def _run(job, image, drive, cfg, verify):
     def progress(phase, done, total):
         job.update(phase=phase, done=done, total=total)
 
+    keep_awake(True)
     try:
         if os.name != "nt":
             raise FlashError(tr("燒錄功能目前只支援 Windows"))
@@ -497,6 +511,11 @@ def _run(job, image, drive, cfg, verify):
         job.update(state="error", error=str(e))
     except Exception as e:  # 不要讓執行緒默默死掉
         job.update(state="error", error=tr("發生未預期的錯誤：{e}", e=e))
+    finally:
+        keep_awake(False)
+        # 寫入已經開始卻沒完成，這張卡就是半成品，要讓介面明確提示
+        if job.get("state") == "error" and job.get("phase") in ("write", "verify", "configure"):
+            job["recover"] = True
 
 
 def cache_dir():

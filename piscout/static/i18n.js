@@ -112,6 +112,12 @@
     ['燒錄完成。把 SD 卡插進樹莓派開機，等一到兩分鐘，我會自動重新掃描。',
       'Flashing finished. Put the SD card into the Pi and boot it; I will rescan automatically in a minute or two.'],
     ['連線已結束', 'connection closed'],
+    ['我有讀卡機或備用的 SD 卡，萬一中途失敗可以用電腦重燒這張卡',
+      'I have a card reader or a spare SD card, so I can re-flash this card from a computer if it fails midway'],
+    ['遠端重灌失敗時，這張卡需要用電腦重燒。請先勾選上方的確認。',
+      'If remote re-imaging fails, this card must be re-flashed from a computer. Please tick the confirmation above first.'],
+    ['這張卡現在只寫了一半，樹莓派開不了機。請把卡拿到電腦上，到「燒錄系統」選「插在這台電腦上的 SD 卡」重新燒錄。',
+      'This card is now half-written and the Pi cannot boot. Take the card to a computer, open "Flash OS", choose "An SD card inserted in this computer" and flash it again.'],
     // 總覽
     ['還沒有樹莓派。先到「裝置」掃描並連線一次，讓我記住帳密。',
       'No Raspberry Pi yet. Scan and connect once on the "Devices" tab so I can remember the login.'],

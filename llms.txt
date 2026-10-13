@@ -10,8 +10,7 @@ Status: early version. LAN scan, built-in terminal, overview and agent stats are
 
 ## Docs
 
-- [README (English)](README.en.md): features, how remote re-imaging works, security notes, roadmap
-- [README (繁體中文)](README.md): 功能、使用方式、驗證狀況
+- [README](README.md): English first, 繁體中文 below. Features, how remote re-imaging works, FAQ, security notes, roadmap
 - [Third-party notices](THIRD_PARTY_NOTICES.md): bundled xterm.js and noVNC licenses
 
 ## Key facts

@@ -143,6 +143,10 @@
           <button id="rProbe">讀取這台的型號與系統</button>
           <span class="muted" id="rInfo"></span>
         </div>
+        <label class="toggle" style="margin-top:10px;font-size:14px;color:var(--text)">
+          <input type="checkbox" id="rAck">
+          我有讀卡機或備用的 SD 卡，萬一中途失敗可以用電腦重燒這張卡
+        </label>
         <div class="muted" style="margin-top:8px">
           必須是還開得起來、而且開著 SSH 的樹莓派。完全空白的 SD 卡在網路上看不到，
           請改選「插在這台電腦上的 SD 卡」。重灌會清空這台 Pi 的所有資料。
@@ -722,6 +726,7 @@ $('#go').addEventListener('click', async () => {
     ip = $('#rDevice').value;
     if (!ip) return fail('請先選一台樹莓派');
     if (!$('#rUser').value) return fail('請填目前的登入帳號');
+    if (!$('#rAck').checked) return fail('遠端重灌失敗時，這張卡需要用電腦重燒。請先勾選上方的確認。');
     what = `確定清除 ${ip} 並重灌`;
     $('#goNote').textContent = `${ip} 上的所有資料都會被刪除！過程中請不要斷電或斷網，約需 10–30 分鐘。`;
   } else {
@@ -787,6 +792,10 @@ function watch(job, remote) {
         } else {
           st.className = 'err';
           st.textContent = j.error;
+          if (j.recover) {
+            st.append(document.createElement('br'), document.createElement('br'),
+              '這張卡現在只寫了一半，樹莓派開不了機。請把卡拿到電腦上，到「燒錄系統」選「插在這台電腦上的 SD 卡」重新燒錄。');
+          }
         }
       }
     } catch (e) {
