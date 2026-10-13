@@ -1,0 +1,51 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Test
+        run: python -m pytest -q
+
+      - name: Build exe
+        run: >
+          pyinstaller --noconfirm --clean --onefile --windowed --uac-admin
+          --name piscout
+          --add-data "piscout/static;piscout/static"
+          --add-data "piscout/agent;piscout/agent"
+          --collect-submodules uvicorn
+          --collect-submodules websockets
+          --collect-submodules pyfatfs
+          --hidden-import passlib.handlers.sha2_crypt
+          run_gui.py
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $h = (Get-FileHash dist\piscout.exe -Algorithm SHA256).Hash.ToLower()
+          "$h  piscout.exe" | Set-Content -Encoding ascii dist\piscout.exe.sha256
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/piscout.exe
+            dist/piscout.exe.sha256
+          body_path: .github/release-notes.md
+          prerelease: true
