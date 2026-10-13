@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>piscout</title>
+<script src="/static/i18n.js"></script>
+<link rel="stylesheet" href="/static/vendor/xterm/xterm.css">
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1d2330; --muted: #6b7385;
+    --line: #e2e5ec; --accent: #c51a4a; --ok: #1a8d4c; --warn: #b36b00; --soft: #fdf1f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14171f; --card:#1c202b; --text:#e6e9f0; --muted:#8c94a8; --line:#2c3242;
+            --warn:#e0a030; --soft:#2a1a21; }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,"Microsoft JhengHei","Noto Sans TC",sans-serif;
+         background:var(--bg); color:var(--text); }
+  main { max-width: 880px; margin: 0 auto; padding: 20px 16px 64px; }
+  h1 { font-size: 22px; margin: 0; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  nav { display:flex; gap:4px; margin-top:12px; border-bottom:1px solid var(--line); }
+  nav button { border:0; border-bottom:2px solid transparent; border-radius:0; background:none; padding:8px 14px; }
+  nav button.on { border-bottom-color: var(--accent); font-weight: 600; }
+  button { font: inherit; padding: 7px 14px; border-radius: 6px; cursor: pointer;
+           border: 1px solid var(--line); background: var(--card); color: var(--text); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:disabled { opacity: .5; cursor: default; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+          padding: 14px 16px; margin-top: 12px; }
+  .banner { background: var(--soft); border: 1px solid var(--accent); border-radius: 8px;
+            padding: 12px 16px; margin-top: 12px; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .tag { font-size:12px; padding:1px 8px; border-radius:99px; border:1px solid var(--line); color:var(--muted); }
+  .tag.pi { color: var(--accent); border-color: var(--accent); }
+  .form { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; }
+  .field label { display:block; font-size:13px; color:var(--muted); margin-bottom:3px; }
+  input, select { font: inherit; padding: 7px 10px; border-radius: 6px; border:1px solid var(--line);
+          background: var(--bg); color: var(--text); min-width: 0; width: 100%; }
+  .form input { flex: 1 1 140px; width:auto; }
+  dl { display:grid; grid-template-columns: 110px 1fr; gap:4px 12px; margin:12px 0 0; }
+  dt { color: var(--muted); } dd { margin: 0; word-break: break-all; }
+  .err { color: var(--accent); margin-top: 8px; white-space: pre-wrap; }
+  .ok { color: var(--ok); }
+  .warn { color: var(--warn); }
+  label.toggle { font-size: 13px; color: var(--muted); display:flex; gap:6px; align-items:center; }
+  label.toggle input { width:auto; }
+  .bar { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; margin-top: 8px; }
+  .bar > div { height:100%; background: var(--accent); width:0; transition: width .3s; }
+  .hidden { display:none !important; }
+  table { width:100%; border-collapse: collapse; font-size:14px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { color: var(--muted); font-weight:500; font-size:13px; }
+  .scroll { overflow-x:auto; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; background:var(--muted); }
+  .dot.on { background: var(--ok); } .dot.off { background: var(--accent); }
+  .btnrow { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  #langSel { width:auto; padding:4px 8px; font-size:13px; }
+  .rec { border:1px solid var(--accent); background: var(--soft); border-radius:8px; padding:10px 14px; margin-top:12px; }
+  .rec b { color: var(--accent); }
+
+  /* 連線視窗 */
+  #session { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; z-index:10; }
+  #sessBar { display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--line);
+             background:var(--card); flex-wrap:wrap; }
+  #sessBar .grow { flex:1; }
+  #sessBar button.on { border-color: var(--accent); color: var(--accent); }
+  #sessBody { flex:1; position:relative; min-height:0; }
+  .pane { position:absolute; inset:0; }
+  #termPane { background:#0c0e14; padding:8px; }
+  #termEl { width:100%; height:100%; }
+  #deskPane { background:#000; }
+  #infoPane { overflow:auto; padding:16px; max-width:880px; }
+  #deskMsg { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+             color:#bbb; padding:24px; text-align:center; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<main>
+  <div class="row"><h1>piscout</h1>
+    <select id="langSel" title="Language"><option value="zh">中文</option><option value="en">English</option></select>
+  </div>
+  <nav>
+    <button id="tabDevices" class="on">裝置</button>
+    <button id="tabOverview">總覽</button>
+    <button id="tabFlash">燒錄系統</button>
+  </nav>
+
+  <!-- 裝置 -->
+  <section id="devices">
+    <div class="row" style="margin-top:14px">
+      <div class="muted" id="net">啟動中，正在掃描區網…</div>
+      <div class="row">
+        <button id="forget" title="清除這台電腦上儲存的所有樹莓派帳號密碼">清除已存帳密</button>
+        <label class="toggle"><input type="checkbox" id="showAll"> 顯示非樹莓派</label>
+        <button class="primary" id="scan">重新掃描</button>
+      </div>
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <!-- 總覽 -->
+  <section id="overview" class="hidden">
+    <div class="row" style="margin-top:14px">
+      <div class="btnrow">
+        <button id="fleetRefresh">重新整理</button>
+        <label class="toggle"><input type="checkbox" id="fleetAuto" checked> 自動更新</label>
+        <span class="muted" id="fleetSel"></span>
+      </div>
+      <div class="btnrow">
+        <button class="act" data-act="reboot">重新開機</button>
+        <button class="act" data-act="shutdown">關機</button>
+        <button class="act" data-act="update">更新套件</button>
+        <button class="act" data-act="install_agent">安裝 agent</button>
+      </div>
+    </div>
+    <div class="muted" style="margin-top:6px">批次操作會對勾選的樹莓派使用已儲存的帳密。</div>
+    <div id="fleetMsg" style="margin-top:8px"></div>
+    <div class="card scroll" id="fleetBox"></div>
+  </section>
+
+  <!-- 燒錄 -->
+  <section id="flash" class="hidden">
+    <div class="card">
+      <h2>1. 要重灌哪一台？</h2>
+      <label class="toggle" style="font-size:15px;color:var(--text)"><input type="radio" name="target" value="remote" checked>
+        區網裡的樹莓派（SD 卡留在 Pi 上，從這裡遠端重灌）</label>
+      <label class="toggle" style="font-size:15px;color:var(--text);margin-top:4px"><input type="radio" name="target" value="local">
+        插在這台電腦上的 SD 卡</label>
+
+      <div id="remoteBox" style="margin-top:12px">
+        <div class="grid">
+          <div class="field"><label>樹莓派</label><select id="rDevice"></select></div>
+          <div class="field"><label>目前的登入帳號</label><input id="rUser" value="pi"></div>
+          <div class="field"><label>目前的登入密碼（也用來 sudo）</label><input id="rPass" type="password" autocomplete="off"></div>
+        </div>
+        <div class="row" style="margin-top:10px;justify-content:flex-start">
+          <button id="rProbe">讀取這台的型號與系統</button>
+          <span class="muted" id="rInfo"></span>
+        </div>
+        <div class="muted" style="margin-top:8px">
+          必須是還開得起來、而且開著 SSH 的樹莓派。完全空白的 SD 卡在網路上看不到，
+          請改選「插在這台電腦上的 SD 卡」。重灌會清空這台 Pi 的所有資料。
+        </div>
+      </div>
+
+      <div id="localBox" class="hidden" style="margin-top:12px">
+        <div class="row">
+          <select id="drive" style="flex:1"></select>
+          <button id="refreshDrives">重新整理</button>
+        </div>
+        <div class="muted" id="driveNote" style="margin-top:6px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. 這是哪一款樹莓派？</h2>
+      <div class="grid">
+        <div class="field"><label>型號（印在板子上）</label><select id="model"></select></div>
+        <div class="field"><label>用途</label>
+          <select id="purpose">
+            <option value="desktop">桌面版：有畫面，可遠端操作桌面</option>
+            <option value="lite">精簡版：只用終端機，省資源</option>
+          </select>
+        </div>
+      </div>
+      <div class="rec hidden" id="rec"></div>
+    </div>
+
+    <div class="card">
+      <h2>3. 選擇系統</h2>
+      <select id="image"></select>
+      <div class="muted" id="imageNote" style="margin-top:6px"></div>
+    </div>
+
+    <div class="card">
+      <h2>4. 重灌後的開機設定</h2>
+      <div class="grid">
+        <div class="field"><label>主機名稱</label><input id="f_hostname" value="raspberrypi"></div>
+        <div class="field"><label>使用者名稱</label><input id="f_username" value="pi"></div>
+        <div class="field"><label>新密碼</label><input id="f_password" type="password" autocomplete="new-password"></div>
+        <div class="field"><label>Wi-Fi 名稱（有接網路線可留空）</label><input id="f_ssid"></div>
+        <div class="field"><label>Wi-Fi 密碼</label><input id="f_wpass" type="password" autocomplete="new-password"></div>
+        <div class="field"><label>Wi-Fi 國碼</label><input id="f_country" value="TW" maxlength="2"></div>
+        <div class="field"><label>時區</label><input id="f_tz" value="Asia/Taipei"></div>
+        <div class="field"><label>鍵盤配置</label><input id="f_kb" value="us" maxlength="2"></div>
+      </div>
+      <label class="toggle" style="margin-top:12px"><input type="checkbox" id="f_verify" checked> 本機燒錄時，寫完後讀回校驗</label>
+      <div class="muted" style="margin-top:4px">SSH 一律會啟用。系統映像全部來自樹莓派官方網站。遠端重灌一定會校驗。</div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <button class="primary" id="go">開始燒錄</button>
+        <span class="muted" id="goNote"></span>
+      </div>
+      <div class="bar hidden" id="bar"><div></div></div>
+      <div id="status" style="margin-top:8px"></div>
+    </div>
+  </section>
+</main>
+
+<!-- 連線視窗：內嵌終端機 / 遠端桌面 / 系統資訊 -->
+<div id="session" class="hidden">
+  <div id="sessBar">
+    <strong id="sessTitle"></strong>
+    <span class="grow"></span>
+    <button id="stTerm" class="on">終端機</button>
+    <button id="stDesk">遠端桌面</button>
+    <button id="stInfo">系統資訊</button>
+    <button id="stClose">關閉連線</button>
+  </div>
+  <div id="sessBody">
+    <div class="pane" id="termPane"><div id="termEl"></div></div>
+    <div class="pane hidden" id="deskPane"><div id="deskEl" style="width:100%;height:100%"></div><div id="deskMsg"></div></div>
+    <div class="pane hidden" id="infoPane"></div>
+  </div>
+</div>
+
+<script src="/static/vendor/xterm/xterm.js"></script>
+<script src="/static/vendor/xterm/addon-fit.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const WS = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
+let devices = [];
+let openIp = null;
+
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  for (const k of kids.flat(Infinity)) e.append(k);
+  return e;
+}
+
+const TOKEN = '__PISCOUT_TOKEN__';
+async function api(path, opts) {
+  opts = opts || {};
+  opts.headers = {...(opts.headers || {}), 'X-Piscout-Token': TOKEN, 'X-Lang': window.PISCOUT_LANG || 'zh'};
+  const r = await fetch(path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(typeof data.detail === 'string' ? data.detail : ('HTTP ' + r.status));
+  return data;
+}
+const postJson = (path, body) => api(path, {
+  method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body),
+});
+const fmtGB = b => (b / 1e9).toFixed(b >= 1e10 ? 0 : 1) + ' GB';
+
+/* ================= 分頁 ================= */
+function showTab(name) {
+  for (const id of ['devices', 'overview', 'flash']) {
+    $('#' + id).classList.toggle('hidden', id !== name);
+    $('#tab' + id[0].toUpperCase() + id.slice(1)).classList.toggle('on', id === name);
+  }
+  if (name === 'overview') startFleet(); else stopFleet();
+}
+$('#tabDevices').onclick = () => showTab('devices');
+$('#tabFlash').onclick = () => showTab('flash');
+$('#tabOverview').onclick = () => showTab('overview');
+
+/* ================= 裝置 / 掃描 ================= */
+function fmtUptime(s) {
+  if (s == null) return '-';
+  const d = Math.floor(s / 86400), hh = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+  return (d ? d + ' 天 ' : '') + hh + ' 小時 ' + m + ' 分';
+}
+
+function infoRows(i) {
+  const rows = [
+    ['型號', i.model || '-'],
+    ['系統', i.os || '-'],
+    ['主機名稱', i.hostname],
+    ['開機時間', fmtUptime(i.uptime_s)],
+    ['CPU 溫度', i.cpu_temp_c != null ? i.cpu_temp_c + ' °C' : '-'],
+    ['負載', i.load.join(' / ')],
+    ['記憶體', i.mem_total_mb ? `${i.mem_total_mb - i.mem_free_mb} / ${i.mem_total_mb} MB` : '-'],
+    ['磁碟', `${i.disk_used_gb} / ${i.disk_total_gb} GB`],
+  ];
+  return h('dl', {}, rows.map(([k, v]) => [h('dt', {}, k), h('dd', {}, String(v))]));
+}
+
+/* ---------- 已儲存的帳密（以 MAC 為索引） ---------- */
+async function loadSaved(mac) {
+  if (!mac) return {};
+  try { return await api('/api/vault/' + mac); } catch (e) { return {}; }
+}
+function saveLogin(mac, username, password) {
+  if (!mac || !username) return;
+  api('/api/vault/' + mac, {
+    method: 'PUT', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({username, password: password || null}),
+  }).catch(() => {});
+}
+
+function render() {
+  const showAll = $('#showAll').checked;
+  const list = $('#list');
+  list.replaceChildren();
+  const shown = devices.filter(d => showAll || d.is_pi);
+  if (!shown.length) {
+    list.append(h('p', {class: 'muted'}, devices.length
+      ? '沒有找到樹莓派，可以勾「顯示非樹莓派」看看其他設備。'
+      : ''));
+    return;
+  }
+  for (const d of shown) list.append(card(d));
+}
+
+function card(d) {
+  const box = h('div', {class: 'card'});
+  const tags = [];
+  if (d.is_pi) tags.push(h('span', {class: 'tag pi'}, 'Raspberry Pi'));
+  tags.push(h('span', {class: 'tag'}, d.ssh_open ? 'SSH 開啟' : 'SSH 未開'));
+  box.append(h('div', {class: 'row'},
+    h('div', {},
+      h('strong', {}, d.hostname || d.ip),
+      h('div', {class: 'muted'}, d.ip + ' · ' + d.mac +
+        (d.model ? ' · ' + d.model : d.hint_model ? ' · 新款樹莓派（登入後可確認型號）' : ''))),
+    h('div', {class: 'row'}, tags,
+      d.is_pi && d.ssh_open
+        ? h('button', {onclick: () => startReflash(d.ip)}, '重灌系統') : '',
+      h('button', {class: d.is_pi && d.ssh_open ? 'primary' : '',
+                   onclick: () => { openIp = openIp === d.ip ? null : d.ip; render(); }},
+        openIp === d.ip ? '收起' : '連線'))));
+  if (d.is_pi && !d.ssh_open) {
+    box.append(h('div', {class: 'warn', style: 'margin-top:8px'},
+      '這台樹莓派 SSH 沒有開，沒辦法遠端操作。可能還沒有系統，或沒啟用 SSH。' +
+      '可以把 SD 卡拿下來插到這台電腦，用「燒錄系統」重新燒錄。'));
+  }
+  if (openIp === d.ip) box.append(loginForm(d));
+  return box;
+}
+
+function loginForm(d) {
+  const user = h('input', {placeholder: '使用者名稱', value: localStorage.getItem('user') || 'pi'});
+  const pass = h('input', {type: 'password', placeholder: '密碼'});
+  const err = h('div', {class: 'err'});
+  const go = h('button', {class: 'primary'}, '連線');
+  const remember = h('input', {type: 'checkbox'});
+  remember.checked = true;
+  loadSaved(d.mac).then(s => {
+    if (s.username) user.value = s.username;
+    if (s.password) pass.value = s.password;
+  });
+  async function connect() {
+    err.textContent = '';
+    go.disabled = true; go.textContent = '連線中…';
+    try {
+      localStorage.setItem('user', user.value);
+      const cred = {username: user.value, password: pass.value || null};
+      await openSession(d, cred);
+      if (remember.checked) saveLogin(d.mac, cred.username, cred.password);
+      learnModel(d, cred);
+    } catch (e) {
+      err.textContent = e.message;
+    }
+    go.disabled = false; go.textContent = '連線';
+  }
+  go.onclick = connect;
+  pass.addEventListener('keydown', e => { if (e.key === 'Enter') connect(); });
+  return h('div', {},
+    h('div', {class: 'form'}, user, pass, go),
+    h('label', {class: 'toggle', style: 'margin-top:8px'}, remember, '記住這台的帳號密碼'),
+    h('div', {class: 'muted', style: 'margin-top:4px'},
+      '密碼會用 Windows 的使用者金鑰加密後存在這台電腦，換電腦或換帳號就解不開。'),
+    err);
+}
+
+async function doScan() {
+  const btn = $('#scan');
+  btn.disabled = true; btn.textContent = '掃描中…';
+  $('#net').textContent = '正在掃描區網…';
+  try {
+    const r = await api('/api/scan');
+    devices = r.devices;
+    const pis = devices.filter(d => d.is_pi).length;
+    $('#net').textContent = `${r.network} · 找到 ${devices.length} 台設備，${pis} 台是樹莓派` +
+      (pis ? '' : '。如果你的樹莓派還沒有系統，把它的 SD 卡插到這台電腦，我會幫你燒錄。');
+  } catch (e) {
+    $('#net').textContent = '掃描失敗：' + e.message;
+  }
+  btn.disabled = false; btn.textContent = '重新掃描';
+  render();
+}
+$('#scan').addEventListener('click', doScan);
+$('#forget').addEventListener('click', async () => {
+  if (!confirm(t('要清除這台電腦上儲存的所有樹莓派帳號密碼嗎？'))) return;
+  try { await api('/api/vault', {method: 'DELETE'}); } catch (e) {}
+  render();
+});
+$('#showAll').addEventListener('change', render);
+
+/* ================= 連線視窗 ================= */
+let sess = null;  // {device, cred, term, termWs, rfb, deskWs}
+
+async function openSession(device, cred) {
+  const r = await postJson(`/api/devices/${device.ip}/session`, {kind: 'terminal', ...cred});
+  sess = {device, cred, term: null, fit: null, termWs: null, rfb: null, resize: null};
+  $('#session').classList.remove('hidden');
+  $('#sessTitle').textContent = `${cred.username}@${device.hostname || device.ip} (${device.ip})`;
+  setPane('term');
+  startTerminal(r.token);
+}
+
+function setPane(name) {
+  for (const [id, pane] of [['term', '#termPane'], ['desk', '#deskPane'], ['info', '#infoPane']]) {
+    $(pane).classList.toggle('hidden', id !== name);
+    $('#st' + id[0].toUpperCase() + id.slice(1)).classList.toggle('on', id === name);
+  }
+  if (name === 'term' && sess && sess.fit) setTimeout(() => sess.fit.fit(), 0);
+}
+
+function startTerminal(token) {
+  const term = new Terminal({
+    cursorBlink: true, fontSize: 14, fontFamily: 'Consolas, "Cascadia Mono", monospace',
+    theme: {background: '#0c0e14'},
+  });
+  const fit = new FitAddon.FitAddon();
+  term.loadAddon(fit);
+  $('#termEl').replaceChildren();
+  term.open($('#termEl'));
+  fit.fit();
+  sess.term = term; sess.fit = fit;
+
+  const ws = new WebSocket(`${WS}/ws/terminal/${token}?cols=${term.cols}&rows=${term.rows}`);
+  ws.binaryType = 'arraybuffer';
+  sess.termWs = ws;
+  const enc = new TextEncoder();
+  ws.onmessage = e => term.write(new Uint8Array(e.data));
+  ws.onclose = () => term.write('\r\n\x1b[90m[' + t('連線已結束') + ']\x1b[0m\r\n');
+  term.onData(d => { if (ws.readyState === 1) ws.send(enc.encode(d)); });
+  term.onResize(({cols, rows}) => {
+    if (ws.readyState === 1) ws.send(JSON.stringify({t: 'r', c: cols, r: rows}));
+  });
+  sess.resize = () => fit.fit();
+  term.focus();
+}
+window.addEventListener('resize', () => { if (sess && sess.resize) sess.resize(); });
+
+async function startDesktop() {
+  const msg = $('#deskMsg');
+  msg.classList.remove('hidden');
+  msg.textContent = '正在啟動遠端桌面…（第一次會需要幾秒）';
+  try {
+    const r = await postJson(`/api/devices/${sess.device.ip}/session`, {kind: 'desktop', ...sess.cred});
+    const mod = await import('/static/vendor/novnc/core/rfb.js');
+    $('#deskEl').replaceChildren();
+    const rfb = new mod.default($('#deskEl'), `${WS}/ws/desktop/${r.token}`);
+    rfb.scaleViewport = true;
+    rfb.background = '#000';
+    rfb.addEventListener('connect', () => msg.classList.add('hidden'));
+    rfb.addEventListener('disconnect', e => {
+      msg.classList.remove('hidden');
+      msg.textContent = e.detail.clean ? '遠端桌面已中斷。' : '遠端桌面連線失敗或中斷。';
+      if (sess) sess.rfb = null;
+    });
+    sess.rfb = rfb;
+  } catch (e) {
+    msg.textContent = e.message;
+  }
+}
+
+async function showInfo() {
+  const pane = $('#infoPane');
+  pane.replaceChildren(h('div', {class: 'muted'}, '讀取中…'));
+  const err = h('div', {class: 'err'});
+  try {
+    const info = await postJson(`/api/devices/${sess.device.ip}/info`, sess.cred);
+    pane.replaceChildren(infoRows(info));
+    if (!info.agent_installed) {
+      const btn = h('button', {class: 'primary', style: 'margin-top:12px'}, '安裝 agent');
+      btn.onclick = async () => {
+        btn.disabled = true; btn.textContent = '安裝中…';
+        try { await postJson(`/api/devices/${sess.device.ip}/install`, sess.cred); await showInfo(); }
+        catch (e) { err.textContent = e.message; btn.disabled = false; btn.textContent = '安裝 agent'; }
+      };
+      pane.append(btn);
+    } else {
+      pane.append(h('div', {class: 'ok', style: 'margin-top:12px'}, 'agent 已在執行'));
+    }
+    pane.append(err);
+  } catch (e) {
+    pane.replaceChildren(h('div', {class: 'err'}, e.message));
+  }
+}
+
+$('#stTerm').onclick = () => setPane('term');
+$('#stDesk').onclick = () => {
+  setPane('desk');
+  if (!sess.rfb && !sess.deskStarting) {
+    sess.deskStarting = true;
+    startDesktop().finally(() => { if (sess) sess.deskStarting = false; });
+  }
+};
+$('#stInfo').onclick = () => { setPane('info'); showInfo(); };
+$('#stClose').onclick = closeSession;
+
+function closeSession() {
+  if (!sess) return;
+  try { sess.termWs && sess.termWs.close(); } catch (e) {}
+  try { sess.rfb && sess.rfb.disconnect(); } catch (e) {}
+  try { sess.term && sess.term.dispose(); } catch (e) {}
+  sess = null;
+  $('#session').classList.add('hidden');
+  $('#deskEl').replaceChildren();
+}
+
+/* ================= 燒錄 ================= */
+let drives = [], images = [], armed = false, polling = null, flashing = false;
+let lastRemoteMac = null;
+const target = () => document.querySelector('input[name=target]:checked').value;
+
+function modelFromText(t) {
+  t = t || '';
+  if (/Raspberry Pi 5/i.test(t)) return 'pi5';
+  if (/Pi 4|Pi 400|Compute Module 4/i.test(t)) return 'pi4';
+  if (/Pi 3|Zero 2/i.test(t)) return 'pi3';
+  if (/Pi 2/i.test(t)) return 'pi2';
+  if (/Zero|Pi Model|Pi 1/i.test(t)) return 'pi1';
+  return null;
+}
+
+function syncTarget() {
+  const remote = target() === 'remote';
+  $('#remoteBox').classList.toggle('hidden', !remote);
+  $('#localBox').classList.toggle('hidden', remote);
+  if (!remote && !drives.length) loadDrives();
+  disarm();
+}
+document.querySelectorAll('input[name=target]').forEach(r => r.addEventListener('change', syncTarget));
+
+// 讀出型號後記在裝置上，之後選到這台就自動套用建議
+async function learnModel(d, cred) {
+  try {
+    const info = await postJson(`/api/devices/${d.ip}/info`, cred);
+    d.model = info.model || '';
+    d.model_id = info.model_id || null;
+    d.os = info.os || '';
+    render();
+    fillDeviceSelect(d.ip);
+  } catch (e) { /* 讀不到就算了，不影響連線 */ }
+}
+
+async function prefillLogin() {
+  const d = devices.find(x => x.ip === $('#rDevice').value);
+  if (!d) return;
+  const s = await loadSaved(d.mac);
+  if (s.username) $('#rUser').value = s.username;
+  if (s.password) $('#rPass').value = s.password;
+  if (s.password) probeRemote();
+}
+
+async function applyDeviceModel() {
+  const d = devices.find(x => x.ip === $('#rDevice').value);
+  const id = d && (d.model_id || d.hint_model);
+  if (id && $('#model').value !== id) { $('#model').value = id; await loadImages(); }
+  const note = $('#rInfo');
+  if (d && d.model) {
+    note.className = 'ok';
+    note.textContent = `${d.model}${d.os ? ' · ' + d.os : ''}（已自動套用對應的建議）`;
+  } else if (d && d.hint_model) {
+    note.className = 'muted';
+    note.textContent = '看起來是新款樹莓派。填入帳密後會自動讀取確切型號。';
+  } else if (d) {
+    note.className = 'muted';
+    note.textContent = '填入帳密後會自動讀取型號；也可以自己在下面選。';
+  }
+}
+
+function fillDeviceSelect(selectIp) {
+  const sel = $('#rDevice');
+  const prev = selectIp || sel.value;
+  sel.replaceChildren();
+  const pis = devices.filter(d => d.is_pi);
+  if (!pis.length) sel.append(h('option', {value: ''}, '還沒有掃描到樹莓派'));
+  for (const d of pis) {
+    sel.append(h('option', {value: d.ip},
+      `${d.hostname || d.ip} (${d.ip})` + (d.ssh_open ? '' : ' · SSH 未開')));
+  }
+  if (prev && pis.some(d => d.ip === prev)) sel.value = prev;
+  applyDeviceModel();
+}
+
+async function probeRemote() {
+  const ip = $('#rDevice').value;
+  const note = $('#rInfo');
+  if (!ip) { note.className = 'muted'; note.textContent = '請先選一台樹莓派'; return; }
+  if (!$('#rUser').value) return;
+  note.className = 'muted'; note.textContent = '讀取型號中…';
+  try {
+    const info = await postJson(`/api/devices/${ip}/info`,
+      {username: $('#rUser').value, password: $('#rPass').value || null});
+    const d = devices.find(x => x.ip === ip);
+    if (d) {
+      d.model = info.model || ''; d.model_id = info.model_id; d.os = info.os || '';
+      saveLogin(d.mac, $('#rUser').value, $('#rPass').value);
+    }
+    await applyDeviceModel();
+    if (!(d && d.model)) { note.className = 'warn'; note.textContent = `${info.model || '型號未知'}，請自己選型號`; }
+    render();
+  } catch (e) {
+    note.className = 'err'; note.textContent = e.message;
+  }
+}
+$('#rProbe').addEventListener('click', probeRemote);
+// 帳號密碼填好、離開欄位就自動偵測，不用再按按鈕
+$('#rPass').addEventListener('change', probeRemote);
+$('#rUser').addEventListener('change', () => { if ($('#rPass').value) probeRemote(); });
+
+async function loadImages() {
+  const sel = $('#image');
+  const model = $('#model').value || localStorage.getItem('model') || 'pi4';
+  const purpose = $('#purpose').value;
+  try {
+    const r = await api(`/api/flash/images?model=${model}&purpose=${purpose}`);
+    if (!$('#model').options.length) {
+      for (const m of r.models) $('#model').append(h('option', {value: m.id}, m.name));
+      $('#model').value = model;
+    }
+    localStorage.setItem('model', $('#model').value);
+    images = r.images;
+    sel.replaceChildren();
+    images.forEach((im, i) => {
+      const o = h('option', {value: i},
+        (im.recommended ? '★ 推薦：' : '') + im.name + (im.supported ? '' : '（此型號不支援）'));
+      if (!im.supported) o.disabled = true;
+      sel.append(o);
+    });
+    sel.value = '0';
+    const rec = images.find(i => i.recommended);
+    const box = $('#rec');
+    if (rec) {
+      box.classList.remove('hidden');
+      box.replaceChildren(h('b', {}, '最佳建議：' + rec.name), h('div', {}, rec.reason));
+    } else {
+      box.classList.add('hidden');
+    }
+    updateImageNote();
+    disarm();
+  } catch (e) {
+    sel.replaceChildren(h('option', {value: ''}, '載入失敗'));
+    $('#imageNote').textContent = e.message;
+  }
+}
+
+function updateImageNote() {
+  const im = images[$('#image').value];
+  $('#imageNote').textContent = im
+    ? `${im.release_date} · 下載約 ${fmtGB(im.download_size)}，寫入後 ${fmtGB(im.size)} · 來源：樹莓派官方網站`
+    : '';
+}
+$('#image').addEventListener('change', () => { updateImageNote(); disarm(); });
+$('#model').addEventListener('change', loadImages);
+$('#purpose').addEventListener('change', loadImages);
+
+const driveLabel = d =>
+  `磁碟 ${d.number} · ${d.name || '未命名'} · ${fmtGB(d.size)}` +
+  ({blank: ' · 空白', pi_os: ' · 已有樹莓派系統', other: ' · 無法辨識'}[d.status] || '');
+
+async function loadDrives() {
+  const sel = $('#drive');
+  const prev = sel.value;
+  try {
+    const r = await api('/api/flash/drives');
+    drives = r.drives;
+    sel.replaceChildren();
+    if (!drives.length) sel.append(h('option', {value: ''}, '沒有偵測到可移除的磁碟，請插入 SD 卡'));
+    for (const d of drives) sel.append(h('option', {value: d.number}, driveLabel(d)));
+    if (prev && drives.some(d => String(d.number) === prev)) sel.value = prev;
+    const note = $('#driveNote');
+    if (!r.admin) {
+      note.textContent = '目前不是系統管理員身分，可以先設定，但寫入時會失敗。請用「以系統管理員身分執行」開啟。';
+      note.className = 'warn';
+    } else {
+      note.textContent = '只列出 USB / SD 類的可移除磁碟，不會列出系統碟。';
+      note.className = 'muted';
+    }
+  } catch (e) {
+    $('#driveNote').textContent = e.message;
+    $('#driveNote').className = 'err';
+  }
+}
+$('#refreshDrives').addEventListener('click', loadDrives);
+$('#drive').addEventListener('change', disarm);
+$('#rDevice').addEventListener('change', () => { disarm(); applyDeviceModel(); prefillLogin(); });
+
+function disarm() {
+  armed = false;
+  $('#go').textContent = '開始燒錄';
+  $('#goNote').textContent = '';
+}
+
+function flashConfig() {
+  return {
+    hostname: $('#f_hostname').value, username: $('#f_username').value,
+    password: $('#f_password').value, wifi_ssid: $('#f_ssid').value,
+    wifi_password: $('#f_wpass').value, wifi_country: $('#f_country').value.toUpperCase(),
+    timezone: $('#f_tz').value, keyboard: $('#f_kb').value,
+  };
+}
+
+$('#go').addEventListener('click', async () => {
+  const image = images[$('#image').value];
+  const st = $('#status');
+  st.className = ''; st.textContent = '';
+  const fail = m => { st.className = 'err'; st.textContent = m; };
+  if (!image) return fail('請先選好系統');
+  if (!$('#f_password').value) return fail('請設定新密碼，不然重灌之後登不進去');
+
+  const remote = target() === 'remote';
+  let what, drive = null, ip = null;
+  if (remote) {
+    ip = $('#rDevice').value;
+    if (!ip) return fail('請先選一台樹莓派');
+    if (!$('#rUser').value) return fail('請填目前的登入帳號');
+    what = `確定清除 ${ip} 並重灌`;
+    $('#goNote').textContent = `${ip} 上的所有資料都會被刪除！過程中請不要斷電或斷網，約需 10–30 分鐘。`;
+  } else {
+    drive = drives.find(d => String(d.number) === $('#drive').value);
+    if (!drive) return fail('請先選好 SD 卡');
+    what = `確定清除磁碟 ${drive.number} 並燒錄`;
+    $('#goNote').textContent = `${drive.name} (${fmtGB(drive.size)}) 上的所有資料都會被刪除！`;
+  }
+
+  // 第一下只是「武裝」，要再按一次才真的動手
+  if (!armed) {
+    armed = true;
+    $('#go').textContent = what;
+    $('#goNote').className = 'warn';
+    return;
+  }
+  disarm();
+
+  try {
+    const r = remote
+      ? await postJson('/api/flash/remote/start', {
+          host: ip, username: $('#rUser').value, password: $('#rPass').value || null,
+          image_url: image.url, config: flashConfig(),
+        })
+      : await postJson('/api/flash/start', {
+          image_url: image.url, disk_number: drive.number, disk_size: drive.size,
+          verify: $('#f_verify').checked, config: flashConfig(),
+        });
+    lastRemoteMac = remote ? (devices.find(d => d.ip === ip) || {}).mac : null;
+    watch(r.job, remote);
+  } catch (e) {
+    fail(e.message);
+  }
+});
+
+function watch(job, remote) {
+  flashing = true;
+  $('#go').disabled = true;
+  $('#bar').classList.remove('hidden');
+  clearInterval(polling);
+  polling = setInterval(async () => {
+    const st = $('#status');
+    try {
+      const j = await api('/api/flash/jobs/' + job);
+      const pct = j.total ? Math.min(100, j.done / j.total * 100) : (j.state === 'done' ? 100 : 0);
+      $('#bar > div').style.width = pct + '%';
+      if (j.state === 'running') {
+        st.className = 'muted';
+        st.textContent = j.label + (j.total ? ` ${pct.toFixed(0)}%` : '…');
+      } else {
+        clearInterval(polling);
+        flashing = false;
+        $('#go').disabled = false;
+        if (j.state === 'done') {
+          st.className = 'ok';
+          st.textContent = remote
+            ? '寫入並校驗完成，樹莓派正在重新開機。開機後我會自動掃描，找到就回到裝置頁。'
+            : '燒錄完成。把 SD 卡插進樹莓派開機，等一到兩分鐘，我會自動重新掃描。';
+          if (remote && lastRemoteMac) {
+            saveLogin(lastRemoteMac, $('#f_username').value, $('#f_password').value);
+          }
+          waitForPi();
+        } else {
+          st.className = 'err';
+          st.textContent = j.error;
+        }
+      }
+    } catch (e) {
+      clearInterval(polling);
+      flashing = false;
+      $('#go').disabled = false;
+      st.className = 'err'; st.textContent = e.message;
+    }
+  }, 1000);
+}
+
+// 燒完之後每 15 秒掃一次，找到可以連的樹莓派就切回裝置頁
+let waitTimer = null;
+function waitForPi() {
+  clearInterval(waitTimer);
+  let tries = 0;
+  waitTimer = setInterval(async () => {
+    tries++;
+    await doScan();
+    fillDeviceSelect();
+    const ok = devices.some(d => d.is_pi && d.ssh_open);
+    if (ok || tries >= 24) {
+      clearInterval(waitTimer);
+      if (ok) showTab('devices');
+    }
+  }, 15000);
+}
+
+function startReflash(ip) {
+  document.querySelector('input[name=target][value=remote]').checked = true;
+  syncTarget();
+  fillDeviceSelect(ip);
+  showTab('flash');
+  $('#rPass').focus();
+}
+
+/* ================= 總覽 / 批次操作 ================= */
+let fleetTimer = null, fleetRows = {}, fleetSelected = new Set(), fleetBusy = false;
+const ACTION_LABEL = {reboot: '重新開機', shutdown: '關機', update: '更新套件', install_agent: '安裝 agent'};
+
+function fleetDevices() { return devices.filter(d => d.is_pi); }
+
+function startFleet() {
+  stopFleet();
+  refreshFleet();
+  fleetTimer = setInterval(() => { if ($('#fleetAuto').checked) refreshFleet(); }, 30000);
+}
+function stopFleet() { clearInterval(fleetTimer); fleetTimer = null; }
+
+async function refreshFleet() {
+  if (fleetBusy) return;
+  const list = fleetDevices();
+  if (!list.length) { renderFleet(); return; }
+  fleetBusy = true;
+  try {
+    const r = await postJson('/api/fleet/stats', {devices: list.map(d => ({ip: d.ip, mac: d.mac}))});
+    fleetRows = Object.fromEntries(r.results.map(x => [x.ip, x]));
+    // 讀到型號就記在裝置上，燒錄頁選到這台時會自動套用建議
+    for (const x of r.results) {
+      const d = devices.find(v => v.ip === x.ip);
+      if (d && x.ok && x.stats && x.stats.model) {
+        d.model = x.stats.model; d.model_id = x.model_id || null;
+      }
+    }
+    fillDeviceSelect();
+  } catch (e) {
+    $('#fleetMsg').className = 'err'; $('#fleetMsg').textContent = e.message;
+  }
+  fleetBusy = false;
+  renderFleet();
+}
+
+function pct(a, b) { return b ? Math.round(a / b * 100) + '%' : '-'; }
+
+function renderFleet() {
+  const box = $('#fleetBox');
+  const list = fleetDevices();
+  box.replaceChildren();
+  if (!list.length) {
+    box.append(h('div', {class: 'muted'}, '還沒有樹莓派。先到「裝置」掃描並連線一次，讓我記住帳密。'));
+    $('#fleetSel').textContent = '';
+    return;
+  }
+  const head = h('tr', {}, h('th', {}, ''), ...['名稱', '狀態', '型號', '溫度', '負載', '記憶體', '磁碟', '開機時間', '來源']
+    .map(x => h('th', {}, x)));
+  const rows = list.map(d => {
+    const r = fleetRows[d.ip];
+    const st = r && r.stats;
+    const cb = h('input', {type: 'checkbox'});
+    cb.checked = fleetSelected.has(d.ip);
+    cb.addEventListener('change', () => {
+      cb.checked ? fleetSelected.add(d.ip) : fleetSelected.delete(d.ip);
+      updateFleetSel();
+    });
+    let status;
+    if (!r) status = h('span', {}, h('span', {class: 'dot'}), '…');
+    else if (r.ok) status = h('span', {}, h('span', {class: 'dot on'}), '在線');
+    else if (r.nologin) status = h('span', {title: r.error}, h('span', {class: 'dot'}), '無帳密');
+    else status = h('span', {title: r.error || ''}, h('span', {class: 'dot off'}), '離線');
+    return h('tr', {},
+      h('td', {}, cb),
+      h('td', {}, h('strong', {}, (st && st.hostname) || d.hostname || d.ip),
+        h('div', {class: 'muted'}, d.ip)),
+      h('td', {}, status),
+      h('td', {}, (st && st.model) || d.model || '-'),
+      h('td', {}, st && st.cpu_temp_c != null ? st.cpu_temp_c + ' °C' : '-'),
+      h('td', {}, st && st.load ? String(st.load[0]) : '-'),
+      h('td', {}, st && st.mem_total_mb ? pct(st.mem_total_mb - st.mem_free_mb, st.mem_total_mb) : '-'),
+      h('td', {}, st ? pct(st.disk_used_gb, st.disk_total_gb) : '-'),
+      h('td', {}, st ? fmtUptime(st.uptime_s) : '-'),
+      h('td', {}, r && r.via ? (r.via === 'agent' ? 'agent' : 'SSH') : '-'));
+  });
+  box.append(h('table', {}, h('thead', {}, head), h('tbody', {}, rows)));
+  if (list.some(d => fleetRows[d.ip] && fleetRows[d.ip].nologin)) {
+    box.append(h('div', {class: 'muted', style: 'margin-top:8px'},
+      '先到「裝置」連線一次並勾選「記住」，這裡才能顯示狀態。'));
+  }
+  updateFleetSel();
+}
+
+function updateFleetSel() {
+  const n = fleetSelected.size;
+  $('#fleetSel').textContent = n ? `已選 ${n} 台` : '';
+}
+
+document.querySelectorAll('#overview .act').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const act = btn.dataset.act;
+    const targets = fleetDevices().filter(d => fleetSelected.has(d.ip));
+    const msg = $('#fleetMsg');
+    msg.className = ''; msg.textContent = '';
+    if (!targets.length) { msg.className = 'warn'; msg.textContent = t('請先選一台樹莓派'); return; }
+    if (!confirm(t(`確定要對 ${targets.length} 台執行「${ACTION_LABEL[act]}」嗎？`))) return;
+    document.querySelectorAll('#overview .act').forEach(b => b.disabled = true);
+    try {
+      const r = await postJson('/api/fleet/action',
+        {action: act, devices: targets.map(d => ({ip: d.ip, mac: d.mac}))});
+      const ok = r.results.filter(x => x.ok).length;
+      const bad = r.results.filter(x => !x.ok);
+      msg.className = bad.length ? 'warn' : 'ok';
+      msg.replaceChildren(h('div', {}, `完成：${ok} 台成功，${bad.length} 台失敗`),
+        ...bad.map(x => h('div', {class: 'err'}, `${x.ip}：${x.error}`)));
+      setTimeout(refreshFleet, 4000);
+    } catch (e) {
+      msg.className = 'err'; msg.textContent = e.message;
+    }
+    document.querySelectorAll('#overview .act').forEach(b => b.disabled = false);
+  });
+});
+$('#fleetRefresh').addEventListener('click', refreshFleet);
+
+/* ================= 語言 ================= */
+$('#langSel').value = window.PISCOUT_LANG || 'zh';
+$('#langSel').addEventListener('change', e => window.setLang(e.target.value));
+
+/* ================= 啟動 ================= */
+(async function boot() {
+  render();
+  loadImages();          // 先載入系統清單與型號
+  await doScan();        // 一打開就自動掃描
+  fillDeviceSelect();
+  prefillLogin();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+"""後端訊息的語言切換。
+
+程式裡的訊息直接用中文寫，英文放在下面的 EN 表，用中文原文當 key。
+語言由每個請求的 X-Lang / Accept-Language 決定，背景工作會在建立時記下來。
+"""
+import contextvars
+
+_lang = contextvars.ContextVar("piscout_lang", default="zh")
+
+
+def set_lang(value):
+    """接受 'en'、'en-US'、'zh-TW'、Accept-Language 整串字串等，只分中文與英文。"""
+    first = (value or "").split(",")[0].strip().lower()
+    _lang.set("zh" if (not first or first.startswith("zh")) else "en")
+
+
+def get_lang():
+    return _lang.get()
+
+
+def tr(zh, **kw):
+    s = EN.get(zh, zh) if _lang.get() == "en" else zh
+    return s.format(**kw) if kw else s
+
+
+EN = {
+    # app
+    "host 必須是 IP": "host must be an IP address",
+    "只能操作區網內的位址": "Only addresses on the local network are allowed",
+    "key 必須是 MAC 位址": "key must be a MAC address",
+    "kind 不對": "invalid kind",
+    "agent 沒有回應": "The agent did not respond",
+    # flasher
+    "抓不到系統清單，網路有通嗎？（{e}）": "Could not fetch the OS list. Is the network up? ({e})",
+    "只能下載樹莓派官方網站的映像": "Only images from the official Raspberry Pi website can be downloaded",
+    "找不到這個系統映像": "That OS image was not found",
+    "燒錄功能目前只支援 Windows": "Flashing is only supported on Windows for now",
+    "讀取磁碟失敗：{err}": "Failed to read disks: {err}",
+    "精簡版：沒有桌面，佔空間小、開機快，只能用終端機操作。":
+        "Lite: no desktop, small and fast to boot, terminal only.",
+    "官方預設的完整桌面版，可以用終端機，也可以遠端操作桌面。":
+        "The official full desktop edition. Works with the terminal and remote desktop.",
+    "{label} 支援 64 位元，官方建議用 64 位元版。":
+        "{label} supports 64-bit; the official recommendation is the 64-bit edition.",
+    "{label} 只支援 32 位元版。": "{label} only supports the 32-bit edition.",
+    "這款記憶體偏少，如果覺得卡，可以改選精簡版。":
+        "This model has little RAM. If it feels slow, pick the Lite edition.",
+    "下載失敗：{e}": "Download failed: {e}",
+    "映像檔損毀：{e}": "The image file is corrupted: {e}",
+    "沒有寫入磁碟的權限，請用系統管理員身分執行":
+        "No permission to write to the disk. Run as administrator.",
+    "寫入磁碟失敗：{e}": "Failed to write to the disk: {e}",
+    "下載的映像檔校驗碼不符，已放棄。請刪掉快取後重試":
+        "The downloaded image checksum does not match; aborted. Delete the cache and try again.",
+    "寫入後讀回校驗失敗，這張 SD 卡可能有問題":
+        "Read-back verification failed. This SD card may be faulty.",
+    "主機名稱只能用英文、數字和 -": "The hostname may only contain letters, digits and '-'",
+    "使用者名稱只能用小寫英文、數字、_ 和 -":
+        "The username may only contain lowercase letters, digits, '_' and '-'",
+    "請設定密碼": "Please set a password",
+    "時區格式不對，例如 Asia/Taipei": "Invalid time zone, e.g. Asia/Taipei",
+    "鍵盤配置請填兩個小寫字母，例如 us": "Keyboard layout must be two lowercase letters, e.g. us",
+    "Wi-Fi 名稱太長": "The Wi-Fi name is too long",
+    "Wi-Fi 密碼要 8 到 63 個字元": "The Wi-Fi password must be 8 to 63 characters",
+    "Wi-Fi 國碼請填兩個大寫字母，例如 TW": "Wi-Fi country code must be two uppercase letters, e.g. TW",
+    "寫完了，但 Windows 沒有掛出 boot 分割區，沒辦法寫入設定":
+        "Write finished, but Windows did not mount the boot partition, so the settings could not be written",
+    "需要系統管理員權限才能寫入磁碟，請用「以系統管理員身分執行」開啟":
+        "Administrator rights are required to write to the disk. Start the app with \"Run as administrator\".",
+    "發生未預期的錯誤：{e}": "Unexpected error: {e}",
+    "找不到那顆磁碟，或容量跟你選的不一樣，請重新整理後再選":
+        "That disk was not found, or its size differs from what you selected. Refresh and select again.",
+    "已經有一個燒錄工作在進行了": "A flashing job is already in progress",
+    "沒有這個工作": "No such job",
+    # phases
+    "準備映像（校驗並寫入開機設定）": "Preparing image (verifying and writing boot settings)",
+    "連線並檢查樹莓派": "Connecting and checking the Pi",
+    "寫入樹莓派的 SD 卡": "Writing to the Pi's SD card",
+    "完成，樹莓派重新開機中": "Done. The Pi is rebooting",
+    "準備中": "Preparing",
+    "下載系統映像": "Downloading OS image",
+    "清除磁碟": "Wiping the disk",
+    "寫入 SD 卡": "Writing to the SD card",
+    "校驗": "Verifying",
+    "寫入開機設定": "Writing boot settings",
+    "完成": "Done",
+    # remote
+    "帳號或密碼不對（或這台沒開密碼登入）":
+        "Wrong username or password (or password login is disabled on this Pi)",
+    "連不上 {host}：{e}": "Cannot connect to {host}: {e}",
+    "找不到桌面 session。這台可能是 Lite 版（沒有桌面），或桌面還沒登入完成，請稍等一下再試。":
+        "No desktop session found. This may be a Lite edition (no desktop), "
+        "or the desktop has not finished logging in. Wait a moment and try again.",
+    "這台沒有 wayvnc，可能是沒有桌面環境，或用的是舊的 X11 桌面。建議重新燒錄 Raspberry Pi OS 桌面版（64-bit）。":
+        "wayvnc is not installed. There may be no desktop environment, or it uses the old X11 desktop. "
+        "Consider re-flashing Raspberry Pi OS with desktop (64-bit).",
+    "遠端桌面啟動失敗：{why}": "Failed to start remote desktop: {why}",
+    "原因不明": "unknown reason",
+    "讀取系統資訊失敗：{why}": "Failed to read system info: {why}",
+    "這台沒有 python3？": "python3 missing?",
+    "安裝失敗（{step}）：{err}": "Install failed ({step}): {err}",
+    "{cmd} 指令失敗：{err}": "Command failed ({cmd}): {err}",
+    # remoteflash
+    "這個映像不是 MBR 格式，沒辦法預先寫入開機設定":
+        "This image is not MBR-formatted, so boot settings cannot be pre-written",
+    "第一個分割區不是 FAT32，沒辦法預先寫入開機設定":
+        "The first partition is not FAT32, so boot settings cannot be pre-written",
+    "映像檔比預期的短": "The image file is shorter than expected",
+    "映像檔校驗碼不符（下載可能不完整），已放棄":
+        "Image checksum mismatch (the download may be incomplete); aborted",
+    "映像大小異常": "Unexpected image size",
+    "Pi 上缺少必要工具：{tools}": "The Pi is missing required tools: {tools}",
+    "這台是 {model}，但「{image}」不支援這個型號，寫進去會開不了機。請回上一步改選建議的系統":
+        "This is a {model}, but \"{image}\" does not support it and would not boot. "
+        "Go back and choose the recommended system.",
+    "認不出開機磁碟（{disk}），為了安全不動手":
+        "Could not identify the boot disk ({disk}); refusing to continue for safety",
+    "空白": "empty",
+    "這張卡只有 {have:.1f} GB，放不下 {need:.1f} GB 的映像。請改選比較小的版本（例如精簡版）":
+        "This card is only {have:.1f} GB and cannot hold the {need:.1f} GB image. "
+        "Choose a smaller edition (e.g. Lite).",
+    "Pi 的可用記憶體太少，不適合在線上覆寫":
+        "The Pi has too little free memory to be overwritten while running",
+    "這台需要 sudo 密碼，請填寫登入密碼": "This Pi needs a sudo password. Please enter the login password.",
+    "sudo 驗證失敗，密碼不對或這個帳號沒有 sudo 權限":
+        "sudo authentication failed: wrong password, or this account has no sudo rights",
+    "無法在記憶體裡準備寫入工具（/dev/shm 可能不允許執行）：{why}":
+        "Could not prepare the write tools in memory (/dev/shm may not allow execution): {why}",
+    "找不到動態載入器": "Dynamic loader not found",
+    "Pi 上的寫入腳本沒有啟動：{out}": "The write script did not start on the Pi: {out}",
+    "傳輸中斷：{e}。Pi 上的卡可能只寫了一半，需要拔下來用電腦重燒":
+        "Transfer interrupted: {e}. The card may be half-written; "
+        "take it out and re-flash it from a computer.",
+    "寫入後讀回的校驗碼不一致，我沒有重新開機。Pi 目前的系統可能已損壞，請再試一次，或把卡拿下來用電腦重燒":
+        "The checksum read back does not match, so I did not reboot. The Pi's system may be damaged. "
+        "Try again, or take the card out and re-flash it from a computer.",
+    "dd 寫入失敗：{log}": "dd failed: {log}",
+    "沒有收到 Pi 的完成回報。如果它之後有重新開機，通常代表成功，請掃描確認":
+        "No completion report from the Pi. If it rebooted afterwards it usually succeeded; scan to confirm.",
+    # fleet / batch
+    "不支援的操作": "Unsupported action",
+    "沒有儲存帳密": "No saved login",
+    "操作逾時": "The operation timed out",
+}

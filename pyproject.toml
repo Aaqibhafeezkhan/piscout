@@ -1,0 +1,29 @@
+[project]
+name = "piscout"
+version = "0.1.0"
+description = "Discover Raspberry Pis on your LAN, SSH into them, view their desktop, and re-image them remotely."
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = [
+    "raspberry-pi", "raspberry-pi-os", "network-scanner", "lan-discovery",
+    "fleet-management", "ssh", "terminal", "remote-desktop", "vnc",
+    "sd-card", "flasher", "imager", "netboot", "pxe", "mdns",
+]
+classifiers = [
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: System :: Systems Administration",
+    "Topic :: System :: Networking",
+]
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "websockets>=12.0",
+    "paramiko>=3.4",
+    "zeroconf>=0.130",
+    "passlib>=1.7",
+    "pyfatfs>=1.0",
+    "pywebview>=5.0",
+]
+
+[project.scripts]
+piscout = "piscout.__main__:main"
