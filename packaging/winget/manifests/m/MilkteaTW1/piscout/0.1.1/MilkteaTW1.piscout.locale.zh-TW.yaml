@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.6.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.12.0.schema.json
 PackageIdentifier: MilkteaTW1.piscout
 PackageVersion: 0.1.1
 PackageLocale: zh-TW
@@ -11,4 +11,4 @@ Description: |-
   並有多台總覽與批次操作，也能把 Raspberry Pi OS 燒錄到 SD 卡。
   遠端重灌是進階功能，預設關閉。介面支援繁體中文與英文。
 ManifestType: locale
-ManifestVersion: 1.6.0
+ManifestVersion: 1.12.0
