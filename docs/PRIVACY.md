@@ -29,7 +29,7 @@ partition as part of the OS configuration (the account password as a hash). They
 
 **Changes:** updates to this policy are published in this repository.
 
-**Contact:** open an issue at https://github.com/MilkteaTW1/piscout/issues
+**Contact:** open an issue at https://github.com/MilkteaTW1/piscout/issues or write to ink@inkacuity.com
 
 ## 繁體中文
 
@@ -53,4 +53,4 @@ piscout 是完全在你的電腦上執行的桌面程式。
 
 **變更：** 政策更新會公布在這個儲存庫。
 
-**聯絡：** 請到 https://github.com/MilkteaTW1/piscout/issues 開 issue。
+**聯絡：** 請到 https://github.com/MilkteaTW1/piscout/issues 開 issue，或寄信到 ink@inkacuity.com。
