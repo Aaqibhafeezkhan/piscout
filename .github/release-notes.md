@@ -18,7 +18,7 @@ Windows desktop tool for Raspberry Pi on your LAN: auto-discovery, built-in SSH 
 Raspberry Pi 3 Model B Rev 1.2, Raspberry Pi OS (Debian 12 Bookworm):
 - LAN scan and Raspberry Pi detection
 - SSH login, system info, agent install
-- Built-in terminal session
+- Built-in terminal (commands run, tested by the author)
 - Remote desktop (tested by the author)
 - Overview / agent stats
 

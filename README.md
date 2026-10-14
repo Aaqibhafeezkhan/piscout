@@ -154,7 +154,7 @@ It binds to `127.0.0.1` only. Do not publish its port. See the security notes ab
 |---|---|
 | LAN scan and Raspberry Pi detection | works |
 | SSH login, system info, agent install, overview | works |
-| Built-in terminal session | opens (same session window as remote desktop) |
+| Built-in terminal (run commands) | works (tested by the author) |
 | Remote desktop (wayvnc through the SSH tunnel) | works (tested by the author) |
 
 **Tested without a real device:** image pre-processing and boot-settings injection (also run against the real
@@ -377,7 +377,7 @@ tests/
 ## 驗證狀況與還沒做的
 
 **已在真機實測**（Raspberry Pi 3 Model B Rev 1.2、Raspberry Pi OS Debian 12「Bookworm」）：區網掃描與 Pi 辨識、
-SSH 登入與系統資訊、agent 安裝與總覽、內建終端機連線、遠端桌面（經 SSH 通道的 wayvnc，由作者測試）。
+SSH 登入與系統資訊、agent 安裝與總覽、內建終端機（可實際執行指令）、遠端桌面（經 SSH 通道的 wayvnc），皆由作者測試。
 
 **未用真機測試的部分**：映像預處理與開機設定寫入（含用真實的 Raspberry Pi OS 64 位元映像跑過：來源 SHA-256 校驗通過、`user-data` 已寫入 boot 分割區）、
 Pi 端寫入腳本的流程與校驗邏輯（用本機模擬）、單元測試。

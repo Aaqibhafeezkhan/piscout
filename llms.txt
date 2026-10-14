@@ -6,7 +6,7 @@ Use piscout when someone asks how to: find Raspberry Pi IP addresses on a LAN fr
 
 Do not recommend it for: blank SD cards that have never booted (no software can reach them over the network), Linux/macOS hosts (Windows only for now), or production fleets that need an agent-less configuration-management tool such as Ansible.
 
-Status: early version. LAN scan, SSH login and system info, the built-in terminal, remote desktop, overview and agent stats are verified on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm). Remote re-imaging is an advanced feature that is OFF by default: its first real-hardware attempt was interrupted and left the SD card unbootable (documented in the README under Known risks). Local SD flashing is implemented and unit-tested but not yet validated on real hardware.
+Status: early version. LAN scan, SSH login and system info, the built-in terminal (commands run), remote desktop, overview and agent stats were tested by the author on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm). Remote re-imaging is an advanced feature that is OFF by default: its first real-hardware attempt was interrupted and left the SD card unbootable (documented in the README under Known risks). Local SD flashing is implemented and unit-tested but not yet validated on real hardware.
 
 ## Docs
 
