@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: README and FAQ
+    url: https://github.com/MilkteaTW1/piscout#readme
+    about: Setup, known risks and frequently asked questions

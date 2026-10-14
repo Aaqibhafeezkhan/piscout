@@ -25,9 +25,9 @@ windows and pulling SD cards to re-flash them. piscout puts all of that in one w
 - **Bilingual UI** – follows the system language (中文 / English), switchable at any time
 - All OS images come from the official Raspberry Pi website and are verified with SHA-256
 
-It is an early version. Scanning, the terminal, the overview and agent stats are tested
-on real hardware; remote desktop, remote re-imaging and local flashing still need more
-real-device validation (see below).
+It is an early version. Scanning, SSH login, the terminal, remote desktop, the overview and
+agent stats have been tested on a real Raspberry Pi 3 Model B; remote re-imaging and local
+flashing still need real-device validation (see [Status](#status-and-roadmap)).
 
 ## Screenshots
 
@@ -148,9 +148,22 @@ It binds to `127.0.0.1` only. Do not publish its port. See the security notes ab
 
 ## Status and roadmap
 
-Tested: LAN scan and Pi detection, built-in terminal, overview via agent, image pre-processing and boot-settings injection (also run against the real Raspberry Pi OS 64-bit image: source SHA-256 verified, `user-data` written into the boot partition), the Pi-side write script's flow and verification (simulated locally), unit tests.
+**Tested on real hardware** (Raspberry Pi 3 Model B Rev 1.2, Raspberry Pi OS Debian 12 "Bookworm"):
 
-**Not yet verified on real hardware:** a completed remote write (the first real attempt was interrupted, see Known risks), remote desktop, local SD flashing.
+| Feature | Result |
+|---|---|
+| LAN scan and Raspberry Pi detection | works |
+| SSH login, system info, agent install, overview | works |
+| Built-in terminal session | opens (same session window as remote desktop) |
+| Remote desktop (wayvnc through the SSH tunnel) | works (tested by the author) |
+
+**Tested without a real device:** image pre-processing and boot-settings injection (also run against the real
+Raspberry Pi OS 64-bit image: source SHA-256 verified, `user-data` written into the boot partition), the Pi-side
+write script's flow and verification (simulated locally), unit tests.
+
+Have a different model or OS version? Please [report a compatibility result](../../issues/new/choose); it makes this table better.
+
+**Not yet verified on real hardware:** a completed remote write (the first real attempt was interrupted, see Known risks) and local SD flashing.
 
 - [ ] Validate the three items above on real devices and publish the results per model
 - [ ] Network install (netboot) for blank cards: works out of the box on Pi 3B+, needs a one-time bootloader change on Pi 4/5
@@ -363,10 +376,15 @@ tests/
 
 ## 驗證狀況與還沒做的
 
-已實測：區網掃描與 Pi 辨識、內建終端機（含縮放）、映像預處理與開機設定寫入（含用真實的 Raspberry Pi OS 64 位元映像跑過：來源 SHA-256 校驗通過、`user-data` 已寫入 boot 分割區）、
+**已在真機實測**（Raspberry Pi 3 Model B Rev 1.2、Raspberry Pi OS Debian 12「Bookworm」）：區網掃描與 Pi 辨識、
+SSH 登入與系統資訊、agent 安裝與總覽、內建終端機連線、遠端桌面（經 SSH 通道的 wayvnc，由作者測試）。
+
+**未用真機測試的部分**：映像預處理與開機設定寫入（含用真實的 Raspberry Pi OS 64 位元映像跑過：來源 SHA-256 校驗通過、`user-data` 已寫入 boot 分割區）、
 Pi 端寫入腳本的流程與校驗邏輯（用本機模擬）、單元測試。
 
-**還沒在真機上實測**：遠端重灌的完整寫入（第一次真機嘗試中途被中斷，見「已知風險」）、遠端桌面、本機 SD 卡燒錄。
+**還沒在真機上實測**：遠端重灌的完整寫入（第一次真機嘗試中途被中斷，見「已知風險」）、本機 SD 卡燒錄。
+
+你用的是別的型號或系統版本嗎？歡迎[回報相容性結果](../../issues/new/choose)。
 Pi 專屬的部分（記憶體內執行環境、sysrq 重開機、wayvnc）是依文件寫的，
 第一次實機測試很可能需要微調。
 

@@ -1,0 +1,48 @@
+name: Bug report / 問題回報
+description: Something did not work as expected.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not post passwords, Wi-Fi keys or public IP addresses.
+        **Do not try remote re-imaging unless you have a card reader or a spare SD card.**
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you saw. Paste the exact error text from the app.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: piscout version
+      placeholder: "v0.1.1 (download or built from source?)"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 23H2"
+  - type: input
+    id: pi
+    attributes:
+      label: Raspberry Pi model and OS
+      placeholder: "Pi 4 Model B, Raspberry Pi OS 64-bit Bookworm"
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Scanning / discovery
+        - SSH login or terminal
+        - Remote desktop
+        - Overview / batch actions
+        - Flashing (local)
+        - Remote re-imaging (advanced)
+        - Installer / SmartScreen / antivirus
+        - Language / UI
+        - Other

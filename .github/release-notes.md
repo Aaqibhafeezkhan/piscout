@@ -15,13 +15,15 @@ Windows desktop tool for Raspberry Pi on your LAN: auto-discovery, built-in SSH 
 > It is built by GitHub Actions from this repository's source at the tagged commit.
 
 ### Verified on real hardware
+Raspberry Pi 3 Model B Rev 1.2, Raspberry Pi OS (Debian 12 Bookworm):
 - LAN scan and Raspberry Pi detection
-- Built-in SSH terminal
+- SSH login, system info, agent install
+- Built-in terminal session
+- Remote desktop (tested by the author)
 - Overview / agent stats
 
 ### Not yet verified on real hardware
 - **A completed remote re-imaging run** (the first attempt was interrupted, see Known risks)
-- Remote desktop
 - Local SD card flashing
 
 ### Not possible
@@ -32,5 +34,5 @@ A completely blank SD card that has never booted cannot be reached over the netw
 ## 繁體中文
 早期版本。相較 v0.1.0：**遠端重灌改為進階功能、預設關閉**（第一次真機嘗試被中斷，讓一張 SD 卡開不了機，詳見 README「已知風險」）；
 啟動不再要求系統管理員（只有本機燒錄才需要，並提供重新啟動按鈕）；連線錯誤會說明下一步；README 補上示範 GIF 與截圖。
-已在真機驗證：區網掃描、內建終端機、總覽。**尚未在真機驗證：**遠端重灌的完整寫入、遠端桌面、本機 SD 卡燒錄。
+已在真機驗證（Raspberry Pi 3 Model B、Raspberry Pi OS Bookworm）：區網掃描、SSH 登入與系統資訊、內建終端機、遠端桌面、總覽。**尚未在真機驗證：**遠端重灌的完整寫入、本機 SD 卡燒錄。
 檔案沒有簽章，SmartScreen 可能警告，按「其他資訊 → 仍要執行」。

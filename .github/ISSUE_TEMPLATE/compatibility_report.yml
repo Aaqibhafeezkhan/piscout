@@ -1,0 +1,46 @@
+name: Compatibility report / 相容性回報
+description: Tell me it worked (or did not) on your Raspberry Pi. Positive reports help too.
+title: "[compat] "
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying piscout. Please do not post passwords, Wi-Fi keys or public IP addresses.
+  - type: input
+    id: model
+    attributes:
+      label: Raspberry Pi model
+      placeholder: "Raspberry Pi 4 Model B 4GB"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Raspberry Pi OS / system version
+      placeholder: "Raspberry Pi OS 64-bit, Debian 12 Bookworm, Wayland"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: piscout version
+      placeholder: "v0.1.1"
+    validations:
+      required: true
+  - type: checkboxes
+    id: worked
+    attributes:
+      label: What worked
+      options:
+        - label: Found the Pi on the LAN
+        - label: SSH login and system info
+        - label: Built-in terminal
+        - label: Remote desktop
+        - label: Overview / batch actions
+        - label: Local SD card flashing
+  - type: textarea
+    id: notes
+    attributes:
+      label: What did not work, or anything else
+      description: Error messages shown in the app are very helpful.
