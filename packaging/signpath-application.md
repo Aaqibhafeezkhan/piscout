@@ -1,5 +1,18 @@
 # SignPath Foundation application: answers for each form field
 
+## Status
+**Declined on 2026-10-14**, for lack of public visibility, not for quality. The Foundation program looks for
+external signals such as GitHub stars, forks and contributors, independent articles or discussions
+(Reddit, Stack Overflow, YouTube), institutional backing and sustained activity. They invite a re-application
+once the project has more recognition. A regular paid SignPath subscription is the other route.
+
+Re-apply when most of these are true:
+- a few dozen stars or a handful of external contributors / issues from other people
+- at least one independent write-up or community thread about the project (not posted by the author)
+- the winget package is merged and has installs
+- several releases over a few months
+
+
 Apply at https://signpath.org/ (Foundation program, free for open-source projects).
 The applicant creates the account and submits the form. Personal fields (name, email, company)
 are intentionally not stored in this repository.
