@@ -2,7 +2,9 @@
 
 **English** · [繁體中文](#繁體中文)
 
-> Raspberry Pi LAN manager for Windows: auto-discovery, built-in SSH terminal, remote desktop, and remote re-imaging.
+> **Find and manage your Raspberry Pis from one Windows window.**
+> Scan the network, open an SSH terminal, see the desktop, check temperature and load of every Pi.
+> No router admin page, no separate tools.
 
 `raspberry-pi` `raspberry-pi-os` `network-scanner` `lan-discovery` `fleet-management`
 `ssh-terminal` `remote-desktop` `vnc` `sd-card` `flasher` `imager` `netboot` `pxe`
@@ -12,22 +14,23 @@
 
 <sub>Recorded with a simulated device and shell (`PISCOUT_DEMO=1`, see [docs/DEMO.md](docs/DEMO.md)); no real Raspberry Pi appears in it.</sub>
 
-Managing a few Raspberry Pis usually means digging IPs out of the router, opening SSH
-windows and pulling SD cards to re-flash them. piscout puts all of that in one window:
+## What you get
 
-- **Auto-discovery** – scans the LAN on launch and recognizes Raspberry Pis
-- **Built-in terminal** – click *Connect*, enter the login, and get an SSH terminal inside the app
-- **Remote desktop** – view and control the Pi's desktop through the SSH tunnel
-- **Remote re-imaging (advanced, off by default)** – write a new OS to the Pi's own SD card without taking it out, with a recommended OS for the model. Read [Known risks](#known-risks) first
-- **Local flashing** – or flash an SD card inserted into this computer
-- **Overview and batch actions** – temperature / load / memory of every Pi at a glance; reboot, shut down or update several at once
-- **Saved logins** – encrypted with Windows DPAPI; the model is detected automatically
-- **Bilingual UI** – follows the system language (中文 / English), switchable at any time
-- All OS images come from the official Raspberry Pi website and are verified with SHA-256
+Tested on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm):
 
-It is an early version. Scanning, SSH login, the terminal, remote desktop, the overview and
-agent stats have been tested on a real Raspberry Pi 3 Model B; remote re-imaging and local
-flashing still need real-device validation (see [Status](#status-and-roadmap)).
+- **Find** – scans the LAN on launch and recognizes Raspberry Pis, no IP hunting
+- **Connect** – click *Connect*, enter the login, and get an SSH terminal inside the app
+- **See the desktop** – view and control the Pi's desktop through the SSH tunnel
+- **Manage several** – temperature / load / memory of every Pi at a glance; reboot, shut down or update several at once
+- **Remembers you** – logins are encrypted with Windows DPAPI and the model is detected automatically
+- **Bilingual** – follows the system language (中文 / English), switchable at any time
+
+Also included, **use with care**:
+
+- **SD card flashing** from this computer, official Raspberry Pi OS images verified with SHA-256, with a recommended OS for your model. Implemented and unit-tested, not yet validated on real hardware
+- **Remote re-imaging (advanced, off by default)** – write a new OS to a Pi's own SD card without taking it out. It has real risks and a documented incident, read [Known risks](#known-risks) first
+
+It is an early version, see [Status](#status-and-roadmap) for exactly what is verified.
 
 ## Screenshots
 
@@ -44,7 +47,7 @@ Normal use (scanning, terminal, remote desktop, overview) does **not** need admi
 Only *local SD card flashing* does, and the app offers a "Restart as administrator" button when
 you get there. The file is not code-signed, so SmartScreen may warn you ("More info → Run anyway").
 
-Packaging for **winget** and the **Microsoft Store** is being prepared (see [`packaging/`](packaging/)); until it is published, install from Releases. Not code-signed yet, hence the SmartScreen prompt.
+A **winget** package has been submitted and is under review ([microsoft/winget-pkgs#451835](https://github.com/microsoft/winget-pkgs/pull/451835)); until it is merged, install from Releases. Microsoft Store packaging is prepared in [`packaging/`](packaging/). The exe is not code-signed yet, hence the SmartScreen prompt.
 
 **Remote re-imaging requires a Pi that still boots and has SSH enabled.** A completely
 blank SD card cannot be seen on the network by any software; flash it once from this
@@ -182,6 +185,9 @@ Have a different model or OS version? Please [report a compatibility result](../
 > Raspberry Pi 區網管理工具：自動掃描、內建 SSH 終端機、遠端桌面、遠端重灌系統。
 > A Windows desktop tool to discover, SSH into, view the desktop of, and re-image Raspberry Pis on your LAN.
 
+> **在 Windows 的一個視窗裡，找到並管理你的樹莓派。**
+> 掃描網路、開 SSH 終端機、看桌面、一次看多台的溫度與負載，不用翻路由器後台，也不用裝一堆工具。
+
 `raspberry-pi` `raspberry-pi-os` `network-scanner` `lan-discovery` `fleet-management`
 `ssh-terminal` `remote-desktop` `vnc` `sd-card` `flasher` `imager` `netboot` `pxe`
 `mdns` `fastapi` `pywebview` `windows` `desktop-app`
@@ -190,30 +196,32 @@ Have a different model or OS version? Please [report a compatibility result](../
 
 <sub>示範影片使用模擬的裝置與終端機錄製（`PISCOUT_DEMO=1`，說明見 [docs/DEMO.md](docs/DEMO.md)），畫面中沒有真實的樹莓派。</sub>
 
-家裡有好幾台樹莓派，每次都要去路由器後台翻 IP、開 SSH 視窗、插拔 SD 卡重灌，
-很煩。所以寫了這個 Windows 桌面程式，把這些事放在同一個視窗裡：
+## 你會得到什麼
 
-- **自動掃描**：一打開就掃區網，找出樹莓派
-- **內建終端機**：點「連線」輸入帳密，直接在程式裡開 SSH 終端機，不用另外開視窗
-- **遠端桌面**：一鍵看到樹莓派的桌面畫面並操作（走 SSH 通道）
-- **遠端重灌（進階功能，預設關閉）**：SD 卡不用拔，從電腦直接把新系統寫進 Pi 的卡，並依型號給出最佳建議。使用前請先看[已知風險](#已知風險)
-- **本機燒錄**：也可以把 SD 卡插在電腦上燒錄
-- **總覽與批次操作**：多台 Pi 的溫度、負載、記憶體一覽，勾選後可批次重開機、關機、更新套件
-- **記住帳密**：以 Windows DPAPI 加密儲存，下次自動填入、自動偵測型號
+已在真實的 Raspberry Pi 3 Model B（Raspberry Pi OS Bookworm）上測試：
+
+- **找到**：一打開就掃區網並辨識樹莓派，不用再找 IP
+- **連線**：點「連線」輸入帳密，直接在程式裡開 SSH 終端機
+- **看桌面**：經 SSH 通道查看並操作樹莓派的桌面
+- **管理多台**：一眼看到每台的溫度、負載、記憶體，並可批次重開機、關機、更新套件
+- **記住帳密**：以 Windows DPAPI 加密儲存，並自動偵測型號
 - **雙語介面**：自動偵測系統語言（中文 / English），也可手動切換
-- 系統映像全部來自樹莓派官方網站，會校驗 SHA-256
 
+另外也有，**請小心使用**：
 
-目前還是早期版本，終端機與掃描有實測，遠端桌面和遠端重灌還需要更多實機驗證（見最下面）。
+- **SD 卡燒錄**：把官方 Raspberry Pi OS（SHA-256 校驗）燒到插在這台電腦上的 SD 卡，並依型號給出建議。已實作並有單元測試，但**尚未在真機上驗證**
+- **遠端重灌（進階功能，預設關閉）**：SD 卡不用拔，直接把新系統寫進 Pi 的卡。有實際風險，也發生過事故，請先看[已知風險](#已知風險)
+
+目前是早期版本，確切驗證了哪些，請看「驗證狀況與還沒做的」。
 
 ## 使用
 
-到 [Releases](../../releases) 下載 `piscout.exe` 雙擊即可（尚未發佈時請依下方「從原始碼執行」自行打包）。
+到 [Releases](../../releases) 下載 `piscout.exe` 雙擊即可（也可以依下方「從原始碼執行」自行打包）。
 一般使用（掃描、終端機、遠端桌面、總覽）不需要系統管理員權限；只有「本機燒錄」寫入 SD 卡時，才會請你以系統管理員身分重新啟動。
 
 > 檔案沒有簽章，SmartScreen 可能警告，按「其他資訊 → 仍要執行」。
 
-**winget** 與 **Microsoft Store** 的上架準備中（見 [`packaging/`](packaging/)），在發佈之前請從 Releases 下載。目前尚未簽章，所以會看到 SmartScreen 提示。
+**winget** 套件已送出審核（[microsoft/winget-pkgs#451835](https://github.com/microsoft/winget-pkgs/pull/451835)），合併之前請從 Releases 下載；Microsoft Store 的上架素材已備妥於 [`packaging/`](packaging/)。目前尚未簽章，所以會看到 SmartScreen 提示。
 
 ### 連線、終端機、遠端桌面
 
