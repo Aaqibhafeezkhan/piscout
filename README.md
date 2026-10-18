@@ -149,6 +149,19 @@ It binds to `127.0.0.1` only. Do not publish its port. See the security notes ab
 - Only private IPs are accepted; images are only downloaded from Raspberry Pi domains
 - Only scan networks you own
 
+## Let an AI assistant use your Pis (MCP)
+
+piscout includes a tiny MCP server (standard library only) so an AI assistant can list your Pis and run commands on them.
+Logins come from piscout's saved logins, the assistant never sees the password, and only private LAN addresses are accepted.
+Output is trimmed to keep token use low.
+
+```json
+{ "mcpServers": { "piscout": { "command": "python", "args": ["-m", "piscout.mcp"] } } }
+```
+
+Tools: `pi_list` (scan the LAN) and `pi_run` (run a shell command). Save a login for the Pi in piscout first.
+Only enable this for assistants you trust: they can run any command as that user.
+
 ## Status and roadmap
 
 **Tested on real hardware** (Raspberry Pi 3 Model B Rev 1.2, Raspberry Pi OS Debian 12 "Bookworm"):
@@ -382,6 +395,18 @@ tests/
 - 開機設定裡的密碼只寫雜湊值；Wi-Fi 密碼因為格式限制會以明文寫在 boot 分割區
 - API 只接受私有網段的 IP；映像只下載樹莓派官方網域
 - 只掃自己的網路
+
+## 讓 AI 助手操作你的樹莓派（MCP）
+
+piscout 內附一個很小的 MCP 伺服器（只用標準函式庫），讓 AI 助手可以列出樹莓派並在上面執行指令。
+帳密取自 piscout 已儲存的登入，AI 看不到密碼，也只接受區網內的私有位址。輸出會被截短以節省 token。
+
+```json
+{ "mcpServers": { "piscout": { "command": "python", "args": ["-m", "piscout.mcp"] } } }
+```
+
+工具：`pi_list`（掃描區網）、`pi_run`（執行 shell 指令）。請先在 piscout 裡儲存該台樹莓派的帳密。
+只在你信任的 AI 助手上啟用：它能以該帳號執行任何指令。
 
 ## 驗證狀況與還沒做的
 
