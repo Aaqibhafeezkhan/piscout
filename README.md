@@ -193,11 +193,11 @@ Have a different model or OS version? Please [report a compatibility result](../
 
 ---
 
-<a id="繁體中文"></a>
+*piscout is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Raspberry Pi Ltd. Raspberry Pi is a trademark of Raspberry Pi Ltd.*
 
 ---
 
-*piscout is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Raspberry Pi Ltd. Raspberry Pi is a trademark of Raspberry Pi Ltd.*
+<a id="繁體中文"></a>
 
 # piscout（繁體中文）
 
