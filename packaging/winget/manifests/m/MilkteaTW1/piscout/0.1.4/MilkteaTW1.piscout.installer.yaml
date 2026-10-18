@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+PackageIdentifier: MilkteaTW1.piscout
+PackageVersion: 0.1.4
+InstallerType: portable
+Commands:
+- piscout
+ReleaseDate: 2026-10-18
+Installers:
+- Architecture: x64
+  InstallerUrl: https://github.com/MilkteaTW1/piscout/releases/download/v0.1.4/piscout.exe
+  InstallerSha256: D5932DB7CCB7362F7B436B8091E424CF66462531D83FCB8C4C6C1D45DFD4BE37
+ManifestType: installer
+ManifestVersion: 1.12.0
