@@ -4,6 +4,7 @@
 """
 import json
 import re
+import threading
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
@@ -29,6 +30,22 @@ def _login(mac):
     return saved
 
 
+_auto_tried = set()
+
+
+def _auto_install(host, saved):
+    """第一次用 SSH 連上就順手把 agent 裝好，之後不用登入也能讀狀態。"""
+    try:
+        client = remote.connect(host, saved["username"], saved["password"], timeout=8)
+        try:
+            if not remote.agent_installed(client):
+                remote.install_agent(client, sudo_password=saved["password"])
+        finally:
+            client.close()
+    except Exception:
+        pass  # 裝不起來不影響其他功能，下次重開程式會再試一次
+
+
 def stats_one(host, mac, lang):
     set_lang(lang)
     try:
@@ -48,6 +65,9 @@ def stats_one(host, mac, lang):
         return {"ip": host, "mac": mac, "ok": False, "error": str(e)}
     try:
         info = remote.get_info(client)
+        if host not in _auto_tried and not info.get("agent_installed", False):
+            _auto_tried.add(host)
+            threading.Thread(target=_auto_install, args=(host, saved), daemon=True).start()
         return {"ip": host, "mac": mac, "ok": True, "via": "ssh", "stats": info,
                 "model_id": flasher.model_id(info.get("model", ""))}
     except Exception as e:

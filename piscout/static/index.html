@@ -65,6 +65,17 @@
   .rec b { color: var(--accent); }
 
   /* 連線視窗 */
+  #bubble { position:fixed; top:12px; right:12px; z-index:20; width:236px; background:var(--card);
+            border:1px solid var(--line); border-radius:14px; box-shadow:0 4px 18px rgba(0,0,0,.22);
+            padding:10px 12px; font-size:13px; }
+  body.in-session #bubble { top:56px; }
+  #bubble .bh { display:flex; align-items:center; gap:6px; }
+  #bubble .bh strong { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #bubble .bh button { padding:0 7px; line-height:20px; border-radius:99px; }
+  #bubble select { padding:2px 6px; font-size:12px; }
+  #bubble table { margin-top:6px; } #bubble td { border:0; padding:2px 0; }
+  #bubble td:last-child { text-align:right; font-weight:600; }
+  #bubble.mini { width:auto; padding:5px 12px; border-radius:99px; cursor:pointer; }
   #session { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; z-index:10; }
   #sessBar { display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--line);
              background:var(--card); flex-wrap:wrap; }
@@ -119,7 +130,6 @@
         <button class="act" data-act="reboot">重新開機</button>
         <button class="act" data-act="shutdown">關機</button>
         <button class="act" data-act="update">更新套件</button>
-        <button class="act" data-act="install_agent">安裝 agent</button>
       </div>
     </div>
     <div class="muted" style="margin-top:6px">批次操作會對勾選的樹莓派使用已儲存的帳密。</div>
@@ -225,6 +235,8 @@
     </div>
   </section>
 </main>
+
+<div id="bubble" class="hidden"></div>
 
 <!-- 連線視窗：內嵌終端機 / 遠端桌面 / 系統資訊 -->
 <div id="session" class="hidden">
@@ -429,8 +441,13 @@ async function openSession(device, cred) {
   sess = {device, cred, term: null, fit: null, termWs: null, rfb: null, resize: null};
   $('#session').classList.remove('hidden');
   $('#sessTitle').textContent = `${cred.username}@${device.hostname || device.ip} (${device.ip})`;
+  document.body.classList.add('in-session');
   setPane('term');
   startTerminal(r.token);
+  const row = fleetRows[device.ip];
+  if (!row || row.via !== 'agent') {
+    postJson(`/api/devices/${device.ip}/install`, cred).then(refreshFleet).catch(() => {});
+  }
 }
 
 function setPane(name) {
@@ -498,17 +515,7 @@ async function showInfo() {
   try {
     const info = await postJson(`/api/devices/${sess.device.ip}/info`, sess.cred);
     pane.replaceChildren(infoRows(info));
-    if (!info.agent_installed) {
-      const btn = h('button', {class: 'primary', style: 'margin-top:12px'}, '安裝 agent');
-      btn.onclick = async () => {
-        btn.disabled = true; btn.textContent = '安裝中…';
-        try { await postJson(`/api/devices/${sess.device.ip}/install`, sess.cred); await showInfo(); }
-        catch (e) { err.textContent = e.message; btn.disabled = false; btn.textContent = '安裝 agent'; }
-      };
-      pane.append(btn);
-    } else {
-      pane.append(h('div', {class: 'ok', style: 'margin-top:12px'}, 'agent 已在執行'));
-    }
+    pane.append(h('div', {class: 'muted', style: 'margin-top:12px'}, info.agent_installed ? 'agent 已在執行' : '連線後會自動安裝 agent'));
     pane.append(err);
   } catch (e) {
     pane.replaceChildren(h('div', {class: 'err'}, e.message));
@@ -532,6 +539,7 @@ function closeSession() {
   try { sess.rfb && sess.rfb.disconnect(); } catch (e) {}
   try { sess.term && sess.term.dispose(); } catch (e) {}
   sess = null;
+  document.body.classList.remove('in-session');
   $('#session').classList.add('hidden');
   $('#deskEl').replaceChildren();
 }
@@ -917,6 +925,7 @@ function renderFleet() {
   const box = $('#fleetBox');
   const list = fleetDevices();
   box.replaceChildren();
+  renderBubble();
   if (!list.length) {
     box.append(h('div', {class: 'muted'}, '還沒有樹莓派。先到「裝置」掃描並連線一次，讓我記住帳密。'));
     $('#fleetSel').textContent = '';
@@ -957,6 +966,55 @@ function renderFleet() {
       '先到「裝置」連線一次並勾選「記住」，這裡才能顯示狀態。'));
   }
   updateFleetSel();
+}
+
+
+/* ================= 右上角系統資訊泡泡 ================= */
+let bubbleIp = null, bubbleMini = false;
+try { bubbleMini = localStorage.getItem('piscout_bubble_mini') === '1'; } catch (e) {}
+function setBubbleMini(v) {
+  bubbleMini = v;
+  try { localStorage.setItem('piscout_bubble_mini', v ? '1' : '0'); } catch (e) {}
+  renderBubble();
+}
+function renderBubble() {
+  const box = $('#bubble');
+  const live = fleetDevices().filter(d => fleetRows[d.ip] && fleetRows[d.ip].ok);
+  const all = fleetDevices();
+  if (!all.length) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  let d = live.find(v => v.ip === bubbleIp) || live[0] || all[0];
+  bubbleIp = d.ip;
+  const r = fleetRows[d.ip], st = r && r.ok ? r.stats : null;
+  box.classList.toggle('mini', bubbleMini);
+  box.onclick = bubbleMini ? () => setBubbleMini(false) : null;
+  if (bubbleMini) {
+    box.replaceChildren(h('span', {}, h('span', {class: 'dot ' + (st ? 'on' : 'off')}),
+      st && st.cpu_temp_c != null ? st.cpu_temp_c + ' °C' : '系統資訊'));
+    return;
+  }
+  const head = h('div', {class: 'bh'}, h('span', {class: 'dot ' + (st ? 'on' : 'off')}),
+    live.length > 1
+      ? (() => { const sel = h('select', {}, live.map(v => h('option', {value: v.ip},
+          (fleetRows[v.ip].stats.hostname || v.hostname || v.ip))));
+          sel.value = d.ip; sel.onchange = () => { bubbleIp = sel.value; renderBubble(); }; return sel; })()
+      : h('strong', {}, (st && st.hostname) || d.hostname || d.ip),
+    (() => { const b = h('button', {title: '收合'}, '–'); b.onclick = e => { e.stopPropagation(); setBubbleMini(true); }; return b; })());
+  let body;
+  if (st) {
+    const row = (k, v) => h('tr', {}, h('td', {class: 'muted'}, k), h('td', {}, v));
+    body = h('table', {}, h('tbody', {},
+      row('型號', st.model || '-'),
+      row('溫度', st.cpu_temp_c != null ? st.cpu_temp_c + ' °C' : '-'),
+      row('負載', st.load ? String(st.load[0]) : '-'),
+      row('記憶體', st.mem_total_mb ? pct(st.mem_total_mb - st.mem_free_mb, st.mem_total_mb) : '-'),
+      row('磁碟', pct(st.disk_used_gb, st.disk_total_gb)),
+      row('開機時間', fmtUptime(st.uptime_s))));
+  } else {
+    body = h('div', {class: 'muted', style: 'margin-top:6px'},
+      r && r.nologin ? '連線並勾選「記住」一次，之後這裡會自動顯示。' : '讀取中或離線…');
+  }
+  box.replaceChildren(head, body);
 }
 
 function updateFleetSel() {
@@ -1002,6 +1060,7 @@ $('#langSel').addEventListener('change', e => window.setLang(e.target.value));
   loadImages();          // 先載入系統清單與型號
   await doScan();        // 一打開就自動掃描
   fillDeviceSelect();
+  startFleet();          // 右上角系統資訊泡泡需要持續更新
   prefillLogin();
 })();
 </script>

@@ -21,6 +21,7 @@ Tested on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm):
 - **Find** – scans the LAN on launch and recognizes Raspberry Pis, no IP hunting
 - **Connect** – click *Connect*, enter the login, and get an SSH terminal inside the app
 - **See the desktop** – view and control the Pi's desktop through the SSH tunnel
+- **Always-on status bubble** – a small panel in the top-right corner shows the Pi's temperature, load, memory, disk and uptime; the agent is installed automatically after the first connection, and you can collapse the bubble
 - **Manage several** – temperature / load / memory of every Pi at a glance; reboot, shut down or update several at once
 - **Remembers you** – logins are encrypted with Windows DPAPI and the model is detected automatically
 - **Bilingual** – follows the system language (中文 / English), switchable at any time
@@ -156,8 +157,10 @@ Logins come from piscout's saved logins, the assistant never sees the password, 
 Output is trimmed to keep token use low.
 
 ```json
-{ "mcpServers": { "piscout": { "command": "python", "args": ["-m", "piscout.mcp"] } } }
+{ "mcpServers": { "piscout": { "command": "C:\path\to\piscout.exe", "args": ["--mcp"] } } }
 ```
+
+(From source: `"command": "python", "args": ["-m", "piscout.mcp"]`.)
 
 Tools: `pi_list` (scan the LAN) and `pi_run` (run a shell command). Save a login for the Pi in piscout first.
 Only enable this for assistants you trust: they can run any command as that user.
@@ -217,6 +220,7 @@ Have a different model or OS version? Please [report a compatibility result](../
 - **找到**：一打開就掃區網並辨識樹莓派，不用再找 IP
 - **連線**：點「連線」輸入帳密，直接在程式裡開 SSH 終端機
 - **看桌面**：經 SSH 通道查看並操作樹莓派的桌面
+- **常駐狀態泡泡**：右上角的小面板隨時顯示樹莓派的溫度、負載、記憶體、磁碟與開機時間；第一次連線後會自動安裝 agent，泡泡可以收合
 - **管理多台**：一眼看到每台的溫度、負載、記憶體，並可批次重開機、關機、更新套件
 - **記住帳密**：以 Windows DPAPI 加密儲存，並自動偵測型號
 - **雙語介面**：自動偵測系統語言（中文 / English），也可手動切換
@@ -402,8 +406,10 @@ piscout 內附一個很小的 MCP 伺服器（只用標準函式庫），讓 AI 
 帳密取自 piscout 已儲存的登入，AI 看不到密碼，也只接受區網內的私有位址。輸出會被截短以節省 token。
 
 ```json
-{ "mcpServers": { "piscout": { "command": "python", "args": ["-m", "piscout.mcp"] } } }
+{ "mcpServers": { "piscout": { "command": "C:\path\to\piscout.exe", "args": ["--mcp"] } } }
 ```
+
+(From source: `"command": "python", "args": ["-m", "piscout.mcp"]`.)
 
 工具：`pi_list`（掃描區網）、`pi_run`（執行 shell 指令）。請先在 piscout 裡儲存該台樹莓派的帳密。
 只在你信任的 AI 助手上啟用：它能以該帳號執行任何指令。

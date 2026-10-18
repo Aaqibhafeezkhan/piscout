@@ -50,7 +50,7 @@ def _trim(s):
 def call(name, a):
     if name == "pi_list":
         rows = [f"{d['ip']} {d['hostname'] or '-'} ssh={'y' if d['ssh_open'] else 'n'}"
-                for d in scanner.scan() if d["is_pi"]]
+                for d in scanner.scan()["devices"] if d["is_pi"]]
         return "\n".join(rows) or "no Raspberry Pi found"
     if name == "pi_run":
         code, out, err = remote.run(_client(a["host"]), a["cmd"], timeout=a.get("timeout", 30))
@@ -76,8 +76,23 @@ def handle(msg):
         return {}
 
 
+def _std_handles():
+    """視窗模式的 exe 沒有 sys.stdin/stdout，改成直接接父行程給的管線。"""
+    import ctypes
+    import msvcrt
+    import os
+
+    def open_(kind, mode):
+        h = ctypes.windll.kernel32.GetStdHandle(kind)
+        return os.fdopen(msvcrt.open_osfhandle(h, os.O_RDONLY if mode == "r" else 0), mode,
+                         encoding="utf-8", closefd=False)
+    return open_(-10, "r"), open_(-11, "w")
+
+
 def main():
-    for line in sys.stdin:
+    inp, out = (sys.stdin, sys.stdout) if sys.stdin and sys.stdout else _std_handles()
+    sys.stdout = out
+    for line in inp:
         try:
             msg = json.loads(line)
         except ValueError:

@@ -1,5 +1,6 @@
 """桌面視窗版：在本機開一個只聽 127.0.0.1 的服務，再用原生視窗包起來。"""
 import socket
+import sys
 import threading
 import time
 
@@ -17,6 +18,9 @@ def _free_port():
 
 
 def main():
+    if "--mcp" in sys.argv:  # 給 AI 助手用：piscout.exe --mcp
+        from . import mcp
+        return mcp.main()
     import webview
 
     port = _free_port()

@@ -1,11 +1,11 @@
-## piscout v0.1.2 (early release)
+## piscout v0.1.3 (early release)
 
 Windows desktop tool for Raspberry Pi on your LAN: auto-discovery, built-in SSH terminal, remote desktop, overview and batch actions, SD card flashing, bilingual UI (中文 / English).
 
-### What changed since v0.1.1
-- **Fixed local SD card flashing failing at the read-back check.** The partition table is now written last, so Windows no longer mounts the new volumes while the image is still being written. Data is flushed before verifying, verification runs per 4 MB block, and a failure now tells you roughly where it happened.
-- **Simpler Flash OS tab.** Only the common fields are shown (SD card, model, user, password, Wi-Fi). Remote re-imaging, OS variants and hostname/timezone/keyboard sit in collapsible sections.
-- Local SD flashing is now verified on real hardware (Raspberry Pi 3 Model B booted and the configured login worked).
+### What changed since v0.1.2
+- **Status bubble in the top-right corner.** Temperature, load, memory, disk and uptime of your Pi are visible from the start. It can be collapsed to a small chip.
+- **The agent installs itself** after the first successful login; there is no button to press anymore.
+- **AI assistants can use your Pis.** `piscout.exe --mcp` starts a small MCP server with two tools, `pi_list` and `pi_run`. Logins come from piscout's saved logins and output is trimmed to save tokens. See the README.
 
 ### Download
 `piscout.exe` (below). Verify with `piscout.exe.sha256`.
@@ -32,6 +32,6 @@ A completely blank SD card that has never booted cannot be reached over the netw
 ---
 
 ## 繁體中文
-早期版本。相較 v0.1.1：**修正本機 SD 卡燒錄在讀回校驗失敗的問題**（分割表改為最後才寫入，避免 Windows 在寫入途中掛載新磁碟區；校驗改為逐塊比對，失敗時會指出大約的位置）；**燒錄頁面簡化**，只顯示常用欄位，其餘收進摺疊區。
+早期版本。相較 v0.1.2：右上角新增**常駐系統資訊泡泡**（可收合）、**agent 在第一次登入後自動安裝**、新增 **MCP 伺服器**（`piscout.exe --mcp`，讓 AI 助手列出並操作你的樹莓派）。v0.1.2 的修正：**修正本機 SD 卡燒錄在讀回校驗失敗的問題**（分割表改為最後才寫入，避免 Windows 在寫入途中掛載新磁碟區；校驗改為逐塊比對，失敗時會指出大約的位置）；**燒錄頁面簡化**，只顯示常用欄位，其餘收進摺疊區。
 本機 SD 卡燒錄已在真機驗證（Raspberry Pi 3 Model B 燒完可開機，並能以設定的帳號登入）。**尚未在真機驗證：**遠端重灌的完整寫入（進階功能，預設關閉）、其他型號。
 檔案沒有簽章，SmartScreen 可能警告，按「其他資訊 → 仍要執行」。
