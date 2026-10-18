@@ -335,7 +335,7 @@ function saveLogin(mac, username, password) {
   api('/api/vault/' + mac, {
     method: 'PUT', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({username, password: password || null}),
-  }).catch(() => {});
+  }).catch(e => alert(t('帳密沒能存起來：') + e.message));
 }
 
 function render() {
@@ -445,12 +445,24 @@ async function openSession(device, cred) {
   $('#session').classList.remove('hidden');
   $('#sessTitle').textContent = `${cred.username}@${device.hostname || device.ip} (${device.ip})`;
   document.body.classList.add('in-session');
+  pollSession();
+  sess.timer = setInterval(pollSession, 20000);
   setPane('term');
   startTerminal(r.token);
   const row = fleetRows[device.ip];
   if (!row || row.via !== 'agent') {
     postJson(`/api/devices/${device.ip}/install`, cred).then(refreshFleet).catch(() => {});
   }
+}
+
+async function pollSession() {
+  const cur = sess;
+  if (!cur) return;
+  try {
+    const info = await postJson(`/api/devices/${cur.device.ip}/info`, cur.cred);
+    fleetRows[cur.device.ip] = {ip: cur.device.ip, ok: true, via: 'ssh', stats: info};
+  } catch (e) {}
+  if (sess === cur) renderBubble();
 }
 
 function setPane(name) {
@@ -541,8 +553,10 @@ function closeSession() {
   try { sess.termWs && sess.termWs.close(); } catch (e) {}
   try { sess.rfb && sess.rfb.disconnect(); } catch (e) {}
   try { sess.term && sess.term.dispose(); } catch (e) {}
+  clearInterval(sess.timer);
   sess = null;
   document.body.classList.remove('in-session');
+  renderBubble();
   $('#session').classList.add('hidden');
   $('#deskEl').replaceChildren();
 }
@@ -982,12 +996,9 @@ function setBubbleMini(v) {
 }
 function renderBubble() {
   const box = $('#bubble');
-  const live = fleetDevices().filter(d => fleetRows[d.ip] && fleetRows[d.ip].ok);
-  const all = fleetDevices();
-  if (!all.length) { box.classList.add('hidden'); return; }
+  if (!sess) { box.classList.add('hidden'); return; }
   box.classList.remove('hidden');
-  let d = live.find(v => v.ip === bubbleIp) || live[0] || all[0];
-  bubbleIp = d.ip;
+  const d = sess.device;
   const r = fleetRows[d.ip], st = r && r.ok ? r.stats : null;
   box.classList.toggle('mini', bubbleMini);
   box.onclick = bubbleMini ? () => setBubbleMini(false) : null;
@@ -997,11 +1008,7 @@ function renderBubble() {
     return;
   }
   const head = h('div', {class: 'bh'}, h('span', {class: 'dot ' + (st ? 'on' : 'off')}),
-    live.length > 1
-      ? (() => { const sel = h('select', {}, live.map(v => h('option', {value: v.ip},
-          (fleetRows[v.ip].stats.hostname || v.hostname || v.ip))));
-          sel.value = d.ip; sel.onchange = () => { bubbleIp = sel.value; renderBubble(); }; return sel; })()
-      : h('strong', {}, (st && st.hostname) || d.hostname || d.ip),
+    h('strong', {}, (st && st.hostname) || d.hostname || d.ip),
     (() => { const b = h('button', {title: '收合'}, '–'); b.onclick = e => { e.stopPropagation(); setBubbleMini(true); }; return b; })());
   let body;
   if (st) {
@@ -1015,7 +1022,7 @@ function renderBubble() {
       row('開機時間', fmtUptime(st.uptime_s))));
   } else {
     body = h('div', {class: 'muted', style: 'margin-top:6px'},
-      r && r.nologin ? '連線並勾選「記住」一次，之後這裡會自動顯示。' : '讀取中或離線…');
+      '讀取中…');
   }
   box.replaceChildren(head, body);
 }
@@ -1063,7 +1070,6 @@ $('#langSel').addEventListener('change', e => window.setLang(e.target.value));
   loadImages();          // 先載入系統清單與型號
   await doScan();        // 一打開就自動掃描
   fillDeviceSelect();
-  startFleet();          // 右上角系統資訊泡泡需要持續更新
   prefillLogin();
 })();
 </script>

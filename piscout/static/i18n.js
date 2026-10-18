@@ -58,7 +58,7 @@
     ['桌面版：有畫面，可遠端操作桌面', 'Desktop: with GUI, remote desktop works'],
     ['精簡版：只用終端機，省資源', 'Lite: terminal only, saves resources'],
     ['連線並勾選「記住」一次，之後這裡會自動顯示。', 'Connect once and tick "Remember"; this will then fill in automatically.'],
-    ['讀取中或離線…', 'Loading or offline…'],
+    ['帳密沒能存起來：', 'Could not save the login: '],
     ['連線後會自動安裝 agent', 'The agent is installed automatically after you connect'],
     ['進階：遠端重灌（有風險）', 'Advanced: remote re-imaging (risky)'],
     ['更多系統選項（桌面或精簡版、換版本）', 'More OS options (Desktop or Lite, other versions)'],
