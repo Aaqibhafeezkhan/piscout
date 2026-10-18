@@ -73,7 +73,10 @@
   #bubble .bh strong { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #bubble .bh button { padding:0 7px; line-height:20px; border-radius:99px; }
   #bubble select { padding:2px 6px; font-size:12px; }
-  #bubble table { margin-top:6px; } #bubble td { border:0; padding:2px 0; }
+  #bubble { max-width:calc(100vw - 24px); }
+  #bubble table { margin-top:6px; width:100%; table-layout:fixed; }
+  #bubble td:first-child { width:70px; }
+  #bubble td { white-space:normal; word-break:break-word; } #bubble td { border:0; padding:2px 0; }
   #bubble td:last-child { text-align:right; font-weight:600; }
   #bubble.mini { width:auto; padding:5px 12px; border-radius:99px; cursor:pointer; }
   #session { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; z-index:10; }
