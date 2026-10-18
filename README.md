@@ -195,6 +195,10 @@ Have a different model or OS version? Please [report a compatibility result](../
 
 <a id="繁體中文"></a>
 
+---
+
+*piscout is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Raspberry Pi Ltd. Raspberry Pi is a trademark of Raspberry Pi Ltd.*
+
 # piscout（繁體中文）
 
 [English](#piscout) · **繁體中文**
@@ -440,3 +444,7 @@ Pi 專屬的部分（記憶體內執行環境、sysrq 重開機、wayvnc）是�
 - 掃描只做 IPv4，而且只掃 /24
 - 用了 USB 網卡等非原廠網卡，MAC 前綴會對不上
 - 本機燒錄後 Windows 可能會跳出「需要格式化磁碟」，**不要格式化**，直接關掉
+
+---
+
+*piscout 是獨立的開源專案，與 Raspberry Pi Ltd 無關，也未獲其認可或贊助。Raspberry Pi 是 Raspberry Pi Ltd 的商標。*
