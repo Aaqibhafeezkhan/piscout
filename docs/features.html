@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>piscout features</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1200px;height:1350px;background:#0f1a14;font-family:"Segoe UI","Microsoft JhengHei",sans-serif;color:#e8f3ec;padding:56px}
+.top{display:flex;align-items:center;gap:20px}
+.logo{width:72px;height:72px;border-radius:18px;background:#c51a4a;display:grid;place-items:center;font-size:40px;font-weight:800;color:#fff}
+h1{font-size:60px;letter-spacing:-1px}
+.tag{font-size:26px;color:#9fd8b4;margin-top:22px;line-height:1.35}
+.tag small{display:block;font-size:20px;color:#7fa890;margin-top:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:36px}
+.card{background:#16261d;border:1px solid #274a37;border-radius:18px;padding:24px 26px}
+.card .ic{font-size:34px}
+.card h2{font-size:27px;margin:8px 0 4px}
+.card .zh{font-size:19px;color:#9fd8b4;margin-bottom:8px}
+.card p{font-size:18px;color:#bcd2c5;line-height:1.4}
+.adv{border-color:#6b4a1f;background:#241d12}
+.adv .zh{color:#e5b866}
+.badge{display:inline-block;font-size:14px;font-weight:700;padding:3px 10px;border-radius:99px;margin-left:8px;vertical-align:middle}
+.ok{background:#1f5a38;color:#b6f0cd}.warn{background:#5a3f12;color:#ffd993}
+.foot{margin-top:30px;display:flex;justify-content:space-between;align-items:flex-end;font-size:20px;color:#9fd8b4}
+.foot b{color:#fff;font-size:24px}
+.pill{border:1px solid #274a37;border-radius:99px;padding:6px 16px;margin-right:8px;font-size:17px;color:#bcd2c5}
+</style></head><body>
+<div class="top"><div class="logo">π</div><h1>piscout</h1></div>
+<div class="tag">Find and manage your Raspberry Pis from one Windows window.
+<small>在一個 Windows 視窗裡，找到並管理你的樹莓派</small></div>
+
+<div class="grid">
+ <div class="card"><div class="ic">📡</div><h2>Auto scan <span class="badge ok">verified</span></h2><div class="zh">自動掃描</div>
+  <p>Scans the LAN on launch and recognizes Raspberry Pis. No IP hunting in router pages.</p></div>
+ <div class="card"><div class="ic">⌨️</div><h2>Built-in SSH terminal <span class="badge ok">verified</span></h2><div class="zh">內建 SSH 終端機</div>
+  <p>Click Connect, enter the login, get a terminal inside the app. No extra window.</p></div>
+ <div class="card"><div class="ic">🖥️</div><h2>Remote desktop <span class="badge ok">verified</span></h2><div class="zh">遠端桌面</div>
+  <p>See and control the Pi desktop through an SSH tunnel. Nothing exposed on the network.</p></div>
+ <div class="card"><div class="ic">📊</div><h2>Fleet overview <span class="badge ok">verified</span></h2><div class="zh">多台總覽與批次操作</div>
+  <p>Temperature, load, memory of every Pi at a glance. Reboot, shut down or update many at once.</p></div>
+ <div class="card"><div class="ic">🔐</div><h2>Saved logins</h2><div class="zh">加密記住帳密</div>
+  <p>Encrypted with Windows DPAPI, stored only on your PC. Pi model detected automatically.</p></div>
+ <div class="card"><div class="ic">🌐</div><h2>Bilingual UI</h2><div class="zh">雙語介面</div>
+  <p>Follows your system language (中文 / English), switch any time.</p></div>
+ <div class="card"><div class="ic">💾</div><h2>SD card flashing <span class="badge ok">verified</span></h2><div class="zh">SD 卡燒錄</div>
+  <p>Official Raspberry Pi OS images, SHA-256 verified, with a recommended OS for your model.</p></div>
+ <div class="card adv"><div class="ic">♻️</div><h2>Remote re-imaging <span class="badge warn">advanced · off by default</span></h2><div class="zh">遠端重灌（進階）</div>
+  <p>Re-image a Pi's SD card over SSH without removing it. Real risks, read Known risks first.</p></div>
+</div>
+
+<div class="foot">
+ <div><span class="pill">Windows 10/11</span><span class="pill">MIT</span><span class="pill">No telemetry</span><span class="pill">Python</span></div>
+ <div style="text-align:right">Tested on Raspberry Pi 3 Model B<br><b>github.com/MilkteaTW1/piscout</b></div>
+</div>
+</body></html>

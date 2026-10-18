@@ -38,6 +38,25 @@ def test_write_and_verify(tmp_path):
     assert "verify" in seen
 
 
+def test_bad_readback_reports_location(tmp_path, monkeypatch):
+    src, raw = _make_xz(tmp_path, 9 * 1024 * 1024)
+    target = tmp_path / "disk.bin"
+    target.write_bytes(b"\0" * len(raw))
+    sha = hashlib.sha256(raw).hexdigest()
+    real_fsync = flasher.os.fsync
+
+    def flaky(fd):  # 模擬壞卡：寫完後第 5 MB 的內容變了
+        real_fsync(fd)
+        with open(target, "r+b") as f:
+            f.seek(5 * 1024 * 1024)
+            f.write(b"\xaa")
+
+    monkeypatch.setattr(flasher.os, "fsync", flaky)
+    with pytest.raises(flasher.FlashError) as e:
+        flasher.write_image(src, target, sha, len(raw), lambda *a: None)
+    assert "4 MB" in str(e.value)
+
+
 def test_wrong_checksum_rejected(tmp_path):
     src, raw = _make_xz(tmp_path, 100_000)
     target = tmp_path / "disk.bin"

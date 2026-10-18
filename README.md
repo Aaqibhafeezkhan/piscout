@@ -27,7 +27,7 @@ Tested on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm):
 
 Also included, **use with care**:
 
-- **SD card flashing** from this computer, official Raspberry Pi OS images verified with SHA-256, with a recommended OS for your model. Implemented and unit-tested, not yet validated on real hardware
+- **SD card flashing** from this computer, official Raspberry Pi OS images verified with SHA-256, with a recommended OS for your model. Tested on real hardware: flashed a Raspberry Pi 3 Model B, it booted and the configured login worked
 - **Remote re-imaging (advanced, off by default)** – write a new OS to a Pi's own SD card without taking it out. It has real risks and a documented incident, read [Known risks](#known-risks) first
 
 It is an early version, see [Status](#status-and-roadmap) for exactly what is verified.
@@ -159,6 +159,7 @@ It binds to `127.0.0.1` only. Do not publish its port. See the security notes ab
 | SSH login, system info, agent install, overview | works |
 | Built-in terminal (run commands) | works (tested by the author) |
 | Remote desktop (wayvnc through the SSH tunnel) | works (tested by the author) |
+| Local SD card flashing (download, write, read-back verify, boot settings) | works: the Pi booted and the configured user could log in |
 
 **Tested without a real device:** image pre-processing and boot-settings injection (also run against the real
 Raspberry Pi OS 64-bit image: source SHA-256 verified, `user-data` written into the boot partition), the Pi-side
@@ -166,9 +167,9 @@ write script's flow and verification (simulated locally), unit tests.
 
 Have a different model or OS version? Please [report a compatibility result](../../issues/new/choose); it makes this table better.
 
-**Not yet verified on real hardware:** a completed remote write (the first real attempt was interrupted, see Known risks) and local SD flashing.
+**Not yet verified on real hardware:** a completed remote write (the first real attempt was interrupted, see Known risks). Local SD flashing was verified on a Raspberry Pi 3 Model B only; other models are covered by the official image list but untested.
 
-- [ ] Validate the three items above on real devices and publish the results per model
+- [ ] Validate the remaining items on real devices and publish the results per model
 - [ ] Network install (netboot) for blank cards: works out of the box on Pi 3B+, needs a one-time bootloader change on Pi 4/5
 - [ ] Remote desktop for X11 / RealVNC systems
 - [ ] SSH host-key pinning
@@ -209,7 +210,7 @@ Have a different model or OS version? Please [report a compatibility result](../
 
 另外也有，**請小心使用**：
 
-- **SD 卡燒錄**：把官方 Raspberry Pi OS（SHA-256 校驗）燒到插在這台電腦上的 SD 卡，並依型號給出建議。已實作並有單元測試，但**尚未在真機上驗證**
+- **SD 卡燒錄**：把官方 Raspberry Pi OS（SHA-256 校驗）燒到插在這台電腦上的 SD 卡，並依型號給出建議。已在真機測試：燒錄 Raspberry Pi 3 Model B 後可開機，並能用設定的帳號登入
 - **遠端重灌（進階功能，預設關閉）**：SD 卡不用拔，直接把新系統寫進 Pi 的卡。有實際風險，也發生過事故，請先看[已知風險](#已知風險)
 
 目前是早期版本，確切驗證了哪些，請看「驗證狀況與還沒做的」。
@@ -385,12 +386,12 @@ tests/
 ## 驗證狀況與還沒做的
 
 **已在真機實測**（Raspberry Pi 3 Model B Rev 1.2、Raspberry Pi OS Debian 12「Bookworm」）：區網掃描與 Pi 辨識、
-SSH 登入與系統資訊、agent 安裝與總覽、內建終端機（可實際執行指令）、遠端桌面（經 SSH 通道的 wayvnc），皆由作者測試。
+SSH 登入與系統資訊、agent 安裝與總覽、內建終端機（可實際執行指令）、遠端桌面（經 SSH 通道的 wayvnc）、本機 SD 卡燒錄（燒完開機並以設定的帳號登入），皆由作者測試。
 
 **未用真機測試的部分**：映像預處理與開機設定寫入（含用真實的 Raspberry Pi OS 64 位元映像跑過：來源 SHA-256 校驗通過、`user-data` 已寫入 boot 分割區）、
 Pi 端寫入腳本的流程與校驗邏輯（用本機模擬）、單元測試。
 
-**還沒在真機上實測**：遠端重灌的完整寫入（第一次真機嘗試中途被中斷，見「已知風險」）、本機 SD 卡燒錄。
+**還沒在真機上實測**：遠端重灌的完整寫入（第一次真機嘗試中途被中斷，見「已知風險」）。本機燒錄只在 Raspberry Pi 3 Model B 上驗證過，其他型號尚未測試。
 
 你用的是別的型號或系統版本嗎？歡迎[回報相容性結果](../../issues/new/choose)。
 Pi 專屬的部分（記憶體內執行環境、sysrq 重開機、wayvnc）是依文件寫的，

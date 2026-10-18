@@ -278,20 +278,34 @@ def write_image(src, target, sha256, size, progress, verify=True):
     h = hashlib.sha256()
     buf = bytearray()
     total = 0
+    sums = []  # 每個 CHUNK 的校驗碼，讀回時用來指出壞在哪裡
+    head = None  # 第一個 CHUNK（含分割表）留到最後才寫，避免寫到一半 Windows 就去掛載新磁碟區
     try:
         with open(target, "r+b", buffering=0) as out:
+            def put(block, last=False):
+                nonlocal head
+                sums.append(hashlib.sha256(block).digest())
+                if head is None and len(sums) == 1:
+                    head = block
+                    out.seek(len(block))
+                else:
+                    _write_all(out, block + b"\0" * (-len(block) % SECTOR) if last else block)
+
             for data in _decompressed(src):
                 h.update(data)
                 total += len(data)
                 buf += data
                 while len(buf) >= CHUNK:
-                    _write_all(out, bytes(buf[:CHUNK]))
+                    put(bytes(buf[:CHUNK]))
                     del buf[:CHUNK]
                     progress("write", total - len(buf), size)
             if buf:
-                pad = -len(buf) % SECTOR
-                _write_all(out, bytes(buf) + b"\0" * pad)
+                put(bytes(buf), last=True)
             progress("write", total, size)
+            if head is not None:
+                out.seek(0)
+                _write_all(out, head + b"\0" * (-len(head) % SECTOR))
+            os.fsync(out.fileno())
     except lzma.LZMAError as e:
         raise FlashError(tr("映像檔損毀：{e}", e=e))
     except PermissionError:
@@ -303,19 +317,22 @@ def write_image(src, target, sha256, size, progress, verify=True):
         raise FlashError(tr("下載的映像檔校驗碼不符，已放棄。請刪掉快取後重試"))
 
     if verify:
-        rh = hashlib.sha256()
         left = total
+        index = 0
         with open(target, "rb", buffering=0) as f:
             while left > 0:
                 want = min(CHUNK, left)
-                block = f.read(-(-want // SECTOR) * SECTOR)
-                if not block:
-                    break
-                rh.update(block[:want])
+                for attempt in (1, 2):  # 讀不一致時重讀一次，排除一次性的讀取錯誤
+                    f.seek(index * CHUNK)
+                    block = f.read(-(-want // SECTOR) * SECTOR)
+                    if hashlib.sha256(block[:want]).digest() == sums[index]:
+                        break
+                else:
+                    raise FlashError(tr("寫入後讀回校驗失敗（約在 {mb} MB 處），這張 SD 卡或讀卡機可能有問題，請換一張卡或換個 USB 孔再試",
+                                        mb=index * CHUNK // (1024 * 1024)))
                 left -= want
+                index += 1
                 progress("verify", total - left, total)
-        if rh.hexdigest() != sha256:
-            raise FlashError(tr("寫入後讀回校驗失敗，這張 SD 卡可能有問題"))
     return total
 
 

@@ -52,8 +52,9 @@ EN = {
     "寫入磁碟失敗：{e}": "Failed to write to the disk: {e}",
     "下載的映像檔校驗碼不符，已放棄。請刪掉快取後重試":
         "The downloaded image checksum does not match; aborted. Delete the cache and try again.",
-    "寫入後讀回校驗失敗，這張 SD 卡可能有問題":
-        "Read-back verification failed. This SD card may be faulty.",
+    "寫入後讀回校驗失敗（約在 {mb} MB 處），這張 SD 卡或讀卡機可能有問題，請換一張卡或換個 USB 孔再試":
+        "Read-back verification failed (around {mb} MB). The SD card or card reader may be faulty; "
+        "try another card or another USB port.",
     "主機名稱只能用英文、數字和 -": "The hostname may only contain letters, digits and '-'",
     "使用者名稱只能用小寫英文、數字、_ 和 -":
         "The username may only contain lowercase letters, digits, '_' and '-'",
