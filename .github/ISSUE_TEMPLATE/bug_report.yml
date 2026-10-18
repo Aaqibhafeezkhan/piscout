@@ -19,7 +19,7 @@ body:
     id: version
     attributes:
       label: piscout version
-      placeholder: "v0.1.1 (download or built from source?)"
+      placeholder: "v0.1.2 (download or built from source?)"
     validations:
       required: true
   - type: input
