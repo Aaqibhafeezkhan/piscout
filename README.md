@@ -12,6 +12,10 @@
 
 ![piscout demo: scan, connect, built-in terminal](docs/demo.gif)
 
+![piscout features: scan, terminal suggestions, drag-and-drop, flashing, MCP](docs/promo.gif)
+
+<sub>[Watch the 18-second overview video](docs/promo.mp4) (animated, not a screen recording)</sub>
+
 <sub>Recorded with a simulated device and shell (`PISCOUT_DEMO=1`, see [docs/DEMO.md](docs/DEMO.md)); no real Raspberry Pi appears in it.</sub>
 
 ## What you get
