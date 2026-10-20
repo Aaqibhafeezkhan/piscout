@@ -619,6 +619,9 @@ function sgAccept(i) {
 function sgKey(ev) {
   if (!sg.open || ev.type !== 'keydown' || ev.ctrlKey || ev.altKey || ev.metaKey) return true;
   const n = sg.items.length;
+  if (['ArrowDown', 'ArrowUp', 'Escape'].includes(ev.key) || (ev.key === 'Tab' && !ev.shiftKey) || (ev.key === 'Enter' && sg.navigated)) {
+    ev.preventDefault();      // 回傳 false 時 xterm 不會擋瀏覽器預設行為，Tab 會跳去別的欄位
+  }
   switch (ev.key) {
     case 'ArrowDown': sg.sel = (sg.sel + 1) % n; sg.navigated = true; sgRender(); return false;
     case 'ArrowUp': sg.sel = (sg.sel - 1 + n) % n; sg.navigated = true; sgRender(); return false;
