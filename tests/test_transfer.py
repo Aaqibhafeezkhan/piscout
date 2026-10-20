@@ -50,7 +50,7 @@ def test_unique_name_never_overwrites():
     assert transfer.unique_name("new.bin", taken.__contains__) == "new.bin"
 
 
-@pytest.mark.skipif(BASH is None, reason="needs bash")
+@pytest.mark.skipif(BASH is None or os.name == "nt", reason="fakes Linux ps/ss with shell scripts; needs a Linux shell")
 def test_cwd_script_picks_the_shell_with_a_tty(tmp_path):
     bindir = tmp_path / "bin"
     bindir.mkdir()
