@@ -78,6 +78,8 @@
   #bubble td:first-child { width:70px; }
   #bubble td { white-space:normal; word-break:break-word; } #bubble td { border:0; padding:2px 0; }
   #bubble td:last-child { text-align:right; font-weight:600; }
+  #bubble { touch-action:none; user-select:none; }
+  #bubble .bh { cursor:grab; } #bubble.dragging, #bubble.dragging .bh { cursor:grabbing; }
   #bubble.mini { width:auto; padding:5px 12px; border-radius:99px; cursor:pointer; }
   #dropHint { position:fixed; inset:0; z-index:30; display:grid; place-items:center; pointer-events:none;
               background:rgba(197,26,74,.16); border:3px dashed var(--accent); font-size:22px; font-weight:600; }
@@ -492,6 +494,12 @@ function startTerminal(token) {
   term.loadAddon(fit);
   $('#termEl').replaceChildren();
   term.open($('#termEl'));
+  // Tab 補齊有好幾個選項時，樹莓派只會響鈴；用畫面閃一下框線代替聲音，提醒再按一次 Tab 列出選項
+  term.onBell(() => {
+    const el = $('#termEl');
+    el.style.outline = '2px solid var(--accent)'; el.style.outlineOffset = '-2px';
+    setTimeout(() => { el.style.outline = ''; }, 150);
+  });
   fit.fit();
   sess.term = term; sess.fit = fit;
 
@@ -1105,6 +1113,54 @@ function setBubbleMini(v) {
   try { localStorage.setItem('piscout_bubble_mini', v ? '1' : '0'); } catch (e) {}
   renderBubble();
 }
+/* 泡泡可以拖到畫面任何位置，位置會記住 */
+let bubblePos = null, bubbleDragged = false;
+try { bubblePos = JSON.parse(localStorage.getItem('piscout_bubble_pos') || 'null'); } catch (e) {}
+function applyBubblePos() {
+  const b = $('#bubble');
+  if (!bubblePos) { b.style.left = b.style.top = b.style.right = ''; return; }
+  const x = Math.min(Math.max(0, bubblePos.x), Math.max(0, window.innerWidth - b.offsetWidth));
+  const y = Math.min(Math.max(0, bubblePos.y), Math.max(0, window.innerHeight - b.offsetHeight));
+  b.style.left = x + 'px'; b.style.top = y + 'px'; b.style.right = 'auto';
+}
+(function () {
+  const b = $('#bubble');
+  let start = null;
+  b.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || e.target.closest('button, select')) return;
+    const r = b.getBoundingClientRect();
+    start = {px: e.clientX, py: e.clientY, x: r.left, y: r.top, moved: false};
+    b.setPointerCapture(e.pointerId);
+  });
+  b.addEventListener('pointermove', e => {
+    if (!start) return;
+    const dx = e.clientX - start.px, dy = e.clientY - start.py;
+    if (!start.moved && Math.hypot(dx, dy) < 4) return;
+    start.moved = true;
+    b.classList.add('dragging');
+    bubblePos = {x: start.x + dx, y: start.y + dy};
+    applyBubblePos();
+  });
+  const end = () => {
+    if (!start) return;
+    if (start.moved) {
+      bubbleDragged = true;      // 避免放開時被當成「點一下展開」
+      setTimeout(() => { bubbleDragged = false; }, 0);
+      try { localStorage.setItem('piscout_bubble_pos', JSON.stringify(bubblePos)); } catch (e) {}
+    }
+    b.classList.remove('dragging');
+    start = null;
+  };
+  b.addEventListener('pointerup', end);
+  b.addEventListener('pointercancel', end);
+  window.addEventListener('resize', applyBubblePos);
+  b.addEventListener('dblclick', () => {   // 連點兩下回到預設位置
+    bubblePos = null;
+    try { localStorage.removeItem('piscout_bubble_pos'); } catch (e) {}
+    applyBubblePos();
+  });
+})();
+
 function renderBubble() {
   const box = $('#bubble');
   if (!sess) { box.classList.add('hidden'); return; }
@@ -1112,10 +1168,11 @@ function renderBubble() {
   const d = sess.device;
   const r = fleetRows[d.ip], st = r && r.ok ? r.stats : null;
   box.classList.toggle('mini', bubbleMini);
-  box.onclick = bubbleMini ? () => setBubbleMini(false) : null;
+  box.onclick = bubbleMini ? () => { if (!bubbleDragged) setBubbleMini(false); } : null;
   if (bubbleMini) {
     box.replaceChildren(h('span', {}, h('span', {class: 'dot ' + (st ? 'on' : 'off')}),
       st && st.cpu_temp_c != null ? st.cpu_temp_c + ' °C' : '系統資訊'));
+    applyBubblePos();
     return;
   }
   const head = h('div', {class: 'bh'}, h('span', {class: 'dot ' + (st ? 'on' : 'off')}),
@@ -1136,6 +1193,7 @@ function renderBubble() {
       '讀取中…');
   }
   box.replaceChildren(head, body);
+  applyBubblePos();
 }
 
 function updateFleetSel() {
