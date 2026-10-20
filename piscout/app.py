@@ -12,13 +12,13 @@ import urllib.request
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import fleet, flasher, i18n, remote, remoteflash, scanner, vault
+from . import fleet, flasher, i18n, remote, remoteflash, scanner, transfer, vault
 from .i18n import tr
 
 STATIC = Path(__file__).parent / "static"
@@ -270,6 +270,11 @@ async def api_install(host: str, login: Login):
 
 # ------------------------------------------------------------ 終端機 / 遠端桌面
 
+TERMS = {}
+UPLOADS = {}
+UPLOAD_TTL = 300
+
+
 def _drop(sess):
     try:
         if sess.get("kind") == "desktop":
@@ -306,7 +311,7 @@ async def api_session(host: str, req: SessionReq):
         raise HTTPException(502, str(e))
     token = secrets.token_urlsafe(16)
     SESSIONS[token] = {
-        "client": client, "kind": req.kind, "port": port, "created": time.time(),
+        "client": client, "kind": req.kind, "port": port, "created": time.time(), "host": host,
     }
     return {"token": token}
 
@@ -364,6 +369,7 @@ async def ws_terminal(ws: WebSocket, token: str, cols: int = 80, rows: int = 24)
         return
     await _accept(ws)
     chan = sess["client"].invoke_shell(term="xterm-256color", width=cols, height=rows)
+    TERMS[sess["host"]] = sess["client"]  # 傳檔時用它找出終端機目前的資料夾
 
     def on_text(text):
         try:
@@ -376,6 +382,8 @@ async def ws_terminal(ws: WebSocket, token: str, cols: int = 80, rows: int = 24)
     try:
         await _pump(ws, chan, on_text)
     finally:
+        if TERMS.get(sess["host"]) is sess["client"]:
+            del TERMS[sess["host"]]
         _drop(sess)
         try:
             await ws.close()
@@ -406,6 +414,117 @@ async def ws_desktop(ws: WebSocket, token: str):
             await ws.close()
         except RuntimeError:
             pass
+
+
+# ------------------------------------------------------------ 傳檔（拖曳到視窗）
+
+class UploadReq(BaseModel):
+    mode: str  # term / desk
+    username: str
+    password: Optional[str] = None
+    key_path: Optional[str] = None
+
+
+def _close_upload(u):
+    try:
+        u["sftp"].close()
+    finally:
+        u["client"].close()
+
+
+def _expire_uploads():
+    now = time.time()
+    for token in [t for t, v in UPLOADS.items() if now - v["used"] > UPLOAD_TTL]:
+        _close_upload(UPLOADS.pop(token))
+
+
+def _open_upload(host, req):
+    client = remote.connect(host, req.username, req.password, req.key_path)
+    try:
+        directory = transfer.target_dir(client, req.mode, TERMS.get(host))
+        return client, client.open_sftp(), directory
+    except Exception:
+        client.close()
+        raise
+
+
+@app.post("/api/devices/{host}/upload")
+async def api_upload_open(host: str, req: UploadReq):
+    host = _check_host(host)
+    if req.mode not in ("term", "desk"):
+        raise HTTPException(400, tr("kind 不對"))
+    _expire_uploads()
+    try:
+        client, sftp, directory = await run_in_threadpool(_open_upload, host, req)
+    except remote.RemoteError as e:
+        raise HTTPException(502, str(e))
+    token = secrets.token_urlsafe(16)
+    UPLOADS[token] = {"client": client, "sftp": sftp, "dir": directory, "used": time.time()}
+    return {"token": token, "dir": directory}
+
+
+def _sftp_exists(sftp, path):
+    try:
+        sftp.stat(path)
+        return True
+    except IOError:
+        return False
+
+
+def _open_target(u, name):
+    sftp = u["sftp"]
+    name = transfer.unique_name(name, lambda n: _sftp_exists(sftp, u["dir"] + "/" + n))
+    final = u["dir"].rstrip("/") + "/" + name
+    f = sftp.open(final + ".piscout-part", "wb")
+    f.set_pipelined(True)
+    return f, final
+
+
+@app.post("/api/upload/{token}")
+async def api_upload_file(token: str, request: Request, name: str):
+    u = UPLOADS.get(token)
+    if u is None:
+        raise HTTPException(404, tr("沒有這個工作"))
+    try:
+        name = transfer.safe_name(name)
+    except ValueError:
+        raise HTTPException(400, tr("檔名不合法"))
+    u["used"] = time.time()
+    try:
+        f, final = await run_in_threadpool(_open_target, u, name)
+    except (IOError, OSError, ValueError) as e:
+        raise HTTPException(502, tr("無法寫入 {dir}：{e}", dir=u["dir"], e=e))
+    total, buf, ok = 0, bytearray(), False
+    try:
+        async for chunk in request.stream():
+            buf += chunk
+            total += len(chunk)
+            if len(buf) >= 1 << 20:
+                await run_in_threadpool(f.write, bytes(buf))
+                buf.clear()
+        if buf:
+            await run_in_threadpool(f.write, bytes(buf))
+        ok = True
+    finally:
+        await run_in_threadpool(f.close)
+        sftp = u["sftp"]
+        if ok:
+            await run_in_threadpool(sftp.posix_rename, final + ".piscout-part", final)
+        else:
+            try:
+                await run_in_threadpool(sftp.remove, final + ".piscout-part")
+            except IOError:
+                pass
+    u["used"] = time.time()
+    return {"path": final, "size": total}
+
+
+@app.delete("/api/upload/{token}")
+async def api_upload_close(token: str):
+    u = UPLOADS.pop(token, None)
+    if u:
+        await run_in_threadpool(_close_upload, u)
+    return {"ok": True}
 
 
 def _fetch_stats(host):

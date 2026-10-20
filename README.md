@@ -22,6 +22,7 @@ Tested on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm):
 - **Connect** – click *Connect*, enter the login, and get an SSH terminal inside the app
 - **See the desktop** – view and control the Pi's desktop through the SSH tunnel
 - **Always-on status bubble** – a small panel in the top-right corner shows the Pi's temperature, load, memory, disk and uptime; the agent is installed automatically after the first connection, and you can collapse the bubble
+- **Drag and drop files** – drop files onto the window while connected: on the terminal tab they go to the shell's current folder, on the remote desktop tab to the Pi's Desktop folder. Existing files are never overwritten (`name (1).ext`). Folders are not supported yet
 - **Manage several** – temperature / load / memory of every Pi at a glance; reboot, shut down or update several at once
 - **Remembers you** – logins are encrypted with Windows DPAPI and the model is detected automatically
 - **Bilingual** – follows the system language (中文 / English), switchable at any time
@@ -225,6 +226,7 @@ Have a different model or OS version? Please [report a compatibility result](../
 - **連線**：點「連線」輸入帳密，直接在程式裡開 SSH 終端機
 - **看桌面**：經 SSH 通道查看並操作樹莓派的桌面
 - **常駐狀態泡泡**：右上角的小面板隨時顯示樹莓派的溫度、負載、記憶體、磁碟與開機時間；第一次連線後會自動安裝 agent，泡泡可以收合
+- **拖曳傳檔**：連線後把檔案拖進視窗，在終端機分頁會傳到 shell 目前所在的資料夾，在遠端桌面分頁會傳到樹莓派的桌面資料夾；同名檔案不會被覆蓋（自動改成 `名稱 (1).副檔名`）；目前不支援整個資料夾
 - **管理多台**：一眼看到每台的溫度、負載、記憶體，並可批次重開機、關機、更新套件
 - **記住帳密**：以 Windows DPAPI 加密儲存，並自動偵測型號
 - **雙語介面**：自動偵測系統語言（中文 / English），也可手動切換

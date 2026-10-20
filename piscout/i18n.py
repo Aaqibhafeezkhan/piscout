@@ -55,6 +55,8 @@ EN = {
     "寫入後讀回校驗失敗（約在 {mb} MB 處），這張 SD 卡或讀卡機可能有問題，請換一張卡或換個 USB 孔再試":
         "Read-back verification failed (around {mb} MB). The SD card or card reader may be faulty; "
         "try another card or another USB port.",
+    "檔名不合法": "Invalid file name",
+    "無法寫入 {dir}：{e}": "Cannot write to {dir}: {e}",
     "主機名稱只能用英文、數字和 -": "The hostname may only contain letters, digits and '-'",
     "使用者名稱只能用小寫英文、數字、_ 和 -":
         "The username may only contain lowercase letters, digits, '_' and '-'",

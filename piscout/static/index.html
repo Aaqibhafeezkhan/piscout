@@ -79,6 +79,13 @@
   #bubble td { white-space:normal; word-break:break-word; } #bubble td { border:0; padding:2px 0; }
   #bubble td:last-child { text-align:right; font-weight:600; }
   #bubble.mini { width:auto; padding:5px 12px; border-radius:99px; cursor:pointer; }
+  #dropHint { position:fixed; inset:0; z-index:30; display:grid; place-items:center; pointer-events:none;
+              background:rgba(197,26,74,.16); border:3px dashed var(--accent); font-size:22px; font-weight:600; }
+  #toasts { position:fixed; left:12px; bottom:12px; z-index:40; display:flex; flex-direction:column; gap:6px;
+            max-width:min(520px, calc(100vw - 24px)); }
+  .toast { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:8px 12px;
+           font-size:13px; word-break:break-all; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+  .toast.ok { border-color:var(--ok); } .toast.bad { border-color:var(--accent); color:var(--accent); cursor:pointer; }
   #session { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; z-index:10; }
   #sessBar { display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--line);
              background:var(--card); flex-wrap:wrap; }
@@ -240,6 +247,8 @@
 </main>
 
 <div id="bubble" class="hidden"></div>
+<div id="dropHint" class="hidden"></div>
+<div id="toasts"></div>
 
 <!-- 連線視窗：內嵌終端機 / 遠端桌面 / 系統資訊 -->
 <div id="session" class="hidden">
@@ -466,6 +475,7 @@ async function pollSession() {
 }
 
 function setPane(name) {
+  if (sess) sess.pane = name;
   for (const [id, pane] of [['term', '#termPane'], ['desk', '#deskPane'], ['info', '#infoPane']]) {
     $(pane).classList.toggle('hidden', id !== name);
     $('#st' + id[0].toUpperCase() + id.slice(1)).classList.toggle('on', id === name);
@@ -559,6 +569,92 @@ function closeSession() {
   renderBubble();
   $('#session').classList.add('hidden');
   $('#deskEl').replaceChildren();
+}
+
+/* ================= 拖曳傳檔 ================= */
+function toast(text, cls) {
+  const el = h('div', {class: 'toast ' + (cls || '')}, text);
+  $('#toasts').append(el);
+  const api_ = {
+    set: v => { el.textContent = v; },
+    done: v => { el.className = 'toast ok'; el.textContent = v; setTimeout(() => el.remove(), 8000); },
+    fail: v => { el.className = 'toast bad'; el.textContent = v; el.onclick = () => el.remove(); },
+    remove: () => el.remove(),
+  };
+  if (cls === 'ok') setTimeout(() => el.remove(), 8000);
+  return api_;
+}
+
+const dropTarget = () => (sess && sess.pane === 'desk' ? 'desk' : 'term');
+const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+let dragDepth = 0;
+
+function showDropHint() {
+  const box = $('#dropHint');
+  box.textContent = !sess ? t('先連線到樹莓派，再把檔案拖進來')
+    : dropTarget() === 'desk' ? t('放開以傳到樹莓派的桌面') : t('放開以傳到終端機目前所在的資料夾');
+  box.classList.remove('hidden');
+}
+window.addEventListener('dragenter', e => { if (hasFiles(e)) { e.preventDefault(); dragDepth++; showDropHint(); } });
+window.addEventListener('dragover', e => {
+  if (hasFiles(e)) { e.preventDefault(); e.dataTransfer.dropEffect = sess ? 'copy' : 'none'; }
+});
+window.addEventListener('dragleave', e => {
+  if (hasFiles(e) && --dragDepth <= 0) { dragDepth = 0; $('#dropHint').classList.add('hidden'); }
+});
+window.addEventListener('drop', e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  dragDepth = 0;
+  $('#dropHint').classList.add('hidden');
+  const files = []; let folders = 0;
+  for (const it of Array.from(e.dataTransfer.items || [])) {   // 要在事件內同步讀完
+    if (it.kind !== 'file') continue;
+    const entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
+    if (entry && entry.isDirectory) { folders++; continue; }
+    const f = it.getAsFile();
+    if (f) files.push(f);
+  }
+  if (!sess) { toast(t('先連線到樹莓派，再把檔案拖進來')).fail(t('先連線到樹莓派，再把檔案拖進來')); return; }
+  if (folders) toast('').fail(t('不支援資料夾，請先壓縮成 zip 再傳'));
+  if (files.length) uploadFiles(files, dropTarget());
+});
+
+function xhrUpload(url, file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    x.open('POST', url);
+    x.setRequestHeader('X-Piscout-Token', TOKEN);
+    x.setRequestHeader('X-Lang', window.PISCOUT_LANG || 'zh');
+    x.upload.onprogress = ev => { if (ev.lengthComputable) onProgress(Math.round(ev.loaded / ev.total * 100)); };
+    x.onerror = () => reject(new Error('network error'));
+    x.onload = () => {
+      let data = {};
+      try { data = JSON.parse(x.responseText); } catch (e) {}
+      x.status >= 200 && x.status < 300 ? resolve(data)
+        : reject(new Error(typeof data.detail === 'string' ? data.detail : 'HTTP ' + x.status));
+    };
+    x.send(file);
+  });
+}
+
+async function uploadFiles(files, mode) {
+  const cur = sess;
+  const prep = toast(t('準備傳送…'));
+  let ticket;
+  try {
+    ticket = await postJson(`/api/devices/${cur.device.ip}/upload`, {mode, ...cur.cred});
+  } catch (e) { prep.fail(e.message); return; }
+  prep.done(t('目標資料夾：') + ticket.dir);
+  for (const f of files) {
+    const tt = toast(f.name + ' 0%');
+    try {
+      const r = await xhrUpload(`/api/upload/${ticket.token}?name=${encodeURIComponent(f.name)}`, f,
+        pct => tt.set(`${f.name} ${pct}%`));
+      tt.done(`✓ ${f.name} → ${r.path}`);
+    } catch (e) { tt.fail(`${f.name}：${e.message}`); }
+  }
+  api(`/api/upload/${ticket.token}`, {method: 'DELETE'}).catch(() => {});
 }
 
 /* ================= 燒錄 ================= */
