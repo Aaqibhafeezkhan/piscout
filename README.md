@@ -224,6 +224,10 @@ Have a different model or OS version? Please [report a compatibility result](../
 
 ![piscout 示範：掃描、連線、內建終端機](docs/demo.gif)
 
+![piscout 功能總覽：掃描、補齊選單、拖曳傳檔、燒錄、MCP](docs/promo.gif)
+
+<sub>[觀看 18 秒功能總覽影片](docs/promo.mp4)（動畫，不是螢幕錄影）</sub>
+
 <sub>示範影片使用模擬的裝置與終端機錄製（`PISCOUT_DEMO=1`，說明見 [docs/DEMO.md](docs/DEMO.md)），畫面中沒有真實的樹莓派。</sub>
 
 ## 你會得到什麼
