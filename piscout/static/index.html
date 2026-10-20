@@ -88,6 +88,12 @@
   .toast { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:8px 12px;
            font-size:13px; word-break:break-all; box-shadow:0 4px 14px rgba(0,0,0,.25); }
   .toast.ok { border-color:var(--ok); } .toast.bad { border-color:var(--accent); color:var(--accent); cursor:pointer; }
+  #suggest { position:fixed; z-index:25; background:var(--card); border:1px solid var(--line); border-radius:8px;
+             box-shadow:0 6px 20px rgba(0,0,0,.35); font:13px Consolas, "Cascadia Mono", monospace;
+             max-height:240px; overflow:auto; min-width:180px; max-width:60vw; padding:3px; }
+  #suggest .sg { padding:3px 8px; border-radius:5px; cursor:pointer; white-space:pre; }
+  #suggest .sg.on { background:var(--accent); color:#fff; }
+  #suggest .sg .k { opacity:.6; margin-right:6px; }
   #session { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; z-index:10; }
   #sessBar { display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--line);
              background:var(--card); flex-wrap:wrap; }
@@ -250,6 +256,7 @@
 
 <div id="bubble" class="hidden"></div>
 <div id="dropHint" class="hidden"></div>
+<div id="suggest" class="hidden"></div>
 <div id="toasts"></div>
 
 <!-- 連線視窗：內嵌終端機 / 遠端桌面 / 系統資訊 -->
@@ -367,7 +374,8 @@ function card(d) {
   const box = h('div', {class: 'card'});
   const tags = [];
   if (d.is_pi) tags.push(h('span', {class: 'tag pi'}, 'Raspberry Pi'));
-  tags.push(h('span', {class: 'tag'}, d.ssh_open ? 'SSH 開啟' : 'SSH 未開'));
+  if (d.cached) tags.push(h('span', {class: 'tag'}, d.missing ? '這次沒掃到' : '上次記錄'));
+  else tags.push(h('span', {class: 'tag'}, d.ssh_open ? 'SSH 開啟' : 'SSH 未開'));
   box.append(h('div', {class: 'row'},
     h('div', {},
       h('strong', {}, d.hostname || d.ip),
@@ -376,10 +384,10 @@ function card(d) {
     h('div', {class: 'row'}, tags,
       d.is_pi && d.ssh_open && advanced
         ? h('button', {onclick: () => startReflash(d.ip)}, '重灌系統') : '',
-      h('button', {class: d.is_pi && d.ssh_open ? 'primary' : '',
+      h('button', {class: d.is_pi && (d.ssh_open || d.cached) ? 'primary' : '',
                    onclick: () => { openIp = openIp === d.ip ? null : d.ip; render(); }},
         openIp === d.ip ? '收起' : '連線'))));
-  if (d.is_pi && !d.ssh_open) {
+  if (d.is_pi && !d.ssh_open && !d.cached) {
     box.append(h('div', {class: 'warn', style: 'margin-top:8px'},
       '這台樹莓派 SSH 沒有開，沒辦法遠端操作。可能還沒有系統，或沒啟用 SSH。' +
       '可以把 SD 卡拿下來插到這台電腦，用「燒錄系統」重新燒錄。'));
@@ -423,13 +431,41 @@ function loginForm(d) {
     err);
 }
 
+/* ---------- 記住上次的樹莓派：一開啟就先顯示，掃描在背景進行 ---------- */
+const KNOWN_KEY = 'piscout_known', KNOWN_DAYS = 30;
+function loadKnown() {
+  try {
+    const now = Date.now();
+    return JSON.parse(localStorage.getItem(KNOWN_KEY) || '[]')
+      .filter(k => k && k.mac && k.ip && now - (k.last_seen || 0) < KNOWN_DAYS * 86400000);
+  } catch (e) { return []; }
+}
+function persistKnown() {
+  const now = Date.now();
+  const list = devices.filter(d => d.is_pi).map(d => ({
+    ip: d.ip, mac: d.mac, hostname: d.hostname, ssh_open: d.ssh_open, is_pi: true,
+    hint_model: d.hint_model || null, model: d.model || '', model_id: d.model_id || null,
+    last_seen: d.missing || d.cached ? (d.last_seen || now) : now,
+  }));
+  try { localStorage.setItem(KNOWN_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
 async function doScan() {
   const btn = $('#scan');
   btn.disabled = true; btn.textContent = '掃描中…';
-  $('#net').textContent = '正在掃描區網…';
+  $('#net').textContent = devices.length && devices.every(d => d.cached)
+    ? '先顯示上次的樹莓派，正在背景重新掃描…' : '正在掃描區網…';
   try {
     const r = await api('/api/scan');
-    devices = r.devices;
+    const known = loadKnown();
+    const byMac = Object.fromEntries(r.devices.map(d => [d.mac, d]));
+    for (const k of known) {              // 型號是登入後才知道的，掃描結果沒有，沿用上次的
+      const d = byMac[k.mac];
+      if (d && !d.model) { d.model = k.model || ''; d.model_id = k.model_id || null; }
+    }
+    const missing = known.filter(k => !byMac[k.mac]).map(k => ({...k, cached: true, missing: true}));
+    devices = [...r.devices, ...missing];
+    persistKnown();
     const pis = devices.filter(d => d.is_pi).length;
     $('#net').textContent = `${r.network} · 找到 ${devices.length} 台設備，${pis} 台是樹莓派` +
       (pis ? '' : '。如果你的樹莓派還沒有系統，把它的 SD 卡插到這台電腦，我會幫你燒錄。');
@@ -482,7 +518,131 @@ function setPane(name) {
     $(pane).classList.toggle('hidden', id !== name);
     $('#st' + id[0].toUpperCase() + id.slice(1)).classList.toggle('on', id === name);
   }
+  sgHide();
   if (name === 'term' && sess && sess.fit) setTimeout(() => sess.fit.fit(), 0);
+}
+
+/* ================= 輸入時的補齊建議（像 VS Code） ================= */
+const BS = String.fromCharCode(92);
+const SG_SPECIAL = new Set((' !"#$&\'()*;<>?[]^`{|}~' + BS).split(''));
+const SG_DIR_CMDS = new Set(['cd', 'pushd', 'rmdir']);
+const sg = {items: [], sel: 0, word: '', open: false, navigated: false, seq: 0, timer: null, promptEnd: null};
+
+const sgEscape = text => Array.from(text).map(c => (SG_SPECIAL.has(c) ? BS + c : c)).join('');
+
+function sgHide() {
+  sg.open = false; sg.items = []; sg.navigated = false; sg.seq++;
+  $('#suggest').classList.add('hidden');
+}
+
+// 目前輸入列裡、游標前面的文字（從提示字元結束的位置算起）；看不準的情況回傳 null，就不顯示建議
+function sgInput() {
+  if (!sess || !sess.term || !sg.promptEnd) return null;
+  const term = sess.term, b = term.buffer.active;
+  if (b.type !== 'normal') return null;          // vim、less 這類全螢幕程式
+  const cur = b.baseY + b.cursorY;
+  if (cur < sg.promptEnd.y) return null;
+  let text = '';
+  for (let y = sg.promptEnd.y; y <= cur; y++) {
+    const line = b.getLine(y);
+    if (!line) return null;
+    if (y > sg.promptEnd.y && !line.isWrapped) return null;   // 多行輸入不處理
+    const from = y === sg.promptEnd.y ? sg.promptEnd.x : 0;
+    const to = y === cur ? b.cursorX : term.cols;
+    text += line.translateToString(false, from, to);
+  }
+  return text;
+}
+
+function sgParse(text) {
+  if (text == null) return null;
+  const word = text.match(/[^\s]*$/)[0];
+  if (!word || /["']/.test(word) || word.includes(BS) || word.length > 200) return null;   // 有引號或跳脫字元就不猜
+  const words = text.slice(0, text.length - word.length).trim().split(/\s+/).filter(Boolean);
+  const first = words.length === 0 || (words.length === 1 && words[0] === 'sudo');
+  const cmd = words[0] === 'sudo' ? words[1] : words[0];
+  return {word, first, dirs_only: !first && SG_DIR_CMDS.has(cmd)};
+}
+
+function sgSchedule() {
+  clearTimeout(sg.timer);
+  sg.timer = setTimeout(sgUpdate, 120);
+}
+
+async function sgUpdate() {
+  const cur = sess;
+  const q = sgParse(sgInput());
+  if (!cur || !q) { sgHide(); return; }
+  const my = ++sg.seq;
+  let items = [];
+  try {
+    items = (await postJson(`/api/devices/${cur.device.ip}/complete`, q)).items;
+  } catch (e) { items = []; }
+  if (my !== sg.seq || sess !== cur) return;          // 已經有更新的輸入，丟掉舊結果
+  items = items.filter(i => i.text.startsWith(q.word) && i.text !== q.word && i.text !== q.word + '/');
+  if (!items.length) { sgHide(); return; }
+  sg.items = items; sg.word = q.word; sg.sel = 0; sg.open = true; sg.navigated = false;
+  sgRender();
+}
+
+function sgRender() {
+  const box = $('#suggest');
+  box.replaceChildren(...sg.items.map((it, i) => {
+    const row = h('div', {class: 'sg' + (i === sg.sel ? ' on' : '')},
+      h('span', {class: 'k'}, it.kind === 'dir' ? '📁' : it.kind === 'cmd' ? '⌘' : '📄'), it.text);
+    row.addEventListener('mousedown', e => { e.preventDefault(); sgAccept(i); });   // 不搶走終端機的焦點
+    return row;
+  }));
+  box.classList.remove('hidden');
+  const term = sess.term, scr = term.element.querySelector('.xterm-screen').getBoundingClientRect();
+  const cw = scr.width / term.cols, ch = scr.height / term.rows;
+  const b = term.buffer.active;
+  let left = scr.left + (b.cursorX - sg.word.length) * cw;
+  let top = scr.top + (b.cursorY + 1) * ch + 2;
+  const bh = box.offsetHeight, bw = box.offsetWidth;
+  if (top + bh > window.innerHeight) top = scr.top + b.cursorY * ch - bh - 2;       // 下面放不下就放上面
+  left = Math.max(4, Math.min(left, window.innerWidth - bw - 4));
+  box.style.left = left + 'px'; box.style.top = Math.max(4, top) + 'px';
+  const on = box.querySelector('.on');
+  if (on) on.scrollIntoView({block: 'nearest'});
+}
+
+function sgAccept(i) {
+  const it = sg.items[i];
+  if (!it || !sess || !sess.termWs || sess.termWs.readyState !== 1) { sgHide(); return; }
+  const text = sgEscape(it.text.slice(sg.word.length)) + (it.kind === 'dir' ? '' : ' ');
+  sess.termWs.send(new TextEncoder().encode(text));
+  sgHide();
+}
+
+// 建議出現時，上下鍵選、Tab 接受、Esc 關閉；沒選過的話 Enter 照常執行指令
+function sgKey(ev) {
+  if (!sg.open || ev.type !== 'keydown' || ev.ctrlKey || ev.altKey || ev.metaKey) return true;
+  const n = sg.items.length;
+  switch (ev.key) {
+    case 'ArrowDown': sg.sel = (sg.sel + 1) % n; sg.navigated = true; sgRender(); return false;
+    case 'ArrowUp': sg.sel = (sg.sel - 1 + n) % n; sg.navigated = true; sgRender(); return false;
+    case 'Tab': if (ev.shiftKey) return true; sgAccept(sg.sel); return false;
+    case 'Escape': sgHide(); return false;
+    case 'Enter': if (sg.navigated) { sgAccept(sg.sel); return false; } sgHide(); return true;
+    default: return true;
+  }
+}
+
+function sgAttach(term) {
+  sg.promptEnd = null; sgHide();
+  // 提示字元結束的位置（shell 在 PS1 結尾送 OSC 133;B）
+  term.parser.registerOscHandler(133, d => {
+    if (d[0] === 'B') {
+      const b = term.buffer.active;
+      sg.promptEnd = {y: b.baseY + b.cursorY, x: b.cursorX};
+      sgHide();
+    }
+    return true;
+  });
+  term.attachCustomKeyEventHandler(sgKey);
+  term.onWriteParsed(sgSchedule);
+  term.textarea && term.textarea.addEventListener('blur', sgHide);
 }
 
 function startTerminal(token) {
@@ -494,6 +654,7 @@ function startTerminal(token) {
   term.loadAddon(fit);
   $('#termEl').replaceChildren();
   term.open($('#termEl'));
+  sgAttach(term);
   // Tab 補齊有好幾個選項時，樹莓派只會響鈴；用畫面閃一下框線代替聲音，提醒再按一次 Tab 列出選項
   term.onBell(() => {
     const el = $('#termEl');
@@ -572,6 +733,7 @@ function closeSession() {
   try { sess.rfb && sess.rfb.disconnect(); } catch (e) {}
   try { sess.term && sess.term.dispose(); } catch (e) {}
   clearInterval(sess.timer);
+  sgHide();
   sess = null;
   document.body.classList.remove('in-session');
   renderBubble();
@@ -724,6 +886,7 @@ async function learnModel(d, cred) {
     d.model = info.model || '';
     d.model_id = info.model_id || null;
     d.os = info.os || '';
+    persistKnown();
     render();
     fillDeviceSelect(d.ip);
   } catch (e) { /* 讀不到就算了，不影響連線 */ }
@@ -1047,6 +1210,7 @@ async function refreshFleet() {
         d.model = x.stats.model; d.model_id = x.model_id || null;
       }
     }
+    persistKnown();
     fillDeviceSelect();
   } catch (e) {
     $('#fleetMsg').className = 'err'; $('#fleetMsg').textContent = e.message;
@@ -1234,7 +1398,10 @@ $('#langSel').addEventListener('change', e => window.setLang(e.target.value));
 /* ================= 啟動 ================= */
 (async function boot() {
   if (DEMO) $('#demoBar').classList.remove('hidden');
+  devices = loadKnown().map(d => ({...d, cached: true}));
+  if (devices.length) $('#net').textContent = '先顯示上次的樹莓派，正在背景重新掃描…';
   render();
+  fillDeviceSelect();
   syncTarget();          // 預設是本機燒錄，先列出可移除磁碟
   loadImages();          // 先載入系統清單與型號
   await doScan();        // 一打開就自動掃描

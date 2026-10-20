@@ -269,3 +269,35 @@ def test_pump_injects_once_and_hides_it(monkeypatch):
     assert len(chan.sent) == 1 and chan.sent[0] == transfer.INJECT      # 只送一次設定
     assert ws.out == b"Welcome\r\n$ " + b"\r\x1b[2K$ "                  # 使用者只會看到提示字元
     assert tap.cwd == "/home/milkteatw/Downloads".replace("milkteatw", "milktea")
+
+
+@pytest.mark.skipif(BASH is None, reason="needs bash")
+def test_complete_finds_commands_files_and_hides_dotfiles(tmp_path, monkeypatch):
+    (tmp_path / "Downloads").mkdir()
+    (tmp_path / "doc one.txt").write_text("x")
+    (tmp_path / ".hidden").write_text("x")
+    bindir = tmp_path / "bin"
+    bindir.mkdir()
+    (bindir / "mytool").write_text("#!/bin/sh\n")
+    (bindir / "mytool").chmod(0o755)
+    path = os.pathsep.join([str(bindir), os.path.dirname(BASH), os.environ["PATH"]])
+    env = dict(os.environ, PATH=path, HOME=str(tmp_path))
+
+    def fake_run(client, cmd, sudo_password=None, timeout=60):
+        r = subprocess.run([BASH, "-c", cmd], env=env, capture_output=True, text=True)
+        return r.returncode, r.stdout, r.stderr
+
+    monkeypatch.setattr(transfer.remote, "run", fake_run)
+    cwd = str(tmp_path)
+    got = transfer.complete(None, "Do", cwd, first=False)
+    assert [i["text"] for i in got] == ["Downloads/"] and got[0]["kind"] == "dir"
+    got = transfer.complete(None, "do", cwd, first=False)
+    assert [i["text"] for i in got] == ["doc one.txt"] and got[0]["kind"] == "file"
+    assert transfer.complete(None, ".", cwd, first=False)[0]["text"] == ".hidden"   # 只有輸入 . 才列出隱藏檔
+    assert all(i["text"] != ".hidden" for i in transfer.complete(None, "", cwd, first=False))
+    got = transfer.complete(None, "~/Dow", cwd, first=False)
+    assert [i["text"] for i in got] == ["~/Downloads/"]      # 家目錄寫回 ~
+    assert [i["text"] for i in transfer.complete(None, "myto", cwd, first=True)] == ["mytool"]
+    assert [i["text"] for i in transfer.complete(None, "d", cwd, first=False, dirs_only=True)] == []
+    assert [i["text"] for i in transfer.complete(None, "D", cwd, first=False, dirs_only=True)] == ["Downloads/"]
+    assert transfer.complete(None, "x" * 300, cwd, first=False) == []

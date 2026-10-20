@@ -433,6 +433,28 @@ async def ws_desktop(ws: WebSocket, token: str):
             pass
 
 
+class CompleteReq(BaseModel):
+    word: str
+    first: bool = False
+    dirs_only: bool = False
+
+
+@app.post("/api/devices/{host}/complete")
+async def api_complete(host: str, req: CompleteReq):
+    """終端機輸入時的補齊建議。用終端機分頁那條連線跑 compgen，只讀不寫。"""
+    host = _check_host(host)
+    client = TERMS.get(host)
+    if client is None:
+        return {"items": []}
+    tap = TAPS.get(host)
+    cwd = tap.cwd if tap and tap.cwd.startswith("/") else ""
+    try:
+        items = await run_in_threadpool(transfer.complete, client, req.word, cwd, req.first, req.dirs_only)
+    except Exception:
+        items = []
+    return {"items": items}
+
+
 # ------------------------------------------------------------ 傳檔（拖曳到視窗）
 
 class UploadReq(BaseModel):

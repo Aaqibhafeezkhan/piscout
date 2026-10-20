@@ -88,8 +88,10 @@ import re as _re
 import time as _time
 
 # 開頭的空白讓它不進 history（Debian 預設 HISTCONTROL=ignoreboth）
+# __pc 每次提示字元前回報資料夾（OSC 7），並在 PS1 結尾加上 OSC 133;B，讓畫面知道「輸入從哪裡開始」
 INJECT = (
-    r''' __pc() { printf '\033]7;file://%s%s\007' "$HOSTNAME" "$PWD"; }; '''
+    r''' __pc() { printf '\033]7;file://%s%s\007' "$HOSTNAME" "$PWD"; '''
+    r'''case "$PS1" in *133*B*) ;; *) PS1="$PS1\\[\\033]133;B\\007\\]";; esac; }; '''
     r'''PROMPT_COMMAND="__pc${PROMPT_COMMAND:+;$PROMPT_COMMAND}"; __pc; '''
     r'''printf '__PISCOUT_%s__\n' READY''' "\n"
 ).encode()
@@ -143,3 +145,60 @@ class CwdTap:
             out, self._buf, self.state = self._buf, b"", "normal"
             return out       # 等太久就放行，不要把畫面卡住
         return b""
+
+
+# ------------------------------------------------------------------ 輸入時的補齊建議
+import shlex as _shlex
+
+# 在樹莓派上用 bash 內建的 compgen 找候選：第一個字找指令，其餘找檔案與資料夾。
+# $1 = 目前輸入的字，$2 = 工作目錄，$3 = cmd / path
+COMPLETE_SH = """
+echo "$HOME"
+cd -- "$2" 2>/dev/null
+w=$1
+case "$w" in "~"|"~/"*) w="$HOME${w#"~"}";; esac
+if [ "$3" = cmd ]; then
+  compgen -c -- "$w" | sort -u | head -60
+else
+  compgen -f -- "$w" | head -80 | while IFS= read -r f; do
+    if [ -d "$f" ]; then echo "$f/"; else echo "$f"; fi
+  done
+fi
+"""
+
+DIR_ONLY_CMDS = {"cd", "pushd", "rmdir"}
+
+
+def complete(client, word, cwd, first, dirs_only=False):
+    """回傳 [{"text": 完整的字, "kind": cmd/dir/file}]。word 必須是沒有引號跳脫的單純字。"""
+    if not word or len(word) > 200 or any(c in word for c in "\n\r\x00"):
+        return []
+    mode = "cmd" if first and "/" not in word and not word.startswith("~") else "path"
+    cmd = "bash -c " + _shlex.quote(COMPLETE_SH) + " _ " + " ".join(
+        _shlex.quote(a) for a in (word, cwd or "", mode))
+    code, out, _ = remote.run(client, cmd, timeout=6)
+    lines = out.split("\n")
+    home = lines[0].strip() if lines else ""
+    shown_home = word == "~" or word.startswith("~/")
+    typed_base = word.rsplit("/", 1)[-1]
+    items = []
+    for line in lines[1:]:
+        if not line:
+            continue
+        if mode == "cmd":
+            items.append({"text": line, "kind": "cmd"})
+            continue
+        is_dir = line.endswith("/")
+        base = line.rstrip("/").rsplit("/", 1)[-1]
+        if base in (".", ".."):
+            continue
+        if base.startswith(".") and not typed_base.startswith("."):
+            continue
+        if dirs_only and not is_dir:
+            continue
+        if shown_home and home and (line == home or line.startswith(home + "/")):
+            line = "~" + line[len(home):]
+        items.append({"text": line, "kind": "dir" if is_dir else "file"})
+    if mode == "path":
+        items.sort(key=lambda i: (i["kind"] != "dir", i["text"].lower()))
+    return items[:30]
