@@ -9,6 +9,7 @@ BEAT = 60 / BPM
 SCENE = 8 * BEAT            # 3.75 s
 N = 8
 DUR = SCENE * N             # 30 s
+SPEED = 1.7                 # playback speed: animation timeline runs this much faster
 OUT = sys.argv[1] if len(sys.argv) > 1 else "piscout-promo.mp4"
 
 F = "C:/Windows/Fonts/"
@@ -240,11 +241,6 @@ def frame(sec):
     if idx == 2: t += SCENE            # second slot of the scan scene continues it
     img = SCENES[ORDER[idx]](t)
     local = sec - idx * SCENE
-    beat_t = (sec % BEAT) / BEAT
-    if beat_t < 0.12:
-        img.alpha_composite(Image.new("RGBA", img.size, (255, 255, 255, int(28 * (1 - beat_t / 0.12)))))
-    if local < 0.12 and idx > 0 and idx != 2:
-        img.alpha_composite(Image.new("RGBA", img.size, (232, 33, 86, int(160 * (1 - local / 0.12)))))
     ImageDraw.Draw(img).rectangle((0, H - 6, int(W * sec / DUR), H), fill=PINK)
     return img.convert("RGB")
 
@@ -298,19 +294,14 @@ def synth():
     return (out * 32767).astype(np.int16)
 
 def main():
-    wav = "promo_audio.wav"
-    with wave.open(wav, "wb") as w:
-        w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes(synth().tobytes())
     ff = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-          "-i", wav, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "medium", "-c:a", "aac", "-b:a", "192k",
-          "-shortest", OUT]
+          "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "medium", OUT]
     p = subprocess.Popen(ff, stdin=subprocess.PIPE)
-    total = int(DUR * FPS)
+    total = int(DUR / SPEED * FPS)
     for i in range(total):
-        p.stdin.write(frame(i / FPS).tobytes())
+        p.stdin.write(frame(i / FPS * SPEED).tobytes())
         if i % 90 == 0: print(i, "/", total, flush=True)
     p.stdin.close(); p.wait()
-    os.remove(wav)
     print("done", OUT)
 
 if __name__ == "__main__":
