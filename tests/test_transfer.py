@@ -154,3 +154,99 @@ def test_upload_requires_token_and_private_host(server):
     req = {"mode": "term", "username": "p"}
     assert call(server, "POST", "/api/devices/192.168.0.5/upload", req, token=False)[0] in (401, 403)
     assert call(server, "POST", "/api/devices/8.8.8.8/upload", req)[0] >= 400
+
+
+def test_cwd_tap_hides_setup_and_tracks_directory():
+    sent, clock = [], [0.0]
+    tap = transfer.CwdTap(sent.append, now=lambda: clock[0])
+    assert tap.idle() == b""                       # 還沒有任何輸出，不能先送設定
+    banner = tap.feed(b"Linux raspberrypi\r\nmilktea@pi:~ $ ")
+    assert banner == b"Linux raspberrypi\r\nmilktea@pi:~ $ "   # 提示字元照常顯示
+    assert tap.idle() == b"" and sent == [transfer.INJECT]      # 安靜了才送設定
+    # 回音、OSC 7、標記行都不能出現在畫面上；新的提示字元蓋掉舊的
+    assert tap.feed(b" __pc() { printf ... }; PROMPT_COMMAND=...\r\n") == b""
+    assert tap.feed(b"\x1b]7;file://pi/home/milktea\x07__PISCOUT_RE") == b""
+    shown = tap.feed(b"ADY__\r\nmilktea@pi:~ $ ")
+    assert shown == b"\r\x1b[2Kmilktea@pi:~ $ "
+    assert tap.cwd == "/home/milktea"
+    # 之後每個提示字元的 OSC 7 照常記錄並轉給畫面
+    out = tap.feed(b"\x1b]7;file://pi/home/milktea/Downloads\x07milktea@pi:~/Downloads $ ")
+    assert tap.cwd == "/home/milktea/Downloads" and b"Downloads $" in out
+
+
+def test_cwd_tap_handles_spaces_and_split_chunks():
+    tap = transfer.CwdTap(lambda b: None)
+    tap.state = "normal"
+    tap.feed(b"\x1b]7;file://pi/home/milktea/My Fil")
+    tap.feed(b"es\x07$ ")
+    assert tap.cwd == "/home/milktea/My Files"
+
+
+def test_cwd_tap_does_not_stall_when_marker_never_comes():
+    clock = [0.0]
+    tap = transfer.CwdTap(lambda b: None, now=lambda: clock[0])
+    tap.feed(b"$ ")
+    tap.idle()                                     # 送出設定
+    assert tap.feed(b"bash: something odd\r\n") == b""
+    clock[0] = 3.0
+    assert tap.idle() == b"bash: something odd\r\n"   # 超過 2 秒就放行，畫面不會卡住
+    assert tap.feed(b"$ ") == b"$ "
+
+
+def test_pump_injects_once_and_hides_it(monkeypatch):
+    import asyncio
+    import queue
+
+    class FakeChan:
+        def __init__(self):
+            self.q, self.sent, self.closed = queue.Queue(), [], False
+
+        def settimeout(self, t):
+            self.t = t
+
+        def recv(self, n):
+            try:
+                return self.q.get(timeout=0.05)
+            except queue.Empty:
+                if self.closed:
+                    return b""
+                raise socket.timeout()
+
+        def send(self, data):
+            self.sent.append(data)
+            # 假裝 shell 收到設定後：回音、OSC 7、標記、新的提示字元
+            self.q.put(b" __pc() ...\r\n\x1b]7;file://pi/home/milktea/Downloads\x07__PISCOUT_READY__\r\n$ ")
+
+        def sendall(self, data):
+            pass
+
+        def close(self):
+            self.closed = True
+
+    class FakeWs:
+        def __init__(self):
+            self.out = b""
+
+        async def send_bytes(self, data):
+            self.out += data
+
+        async def receive(self):
+            await asyncio.sleep(3600)
+
+    async def run():
+        chan, ws = FakeChan(), FakeWs()
+        tap = transfer.CwdTap(chan.send)
+        chan.q.put(b"Welcome\r\n$ ")
+        task = asyncio.ensure_future(app_module._pump(ws, chan, None, tap))
+        for _ in range(100):
+            await asyncio.sleep(0.05)
+            if tap.state == "normal":
+                break
+        chan.closed = True
+        await asyncio.wait_for(task, 5)
+        return chan, ws, tap
+
+    chan, ws, tap = asyncio.run(run())
+    assert len(chan.sent) == 1 and chan.sent[0] == transfer.INJECT      # 只送一次設定
+    assert ws.out == b"Welcome\r\n$ " + b"\r\x1b[2K$ "                  # 使用者只會看到提示字元
+    assert tap.cwd == "/home/milkteatw/Downloads".replace("milkteatw", "milktea")

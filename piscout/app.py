@@ -7,6 +7,8 @@ import threading
 import json
 import re
 import secrets
+import socket
+import stat
 import time
 import urllib.request
 from pathlib import Path
@@ -271,6 +273,7 @@ async def api_install(host: str, login: Login):
 # ------------------------------------------------------------ 終端機 / 遠端桌面
 
 TERMS = {}
+TAPS = {}
 UPLOADS = {}
 UPLOAD_TTL = 300
 
@@ -316,16 +319,27 @@ async def api_session(host: str, req: SessionReq):
     return {"token": token}
 
 
-async def _pump(ws, chan, on_text=None):
+async def _pump(ws, chan, on_text=None, tap=None):
     """chan（paramiko channel）和 websocket 之間搬資料，任何一邊結束就收工。"""
     loop = asyncio.get_running_loop()
 
+    def recv():
+        try:
+            return chan.recv(32768)
+        except socket.timeout:
+            return None
+
     async def chan_to_ws():
+        if tap:
+            chan.settimeout(0.4)
         while True:
-            data = await loop.run_in_executor(None, chan.recv, 32768)
-            if not data:
+            data = await loop.run_in_executor(None, recv)
+            if data == b"":
                 return
-            await ws.send_bytes(data)
+            if tap:
+                data = tap.feed(data) if data is not None else tap.idle()
+            if data:
+                await ws.send_bytes(data)
 
     async def ws_to_chan():
         while True:
@@ -370,6 +384,8 @@ async def ws_terminal(ws: WebSocket, token: str, cols: int = 80, rows: int = 24)
     await _accept(ws)
     chan = sess["client"].invoke_shell(term="xterm-256color", width=cols, height=rows)
     TERMS[sess["host"]] = sess["client"]  # 傳檔時用它找出終端機目前的資料夾
+    tap = transfer.CwdTap(chan.send)
+    TAPS[sess["host"]] = tap
 
     def on_text(text):
         try:
@@ -380,10 +396,11 @@ async def ws_terminal(ws: WebSocket, token: str, cols: int = 80, rows: int = 24)
             pass
 
     try:
-        await _pump(ws, chan, on_text)
+        await _pump(ws, chan, on_text, tap)
     finally:
         if TERMS.get(sess["host"]) is sess["client"]:
             del TERMS[sess["host"]]
+            TAPS.pop(sess["host"], None)
         _drop(sess)
         try:
             await ws.close()
@@ -438,11 +455,26 @@ def _expire_uploads():
         _close_upload(UPLOADS.pop(token))
 
 
+def _reported_dir(sftp, host):
+    """終端機用 OSC 7 回報的資料夾；必須是存在的絕對路徑，否則不採用。"""
+    tap = TAPS.get(host)
+    d = tap.cwd if tap else ""
+    if not d.startswith("/"):
+        return ""
+    try:
+        return d if stat.S_ISDIR(sftp.stat(d).st_mode) else ""
+    except (IOError, OSError):
+        return ""
+
+
 def _open_upload(host, req):
     client = remote.connect(host, req.username, req.password, req.key_path)
     try:
-        directory = transfer.target_dir(client, req.mode, TERMS.get(host))
-        return client, client.open_sftp(), directory
+        sftp = client.open_sftp()
+        directory = _reported_dir(sftp, host) if req.mode == "term" else ""
+        if not directory:
+            directory = transfer.target_dir(client, req.mode, TERMS.get(host))
+        return client, sftp, directory
     except Exception:
         client.close()
         raise

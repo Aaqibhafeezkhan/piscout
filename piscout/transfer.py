@@ -79,3 +79,67 @@ def home_dir(client):
 def target_dir(client, mode, term_client=None):
     d = (term_dir(term_client) if mode == "term" else desk_dir(client)) or home_dir(client)
     return posixpath.normpath(d)
+
+
+# ------------------------------------------------------------------ 終端機回報目前資料夾
+# 終端機開好、第一個提示字元出現後，悄悄送一行設定給 shell，讓它每次顯示提示字元時
+# 用 OSC 7 回報 $PWD。這一行和它的回音會被吃掉，使用者看不到；之後的 OSC 7 照常轉給畫面。
+import re as _re
+import time as _time
+
+# 開頭的空白讓它不進 history（Debian 預設 HISTCONTROL=ignoreboth）
+INJECT = (
+    r''' __pc() { printf '\033]7;file://%s%s\007' "$HOSTNAME" "$PWD"; }; '''
+    r'''PROMPT_COMMAND="__pc${PROMPT_COMMAND:+;$PROMPT_COMMAND}"; __pc; '''
+    r'''printf '__PISCOUT_%s__\n' READY''' "\n"
+).encode()
+MARKER = b"__PISCOUT_READY__"
+_OSC7 = _re.compile(rb"\x1b\]7;file://[^/\x07\x1b]*(/[^\x07\x1b]*)(?:\x07|\x1b\\)")
+
+
+class CwdTap:
+    def __init__(self, send, now=_time.monotonic):
+        self.send, self.now = send, now
+        self.state = "wait"      # wait 等第一個提示字元 -> swallow 吃掉設定的回音 -> normal
+        self.seen = False
+        self.cwd = ""
+        self._buf = b""
+        self._tail = b""
+        self._t0 = 0.0
+
+    def _scan(self, data):
+        text = self._tail + data
+        for m in _OSC7.finditer(text):
+            self.cwd = m.group(1).decode("utf-8", "replace")
+        self._tail = text[-512:]
+
+    def feed(self, data):
+        """回傳要轉給畫面的資料。"""
+        self._scan(data)
+        if self.state == "wait":
+            self.seen = True
+            return data
+        if self.state == "swallow":
+            self._buf += data
+            i = self._buf.find(MARKER)
+            if i >= 0:
+                j = self._buf.find(b"\n", i)
+                if j < 0:
+                    return b""      # 標記那一行還沒收完
+                rest, self._buf, self.state = self._buf[j + 1:], b"", "normal"
+                return b"\r\x1b[2K" + rest      # 新的提示字元蓋掉舊的那行
+            if len(self._buf) > 65536:
+                out, self._buf, self.state = self._buf, b"", "normal"
+                return out
+            return b""
+        return data
+
+    def idle(self):
+        """一段時間沒有輸出時呼叫。回傳要轉給畫面的資料。"""
+        if self.state == "wait" and self.seen:
+            self.send(INJECT)
+            self.state, self._t0 = "swallow", self.now()
+        elif self.state == "swallow" and self.now() - self._t0 > 2.0:
+            out, self._buf, self.state = self._buf, b"", "normal"
+            return out       # 等太久就放行，不要把畫面卡住
+        return b""
