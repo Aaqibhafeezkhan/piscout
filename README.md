@@ -21,7 +21,9 @@ Tested on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm):
 - **Find** – scans the LAN on launch and recognizes Raspberry Pis, no IP hunting
 - **Connect** – click *Connect*, enter the login, and get an SSH terminal inside the app
 - **See the desktop** – view and control the Pi's desktop through the SSH tunnel
-- **Always-on status bubble** – a small panel in the top-right corner shows the Pi's temperature, load, memory, disk and uptime; the agent is installed automatically after the first connection, and you can collapse the bubble
+- **Always-on status bubble** – a small panel in the top-right corner shows the Pi's temperature, load, memory, disk and uptime; the agent is installed automatically after the first connection, and you can collapse or drag the bubble anywhere
+- **Suggestions while you type** – the terminal shows a VS Code-style popup with commands, files and folders as you type; Up/Down to choose, Tab to accept, Esc to close
+- **Fast start** – the Pis seen last time appear immediately and the scan runs in the background
 - **Drag and drop files** – drop files onto the window while connected: on the terminal tab they go to the shell's current folder, on the remote desktop tab to the Pi's Desktop folder. Existing files are never overwritten (`name (1).ext`). Folders are not supported yet
 - **Manage several** – temperature / load / memory of every Pi at a glance; reboot, shut down or update several at once
 - **Remembers you** – logins are encrypted with Windows DPAPI and the model is detected automatically
@@ -176,6 +178,8 @@ Only enable this for assistants you trust: they can run any command as that user
 | SSH login, system info, agent install, overview | works |
 | Built-in terminal (run commands) | works (tested by the author) |
 | Remote desktop (wayvnc through the SSH tunnel) | works (tested by the author) |
+| Drag-and-drop upload into the terminal's current folder | works (tested by the author) |
+| Typing suggestions popup in the terminal | works (tested by the author) |
 | Local SD card flashing (download, write, read-back verify, boot settings) | works: the Pi booted and the configured user could log in |
 
 **Tested without a real device:** image pre-processing and boot-settings injection (also run against the real
@@ -225,7 +229,9 @@ Have a different model or OS version? Please [report a compatibility result](../
 - **找到**：一打開就掃區網並辨識樹莓派，不用再找 IP
 - **連線**：點「連線」輸入帳密，直接在程式裡開 SSH 終端機
 - **看桌面**：經 SSH 通道查看並操作樹莓派的桌面
-- **常駐狀態泡泡**：右上角的小面板隨時顯示樹莓派的溫度、負載、記憶體、磁碟與開機時間；第一次連線後會自動安裝 agent，泡泡可以收合
+- **常駐狀態泡泡**：右上角的小面板隨時顯示樹莓派的溫度、負載、記憶體、磁碟與開機時間；第一次連線後會自動安裝 agent，泡泡可以收合，也能拖到畫面任何位置
+- **輸入時的補齊選單**：在終端機打字時，像 VS Code 一樣跳出指令、檔案、資料夾的候選；上下鍵選、Tab 接受、Esc 關閉
+- **啟動很快**：一打開就先顯示上次的樹莓派，掃描在背景進行
 - **拖曳傳檔**：連線後把檔案拖進視窗，在終端機分頁會傳到 shell 目前所在的資料夾，在遠端桌面分頁會傳到樹莓派的桌面資料夾；同名檔案不會被覆蓋（自動改成 `名稱 (1).副檔名`）；目前不支援整個資料夾
 - **管理多台**：一眼看到每台的溫度、負載、記憶體，並可批次重開機、關機、更新套件
 - **記住帳密**：以 Windows DPAPI 加密儲存，並自動偵測型號
@@ -423,7 +429,7 @@ piscout 內附一個很小的 MCP 伺服器（只用標準函式庫），讓 AI 
 ## 驗證狀況與還沒做的
 
 **已在真機實測**（Raspberry Pi 3 Model B Rev 1.2、Raspberry Pi OS Debian 12「Bookworm」）：區網掃描與 Pi 辨識、
-SSH 登入與系統資訊、agent 安裝與總覽、內建終端機（可實際執行指令）、遠端桌面（經 SSH 通道的 wayvnc）、本機 SD 卡燒錄（燒完開機並以設定的帳號登入），皆由作者測試。
+SSH 登入與系統資訊、agent 安裝與總覽、內建終端機（可實際執行指令）、遠端桌面（經 SSH 通道的 wayvnc）、拖曳傳檔到終端機目前資料夾、輸入補齊選單、本機 SD 卡燒錄（燒完開機並以設定的帳號登入），皆由作者測試。
 
 **未用真機測試的部分**：映像預處理與開機設定寫入（含用真實的 Raspberry Pi OS 64 位元映像跑過：來源 SHA-256 校驗通過、`user-data` 已寫入 boot 分割區）、
 Pi 端寫入腳本的流程與校驗邏輯（用本機模擬）、單元測試。
