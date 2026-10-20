@@ -14,7 +14,24 @@ import uvicorn
 from piscout import app as app_module
 from piscout import transfer
 
-BASH = shutil.which("bash")
+
+
+def _find_bash():
+    """Windows 上 PATH 裡的 bash 可能是壞掉的 WSL 轉接器，所以要實際跑一次確認能用。"""
+    cands = [shutil.which("bash"), r"C:\Program Files\Git\usr\bin\bash.exe", "/bin/bash"]
+    for c in cands:
+        if not c or not os.path.exists(c):
+            continue
+        try:
+            out = subprocess.run([c, "-c", "echo ok"], capture_output=True, text=True, timeout=10).stdout
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if out.strip() == "ok":
+            return c
+    return None
+
+
+BASH = _find_bash()
 
 
 def test_safe_name_strips_paths_and_rejects_empty():
@@ -43,7 +60,9 @@ def test_cwd_script_picks_the_shell_with_a_tty(tmp_path):
     (bindir / "readlink").write_text("#!/bin/sh\n[ \"$1\" = /proc/801/cwd ] && echo /home/pi/project\n")
     for f in bindir.iterdir():
         f.chmod(0o755)
-    env = dict(os.environ, PATH=str(bindir) + os.pathsep + os.environ["PATH"], HOME="/home/pi")
+    # grep/awk/cut 要找得到：Windows 的 Git bash 不一定帶著自己的 usr\bin
+    path = os.pathsep.join([str(bindir), os.path.dirname(BASH), os.environ["PATH"]])
+    env = dict(os.environ, PATH=path, HOME="/home/pi")
     out = subprocess.run([BASH, "-c", transfer.CWD_SH.format(port=51000)], env=env,
                          capture_output=True, text=True).stdout.strip()
     assert out == "/home/pi/project"
