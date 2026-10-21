@@ -652,6 +652,57 @@ function sgKey(ev) {
   }
 }
 
+/* ================= 剪貼簿：Ctrl+V 貼上、選取後 Ctrl+C 複製、右鍵 ================= */
+async function readClip() {
+  try {   // 由程式讀 Windows 剪貼簿，不會被內嵌瀏覽器的權限擋住
+    const r = await api('/api/clipboard');
+    if (r && r.text) return r.text;
+  } catch (e) {}
+  try { return await navigator.clipboard.readText(); } catch (e) { return ''; }
+}
+
+async function pasteInto(term) {
+  const text = await readClip();
+  if (text) term.paste(text);      // paste 會處理多行與括號貼上模式
+}
+
+async function copyFrom(term) {
+  const text = term.getSelection();
+  if (!text) return;
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
+  if (!ok) {                       // 退一步：用隱藏的輸入框複製
+    const ta = h('textarea', {style: 'position:fixed;opacity:0;left:-1000px'});
+    ta.value = text; document.body.append(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+  }
+  term.clearSelection();
+  term.focus();
+  if (ok) toast(t('已複製')).done(t('已複製'));
+}
+
+// 回傳 false 代表這個按鍵由我們處理，不再交給終端機
+function clipKey(term, ev) {
+  if (ev.type !== 'keydown' || ev.altKey || ev.metaKey) return true;
+  const k = ev.key.toLowerCase();
+  if ((ev.ctrlKey && k === 'v') || (ev.shiftKey && !ev.ctrlKey && ev.key === 'Insert')) {
+    ev.preventDefault(); pasteInto(term); return false;
+  }
+  // 有選取文字時 Ctrl+C 是複製；沒選取就照舊送 Ctrl+C（中斷程式）
+  if (ev.ctrlKey && k === 'c' && (ev.shiftKey || term.hasSelection())) {
+    ev.preventDefault(); copyFrom(term); return false;
+  }
+  return true;
+}
+
+// 右鍵：有選取就複製，沒有就貼上（和 Windows Terminal 一樣）
+function clipMenu(term, ev) {
+  ev.preventDefault();
+  if (term.hasSelection()) copyFrom(term); else pasteInto(term);
+  term.focus();
+}
+
 function sgAttach(term) {
   sg.promptEnd = null; sgHide();
   // 提示字元結束的位置（shell 在 PS1 結尾送 OSC 133;B）
@@ -663,7 +714,8 @@ function sgAttach(term) {
     }
     return true;
   });
-  term.attachCustomKeyEventHandler(sgKey);
+  term.attachCustomKeyEventHandler(ev => clipKey(term, ev) && sgKey(ev));
+  term.element && term.element.addEventListener('contextmenu', e => clipMenu(term, e));
   term.onWriteParsed(sgSchedule);
   term.textarea && term.textarea.addEventListener('blur', sgHide);
 }

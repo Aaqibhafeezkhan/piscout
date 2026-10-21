@@ -20,7 +20,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import tools, fleet, flasher, i18n, remote, remoteflash, scanner, transfer, vault
+from . import clipboard, tools, fleet, flasher, i18n, remote, remoteflash, scanner, transfer, vault
 from .i18n import tr
 
 STATIC = Path(__file__).parent / "static"
@@ -131,6 +131,12 @@ def index():
             .replace("__PISCOUT_DEMO__", "true" if DEMO else "false"),
         headers={"Cache-Control": "no-store"},
     )
+
+
+@app.get("/api/clipboard")
+async def api_clipboard():
+    """這台電腦剪貼簿的文字，給終端機貼上用（只有帶本機 token 的請求讀得到）。"""
+    return {"text": await run_in_threadpool(clipboard.get_text)}
 
 
 @app.get("/i18n-data.js")
