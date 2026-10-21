@@ -1,13 +1,13 @@
-## piscout v0.1.5 (early release)
+## piscout v0.1.6
 
 Windows desktop tool for Raspberry Pi on your LAN: auto-discovery, built-in SSH terminal, remote desktop, overview and batch actions, SD card flashing, bilingual UI (中文 / English).
 
-### What changed since v0.1.4
-- **Drag and drop files** onto the window to upload them over SFTP, with a progress bar. In the terminal tab they land in the folder your shell is currently in; in the remote desktop tab they go to the desktop.
-- **VS Code-style suggestions in the terminal**: a popup appears while you type (commands, files, folders). Up/Down to choose, Tab to accept, Esc to close. Focus stays in the terminal.
-- **Startup is faster**: the Pis seen last time are shown immediately, the scan runs in the background (cards are marked "last seen" / "not found this time").
-- The status bubble can be dragged anywhere (double-click to reset).
-- Tab completion now flashes the terminal border instead of beeping.
+### What changed since v0.1.5
+- **Health check in plain words**: under-voltage, overheating, SD card errors, full disk, low memory, failed services and a wrong clock are checked every minute while you are connected. Problems show up as short warnings in the status bubble (click one for the advice); the bubble now starts collapsed and shows ⚠️/❌ next to the temperature. Read-only.
+- **Quick setup** on the *System info* tab: enable I2C / SPI and time sync, install common tools (htop, git, tree, ncdu, curl), expand the filesystem. A fixed list of actions only.
+- **Much faster system info**: reuses the terminal's SSH connection, uploads the agent only once, and reads the quick-setup state in one round trip.
+- MCP gets a read-only `pi_health` tool.
+- Tab no longer moves focus out of the terminal when you accept a suggestion.
 
 ### Download
 `piscout.exe` (below). Verify with `piscout.exe.sha256`.
@@ -34,6 +34,8 @@ A completely blank SD card that has never booted cannot be reached over the netw
 ---
 
 ## 繁體中文
-早期版本。相較 v0.1.4：**拖曳檔案到視窗即可上傳（有進度條）**，終端機分頁傳到 shell 目前所在的資料夾，遠端桌面分頁傳到桌面；**終端機輸入時會跳出像 VS Code 的補齊選單**（上下鍵選、Tab 接受、Esc 關閉）；**啟動時先顯示上次的樹莓派，背景再掃描**；系統資訊泡泡可以拖動；Tab 補齊改用框線閃爍取代響鈴。
+相較 v0.1.5：**白話健康檢查**（電源不足、過熱、SD 卡錯誤、磁碟快滿、記憶體不足、服務失敗、時間不準），連線時每分鐘檢查，有問題會以簡短警告顯示在狀態泡泡裡（點一下看建議）；泡泡預設縮小，溫度旁會有 ⚠️/❌ 提醒；只讀取，不改設定。
+**快速設定**（系統資訊分頁）：開啟 I2C / SPI 與時間同步、安裝常用工具、擴展檔案系統，只提供固定清單的動作。
+**系統資訊大幅變快**：重用終端機的 SSH 連線、agent 只上傳一次、快速設定狀態一次查完。MCP 新增唯讀的 `pi_health`。接受補齊建議時，Tab 不會再把焦點移出終端機。
 本機 SD 卡燒錄已在真機驗證（Raspberry Pi 3 Model B）。**尚未在真機驗證：**遠端重灌的完整寫入（進階功能，預設關閉）、其他型號。
 檔案沒有簽章，SmartScreen 可能警告，按「其他資訊 → 仍要執行」。
