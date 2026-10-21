@@ -8,3 +8,7 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      # pytest 9 needs Python 3.10+, piscout still supports 3.9
+      - dependency-name: pytest
+        update-types: ["version-update:semver-major"]
