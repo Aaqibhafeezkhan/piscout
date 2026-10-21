@@ -3,7 +3,7 @@ name = "piscout"
 version = "0.1.8"
 description = "Discover Raspberry Pis on your LAN, SSH into them, view their desktop, and re-image them remotely."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = [
     "raspberry-pi", "raspberry-pi-os", "network-scanner", "lan-discovery",
     "fleet-management", "ssh", "terminal", "remote-desktop", "vnc",
