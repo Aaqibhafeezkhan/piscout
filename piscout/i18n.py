@@ -189,7 +189,7 @@ EN = {
     '可以在終端機用 systemctl status 服務名稱 查看原因。': 'In the terminal, run systemctl status <service> to see why.',
     '所有服務都正常': 'All services are fine',
     '時間沒有同步': 'Clock is not synchronized',
-    '時間不準會讓 apt 更新和 HTTPS 出現憑證錯誤。可以用下面的「開啟時間同步」。': 'A wrong clock breaks apt updates and HTTPS certificates. Use "Enable time sync" below.',
+    '時間不準會讓 apt 更新和 HTTPS 出現憑證錯誤。可以到「系統資訊」分頁的「快速設定」開啟時間同步。': 'A wrong clock breaks apt updates and HTTPS certificates. Turn on time sync in System info > Quick setup.',
     '開啟 I2C': 'Enable I2C',
     '接感測器、OLED 螢幕常用的介面。': 'Common interface for sensors and OLED screens.',
     '開啟 SPI': 'Enable SPI',

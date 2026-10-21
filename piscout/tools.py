@@ -120,7 +120,7 @@ def evaluate(raw):
 
     if raw.get("ntp") == "no":
         add("ntp", "warn", tr("時間沒有同步"),
-            tr("時間不準會讓 apt 更新和 HTTPS 出現憑證錯誤。可以用下面的「開啟時間同步」。"))
+            tr("時間不準會讓 apt 更新和 HTTPS 出現憑證錯誤。可以到「系統資訊」分頁的「快速設定」開啟時間同步。"))
     return out
 
 
