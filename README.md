@@ -185,7 +185,8 @@ Only enable this for assistants you trust: they can run any command as that user
 piscout ships with 中文 and English. **Adding a language needs no code**: it is a single JSON file in
 `piscout/static/locales/`. Run `python tools/i18n_check.py --new ja 日本語` to get a template, fill it in (anything
 left empty shows English), check it with `python tools/i18n_check.py`, and open a pull request.
-Full guide: [docs/TRANSLATING.md](docs/TRANSLATING.md). **Help wanted:** [add your language (#11)](https://github.com/MilkteaTW1/piscout/issues/11).
+The same file also translates the Windows installer (`installer` section; the installer follows the user's Windows
+language, and Inno Setup's built-in languages need only 3 short texts). Full guide: [docs/TRANSLATING.md](docs/TRANSLATING.md). **Help wanted:** [add your language (#11)](https://github.com/MilkteaTW1/piscout/issues/11).
 
 ## Status and roadmap
 
