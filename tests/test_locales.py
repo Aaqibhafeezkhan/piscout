@@ -106,3 +106,33 @@ def test_i18n_data_script_lists_locales(server):
     assert data["en"]["name"] == "English"
     assert data["en"]["ui"]["exact"]["連線"] == "Connect"
     assert "backend" not in data["en"]              # 後端訊息不用送給前端
+
+
+def test_installer_texts_are_checked():
+    en = checker.load(checker.LOCALES / "en.json")
+    bad = checker.skeleton("Bad", en)
+    bad["installer"]["custom"]["Nope"] = "x"
+    assert any("unknown key Nope" in e for e in checker.check("bad", bad, en)[0])
+    bad = checker.skeleton("Bad", en)
+    bad["installer"]["messages"] = {"WelcomeLabel2": "no placeholder"}
+    ref = checker.inno_defaults()
+    if ref:
+        assert any("WelcomeLabel2" in e for e in checker.check("bad", bad, en)[0])
+
+
+def test_installer_generator_writes_a_language_file_per_locale(tmp_path, monkeypatch):
+    import sys
+    sys.path.insert(0, str(ROOT / "packaging" / "installer"))
+    import build_installer as bi
+
+    monkeypatch.setattr(bi, "OUT", tmp_path)
+    codes = bi.generate()
+    assert "en" in codes and "zh" in codes
+    zh = (tmp_path / "zh.isl").read_text(encoding="utf-8-sig")
+    assert "LanguageID=$0404" in zh and "SetupWindowTitle=安裝程式 - %1" in zh and "TaskDesktop=" in zh
+    assert 'Name: "zh"' in (tmp_path / "languages.iss").read_text()
+    assert bi.lcid("ja") == 0x0411 and bi.lcid("zh-cn") == 0x0804 and bi.lcid("pt-br") == 0x0416
+
+
+def test_zh_file_is_not_a_picker_language():
+    assert [lang["code"] for lang in i18n.languages()].count("zh") == 1

@@ -51,7 +51,13 @@
    "更新套件": "Update packages",
    "自動更新": "Auto refresh",
    "全選": "Select all",
-   "已複製": "Copied"
+   "已複製": "Copied",
+   "有新版本可用：": "A new version is available:",
+   "略過這版": "Skip this version",
+   "不再提醒": "Don't remind me",
+   "立即更新": "Update now",
+   "更新中…": "Updating…",
+   "更新中，程式會自動重開": "Updating, the app will restart"
   },
   "sub": [
    [
@@ -631,6 +637,17 @@
   "安裝常用工具": "Install common tools",
   "htop（看資源）、git、tree、ncdu（看哪些檔案佔空間）、curl。": "htop (resource monitor), git, tree, ncdu (what uses space), curl.",
   "把檔案系統擴展到整張卡": "Expand the filesystem to the whole card",
-  "新燒錄的系統通常已自動擴展；若空間比卡小很多才需要。重開機後生效。": "Freshly flashed systems usually expand automatically; only needed if the space is much smaller than the card. Takes effect after a reboot."
+  "新燒錄的系統通常已自動擴展；若空間比卡小很多才需要。重開機後生效。": "Freshly flashed systems usually expand automatically; only needed if the space is much smaller than the card. Takes effect after a reboot.",
+  "版本格式不正確": "Invalid version",
+  "從原始碼執行時不能自動更新，請用 git pull": "Cannot self-update when running from source; use git pull",
+  "下載更新失敗：{e}": "Update download failed: {e}",
+  "更新檔驗證失敗，已取消": "Update file failed verification, cancelled"
+ },
+ "installer": {
+  "custom": {
+   "TaskDesktop": "Create a &desktop shortcut",
+   "TaskGroup": "Shortcuts:",
+   "RunApp": "Start piscout"
+  }
  }
 }

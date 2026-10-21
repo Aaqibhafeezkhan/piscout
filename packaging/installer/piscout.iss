@@ -1,5 +1,5 @@
 ; Inno Setup script for the piscout installer.
-; Build:  iscc /DMyAppVersion=0.1.8 packaging\installer\piscout.iss   (needs dist\piscout.exe)
+; Build:  python packaging/installer/build_installer.py --version 0.1.8   (needs dist/piscout.exe)
 ; Installs per user (no administrator rights needed), adds a Start menu entry and an optional desktop shortcut,
 ; and registers an uninstaller under Settings > Apps. Saved logins live in %LOCALAPPDATA%\piscout and are kept.
 
@@ -36,11 +36,22 @@ ArchitecturesInstallIn64BitMode=x64compatible
 CloseApplications=yes
 RestartApplications=no
 
+; The languages come from piscout\static\locales\*.json (see build_installer.py, which writes generated\languages.iss).
+; Setup shows its UI in the language of the user's Windows and falls back to English.
 [Languages]
+#ifexist "generated\languages.iss"
+  #include "generated\languages.iss"
+#else
 Name: "english"; MessagesFile: "compiler:Default.isl"
+#endif
+
+[CustomMessages]
+TaskDesktop=Create a &desktop shortcut
+TaskGroup=Shortcuts:
+RunApp=Start piscout
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Shortcuts:"
+Name: "desktopicon"; Description: "{cm:TaskDesktop}"; GroupDescription: "{cm:TaskGroup}"
 
 [Files]
 Source: "{#SourceExe}"; DestDir: "{app}"; DestName: "piscout.exe"; Flags: ignoreversion
@@ -50,4 +61,12 @@ Name: "{autoprograms}\piscout"; Filename: "{app}\piscout.exe"
 Name: "{autodesktop}\piscout"; Filename: "{app}\piscout.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\piscout.exe"; Description: "Start piscout"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\piscout.exe"; Description: "{cm:RunApp}"; Flags: nowait postinstall skipifsilent
+; Started by the in-app updater (it passes /update=1 to the silent installer): reopen the app afterwards.
+Filename: "{app}\piscout.exe"; Flags: nowait runasoriginaluser; Check: IsUpdate
+
+[Code]
+function IsUpdate: Boolean;
+begin
+  Result := ExpandConstant('{param:update|0}') = '1';
+end;

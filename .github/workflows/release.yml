@@ -23,6 +23,9 @@ jobs:
       - name: Test
         run: python -m pytest -q
 
+      - name: Set version from tag
+        run: python tools/set_version.py "${{ github.ref_name }}"
+
       - name: Build exe
         run: >
           pyinstaller --noconfirm --clean --onefile --windowed
@@ -39,10 +42,8 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: |
-          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
-          $version = "${{ github.ref_name }}".TrimStart('v')
-          & $iscc "/DMyAppVersion=$version" packaging\installer\piscout.iss
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+          python packaging/installer/build_installer.py --version "${{ github.ref_name }}"
           if (-not (Test-Path dist\piscout-setup.exe)) { throw "installer was not built" }
 
       - name: Checksum

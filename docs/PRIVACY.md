@@ -1,6 +1,6 @@
 # Privacy policy / 隱私權政策
 
-Last updated: 2026-10-14
+Last updated: 2026-10-21
 
 ## English
 
@@ -20,6 +20,11 @@ author operates no server that receives data from the app.
 - Downloads Raspberry Pi OS images from official Raspberry Pi domains
   (`raspberrypi.com`, `raspberrypi.org`) and the OS list from `downloads.raspberrypi.org`.
   Those servers see your IP address as in any download; see Raspberry Pi's own privacy policy.
+- Checks for updates: at startup the app asks GitHub (`api.github.com`, the public "latest release" of this
+  repository) whether a newer version exists. No account or personal data is sent; GitHub sees your IP address as in
+  any request. If you click *Update now*, the installer is downloaded from this repository's GitHub releases and its
+  SHA-256 is verified. Choose *Don't remind me* in the app, or set the environment variable
+  `PISCOUT_NO_UPDATE_CHECK=1`, to turn the check off.
 - The built-in web interface listens only on `127.0.0.1` and is not reachable from other devices.
 
 **Wi-Fi and account passwords you type into the flashing form** are written to the SD card's boot
@@ -45,6 +50,9 @@ piscout 是完全在你的電腦上執行的桌面程式。
   密碼以 Windows DPAPI 加密，只有同一台電腦上的同一個 Windows 帳號能解開，並可隨時用「清除已存帳密」刪除。
 - 從樹莓派官方網域（`raspberrypi.com`、`raspberrypi.org`）下載 Raspberry Pi OS 映像與系統清單，
   這些伺服器會看到你的 IP，與一般下載相同，請參考樹莓派官方的隱私權政策。
+- 檢查更新：啟動時程式會向 GitHub（`api.github.com`，本儲存庫公開的最新版本資訊）詢問有沒有新版本，
+  不會傳送帳號或個人資料，GitHub 會看到你的 IP，與一般連線相同。按下「立即更新」才會從本儲存庫的 GitHub 發佈頁下載安裝程式，
+  並核對 SHA-256。在程式裡選「不再提醒」，或設定環境變數 `PISCOUT_NO_UPDATE_CHECK=1`，就不會再檢查。
 - 內建的網頁介面只監聽 `127.0.0.1`，其他裝置無法連入。
 
 **你在燒錄表單輸入的 Wi-Fi 與帳號密碼**會寫入 SD 卡開機分割區作為系統設定（帳號密碼為雜湊值），不會傳送到其他地方。

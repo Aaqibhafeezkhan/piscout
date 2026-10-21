@@ -26,7 +26,7 @@ def load_locales(directory=LOCALES_DIR):
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        if isinstance(data, dict):
+        if isinstance(data, dict) and path.stem.lower() != SOURCE:   # zh.json 只放安裝程式用的文字
             found[path.stem.lower()] = data
     return found
 

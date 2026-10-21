@@ -54,6 +54,9 @@
   .bar { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; margin-top: 8px; }
   .bar > div { height:100%; background: var(--accent); width:0; transition: width .3s; }
   .hidden { display:none !important; }
+  #updBar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; padding:8px 12px;
+            border:1px solid var(--accent); border-radius:8px; font-size:13px; }
+  #updBar button { padding:3px 10px; font-size:12px; }
   table { width:100%; border-collapse: collapse; font-size:14px; }
   th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
   th { color: var(--muted); font-weight:500; font-size:13px; }
@@ -128,6 +131,12 @@
 <main>
   <div class="row"><h1>piscout</h1>
     <select id="langSel" title="Language"></select>
+  </div>
+  <div id="updBar" class="hidden">
+    <span>有新版本可用：</span><b id="updVer"></b>
+    <button id="updGo" class="primary">立即更新</button>
+    <button id="updSkip">略過這版</button>
+    <button id="updOff">不再提醒</button>
   </div>
   <nav>
     <button id="tabDevices" class="on">裝置</button>
@@ -1524,6 +1533,33 @@ $('#fleetRefresh').addEventListener('click', refreshFleet);
 $('#langSel').replaceChildren(...(window.PISCOUT_LANGS || []).map(l => h('option', {value: l.code}, l.name)));
 $('#langSel').value = window.PISCOUT_LANG || 'zh';
 $('#langSel').addEventListener('change', e => window.setLang(e.target.value));
+
+/* ================= 檢查更新 ================= */
+// 啟動時問一次 GitHub 有沒有新版本；可以略過某一版，或完全關掉（關掉後程式不會連 GitHub）。
+async function checkUpdate() {
+  let off = false, skip = '';
+  try { off = localStorage.getItem('updOff') === '1'; skip = localStorage.getItem('updSkip') || ''; } catch (e) {}
+  if (off || DEMO) return;
+  try {
+    const u = await api('/api/update');
+    if (!u.newer || u.latest === skip) return;
+    $('#updVer').textContent = 'v' + u.latest;
+    $('#updBar').classList.remove('hidden');
+    $('#updGo').onclick = async () => {
+      const b = $('#updGo'); b.disabled = true; b.textContent = '更新中…';
+      try {
+        await postJson('/api/update/install', {version: u.latest});
+        b.textContent = '更新中，程式會自動重開';
+      } catch (e) {
+        b.disabled = false; b.textContent = '立即更新';
+        $('#updVer').textContent = 'v' + u.latest + '  ' + e.message;
+      }
+    };
+    $('#updSkip').onclick = () => { try { localStorage.setItem('updSkip', u.latest); } catch (e) {} $('#updBar').classList.add('hidden'); };
+    $('#updOff').onclick = () => { try { localStorage.setItem('updOff', '1'); } catch (e) {} $('#updBar').classList.add('hidden'); };
+  } catch (e) { /* 沒網路或被擋，安靜略過 */ }
+}
+setTimeout(checkUpdate, 1500);
 
 /* ================= 啟動 ================= */
 (async function boot() {

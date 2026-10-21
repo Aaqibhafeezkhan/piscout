@@ -55,6 +55,25 @@ Chinese text as the key and your translation as the value. English (`en.json`) i
 - `backend` – messages and errors produced by the program itself. Keep placeholders such as `{e}`, `{host}`,
   `{n}` exactly as they are (the checker verifies this); you may move them around in the sentence.
 
+### The installer
+
+`piscout-setup.exe` also speaks the language of the user's Windows. Add an optional `installer` section to your file:
+
+```json
+"installer": {
+  "custom":   { "TaskDesktop": "デスクトップにショートカットを作成(&D)", "TaskGroup": "ショートカット:", "RunApp": "piscout を起動" },
+  "messages": { "WelcomeLabel1": "..." }
+}
+```
+
+- `custom` – the three texts piscout adds (copy the keys from `en.json`). `&` marks the keyboard shortcut letter.
+- `messages` – optional. For languages Inno Setup already ships (ja, de, fr, es, ko, ru, pt-br ...) you do **not** need it,
+  the wizard uses Inno's own translation. For other languages (like `zh`) you can translate Inno's standard texts
+  here; the names are those in Inno's `Default.isl`. Keep `%1`, `%n` and `[name]` as they are (the checker verifies).
+- `zh.json` only contains the installer texts, because Chinese is the language the app is written in.
+
+Build it with `python packaging/installer/build_installer.py` (needs Inno Setup 6).
+
 Tips
 
 - Keep translations short, buttons have little room.

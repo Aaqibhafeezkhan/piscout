@@ -9,3 +9,4 @@ dist/
 dist_new/
 .vscode/
 *.log
+packaging/installer/generated/

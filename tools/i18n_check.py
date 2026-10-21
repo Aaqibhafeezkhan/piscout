@@ -6,6 +6,7 @@
 空的值代表「還沒翻」，程式會先顯示英文。做法見 docs/TRANSLATING.md。
 """
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -16,12 +17,53 @@ DOLLAR = re.compile(r"\$(\d)")
 BRACE2 = re.compile(r"\{\{(\d)\}\}")
 
 
+def inno_defaults():
+    """Inno Setup 內建英文訊息（有裝 Inno 才檢查 %1、[name] 這類變數有沒有被弄丟）。"""
+    for base in (os.environ.get("LOCALAPPDATA", "") + "/Programs", os.environ.get("ProgramFiles(x86)", ""), os.environ.get("ProgramFiles", "")):
+        path = Path(base) / "Inno Setup 6" / "Default.isl"
+        if path.exists():
+            out, section = {}, ""
+            for line in path.read_text(encoding="utf-8-sig").splitlines():
+                if line.startswith("["):
+                    section = line.strip()
+                elif section == "[Messages]" and "=" in line and not line.startswith(";"):
+                    k, v = line.split("=", 1)
+                    out[k] = v
+            return out
+    return {}
+
+
 def load(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def fields(text):
     return sorted(FIELD.findall(text.replace("{{", "").replace("}}", "")))
+
+
+INNO_FIELD = re.compile(r"%\d|\[\w+(?:/\w+)?\]")
+CUSTOM_KEYS = {"TaskDesktop", "TaskGroup", "RunApp"}
+
+
+def check_installer(code, data, ref):
+    """安裝程式用的文字（installer 區塊）。回傳錯誤清單。"""
+    errors = []
+    inst = data.get("installer")
+    if inst is None:
+        return errors
+    if not isinstance(inst, dict):
+        return [f'{code}: "installer" must be an object']
+    custom, messages = inst.get("custom") or {}, inst.get("messages") or {}
+    for key, value in list(custom.items()) + list(messages.items()):
+        if not isinstance(value, str):
+            errors.append(f"{code}: installer {key} must be a string")
+    for key in custom:
+        if key not in CUSTOM_KEYS:
+            errors.append(f"{code}: installer.custom has unknown key {key} (allowed: {', '.join(sorted(CUSTOM_KEYS))})")
+    for key, value in messages.items():
+        if isinstance(value, str) and key in ref and sorted(INNO_FIELD.findall(value)) != sorted(INNO_FIELD.findall(ref[key])):
+            errors.append(f"{code}: installer.messages.{key} must keep {INNO_FIELD.findall(ref[key])} like the original")
+    return errors
 
 
 def check(code, data, en):
@@ -31,6 +73,9 @@ def check(code, data, en):
         return [f"{code}: top level must be an object"], 0
     if not str(data.get("name") or "").strip():
         errors.append(f'{code}: "name" is required (the name shown in the language picker)')
+    errors += check_installer(code, data, inno_defaults())
+    if code == "zh":      # 原文語言：只有安裝程式的文字，沒有要翻的句子
+        return errors, 0
     ui, be = data.get("ui") or {}, data.get("backend") or {}
 
     exact = ui.get("exact") or {}
@@ -93,6 +138,7 @@ def skeleton(name, en):
             "rx": [{"pattern": r["pattern"], "replace": ""} for r in en["ui"].get("rx", [])],
         },
         "backend": {zh: "" for zh in en["backend"]},
+        "installer": {"custom": {k: "" for k in en.get("installer", {}).get("custom", {})}},
     }
 
 

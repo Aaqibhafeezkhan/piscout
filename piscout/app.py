@@ -20,7 +20,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import clipboard, tools, fleet, flasher, i18n, remote, remoteflash, scanner, transfer, vault
+from . import clipboard, tools, updates, fleet, flasher, i18n, remote, remoteflash, scanner, transfer, vault
 from .i18n import tr
 
 STATIC = Path(__file__).parent / "static"
@@ -137,6 +137,27 @@ def index():
 async def api_clipboard():
     """這台電腦剪貼簿的文字，給終端機貼上用（只有帶本機 token 的請求讀得到）。"""
     return {"text": await run_in_threadpool(clipboard.get_text)}
+
+
+@app.get("/api/update")
+async def api_update():
+    """有沒有更新的版本（只問 GitHub 公開的 latest release，查不到就當沒有）。"""
+    return await run_in_threadpool(updates.check)
+
+
+class UpdateReq(BaseModel):
+    version: str
+
+
+@app.post("/api/update/install")
+async def api_update_install(req: UpdateReq):
+    """下載新版安裝程式並靜默安裝；安裝程式會關掉這個程式再重新開啟。"""
+    try:
+        await run_in_threadpool(updates.install, req.version)
+    except RuntimeError as e:
+        raise HTTPException(400, str(e))
+    threading.Timer(2.0, os._exit, args=(0,)).start()   # 讓安裝程式接手
+    return {"ok": True}
 
 
 @app.get("/i18n-data.js")
