@@ -27,6 +27,7 @@ jobs:
         run: >
           pyinstaller --noconfirm --clean --onefile --windowed
           --name piscout
+          --icon packaging/installer/piscout.ico
           --add-data "piscout/static;piscout/static"
           --add-data "piscout/agent;piscout/agent"
           --collect-submodules uvicorn
@@ -35,16 +36,29 @@ jobs:
           --hidden-import passlib.handlers.sha2_crypt
           run_gui.py
 
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          & $iscc "/DMyAppVersion=$version" packaging\installer\piscout.iss
+          if (-not (Test-Path dist\piscout-setup.exe)) { throw "installer was not built" }
+
       - name: Checksum
         shell: pwsh
         run: |
-          $h = (Get-FileHash dist\piscout.exe -Algorithm SHA256).Hash.ToLower()
-          "$h  piscout.exe" | Set-Content -Encoding ascii dist\piscout.exe.sha256
+          foreach ($f in 'piscout.exe', 'piscout-setup.exe') {
+            $h = (Get-FileHash "dist\$f" -Algorithm SHA256).Hash.ToLower()
+            "$h  $f" | Set-Content -Encoding ascii "dist\$f.sha256"
+          }
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           files: |
+            dist/piscout-setup.exe
+            dist/piscout-setup.exe.sha256
             dist/piscout.exe
             dist/piscout.exe.sha256
           body_path: .github/release-notes.md

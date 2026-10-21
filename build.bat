@@ -4,6 +4,7 @@ rem 需要先：pip install -r requirements.txt pyinstaller
 
 pyinstaller --noconfirm --clean --onefile --windowed ^
   --name piscout ^
+  --icon packaging\installer\piscout.ico ^
   --add-data "piscout\static;piscout\static" ^
   --add-data "piscout\agent;piscout\agent" ^
   --collect-submodules uvicorn ^
