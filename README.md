@@ -459,7 +459,7 @@ piscout 內附一個很小的 MCP 伺服器（只用標準函式庫），讓 AI 
 
 piscout 目前有中文和 English。**新增語言不用寫程式**，只要在 `piscout/static/locales/` 放一個 JSON 檔：
 執行 `python tools/i18n_check.py --new ja 日本語` 產生範本，填上翻譯（留空的會顯示英文），用
-`python tools/i18n_check.py` 檢查後送 PR。完整說明見 [docs/TRANSLATING.md](docs/TRANSLATING.md)。
+`python tools/i18n_check.py` 檢查後送 PR。同一個檔案也能翻譯 Windows 安裝程式（`installer` 區塊，安裝畫面會跟著使用者的 Windows 語言；Inno Setup 內建的語言只要翻 3 句）。完整說明見 [docs/TRANSLATING.md](docs/TRANSLATING.md)。
 **徵求幫手：**[新增你的語言（#11）](https://github.com/MilkteaTW1/piscout/issues/11)。
 
 ## 驗證狀況與還沒做的
