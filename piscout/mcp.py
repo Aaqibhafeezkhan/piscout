@@ -8,7 +8,7 @@ import ipaddress
 import json
 import sys
 
-from . import remote, scanner, vault
+from . import remote, scanner, tools, vault
 
 MAX_OUT = 3000
 _clients = {}
@@ -23,6 +23,9 @@ TOOLS = [
          "host": {"type": "string", "description": "IP of the Pi"},
          "cmd": {"type": "string"},
          "timeout": {"type": "integer", "description": "seconds, default 30"}}}},
+    {"name": "pi_health",
+     "description": "Read-only health check of a Raspberry Pi: power, temperature, disk, memory, SD errors, failed services, clock. One line each: level title.",
+     "inputSchema": {"type": "object", "required": ["host"], "properties": {"host": {"type": "string", "description": "IP of the Pi"}}}},
 ]
 
 
@@ -55,6 +58,9 @@ def call(name, a):
     if name == "pi_run":
         code, out, err = remote.run(_client(a["host"]), a["cmd"], timeout=a.get("timeout", 30))
         return _trim(f"exit {code}\n{out}{('[stderr] ' + err) if err else ''}".rstrip())
+    if name == "pi_health":
+        rows = [f"{c['level']} {c['title']}" for c in tools.health(_client(a["host"]))]
+        return chr(10).join(rows)
     raise ValueError("unknown tool")
 
 

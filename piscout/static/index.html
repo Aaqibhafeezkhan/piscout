@@ -105,6 +105,14 @@
   #termEl { width:100%; height:100%; }
   #deskPane { background:#000; }
   #infoPane { overflow:auto; padding:16px; max-width:880px; }
+  .thead { margin:22px 0 8px; font-size:15px; }
+  .chk { display:flex; gap:10px; padding:8px 10px; border-radius:8px; margin-bottom:6px; background:#1a1d27; }
+  .chk.warn { background:#2a2414; } .chk.bad { background:#2d1717; }
+  .chk .tt, .setup-row .tt { font-weight:600; }
+  .chk .dt, .setup-row .dt { font-size:12.5px; color:#9aa3b2; margin-top:2px; }
+  .setup-row { display:flex; gap:12px; align-items:center; padding:8px 10px; border-radius:8px; margin-bottom:6px; background:#1a1d27; }
+  .btn2 { background:#2b3142; color:#e6e9f0; border:1px solid #3a4157; border-radius:6px; padding:5px 12px; cursor:pointer; }
+  .btn2:disabled { opacity:.5; cursor:default; }
   #deskMsg { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
              color:#bbb; padding:24px; text-align:center; white-space:pre-wrap; }
 </style>
@@ -714,9 +722,65 @@ async function showInfo() {
     pane.replaceChildren(infoRows(info));
     pane.append(h('div', {class: 'muted', style: 'margin-top:12px'}, info.agent_installed ? 'agent 已在執行' : '連線後會自動安裝 agent'));
     pane.append(err);
+    const cur = sess;
+    const health = h('div', {class: 'tbox'}), setup = h('div', {class: 'tbox'});
+    pane.append(h('h3', {class: 'thead'}, '健康檢查'), health, h('h3', {class: 'thead'}, '快速設定'), setup);
+    loadHealth(health, cur);
+    loadSetup(setup, cur);
   } catch (e) {
     pane.replaceChildren(h('div', {class: 'err'}, e.message));
   }
+}
+
+/* ---------- 健康檢查與快速設定 ---------- */
+const LEVEL_ICON = {ok: '✅', warn: '⚠️', bad: '❌'};
+
+async function loadHealth(box, cur) {
+  box.replaceChildren(h('div', {class: 'muted'}, '正在檢查…'));
+  try {
+    const r = await postJson(`/api/devices/${cur.device.ip}/health`, cur.cred);
+    if (sess !== cur) return;
+    box.replaceChildren(...r.checks.map(c => h('div', {class: 'chk ' + c.level},
+      h('span', {class: 'ic'}, LEVEL_ICON[c.level] || ''),
+      h('div', {}, h('div', {class: 'tt'}, c.title), c.detail ? h('div', {class: 'dt'}, c.detail) : '')
+    )));
+    const again = h('button', {class: 'btn2'}, '重新檢查');
+    again.onclick = () => loadHealth(box, cur);
+    box.append(again);
+  } catch (e) {
+    box.replaceChildren(h('div', {class: 'err'}, e.message));
+  }
+}
+
+async function loadSetup(box, cur) {
+  box.replaceChildren(h('div', {class: 'muted'}, '讀取中…'));
+  try {
+    const r = await postJson(`/api/devices/${cur.device.ip}/setup`, cur.cred);
+    if (sess !== cur) return;
+    box.replaceChildren(...r.items.map(it => setupRow(box, cur, it)));
+  } catch (e) {
+    box.replaceChildren(h('div', {class: 'err'}, e.message));
+  }
+}
+
+function setupRow(box, cur, it) {
+  const state = h('span', {class: 'muted'}, it.done ? '✔ 已完成' : '');
+  const btn = h('button', {class: 'btn2'}, '執行');
+  if (it.done) btn.classList.add('hidden');
+  btn.onclick = async () => {
+    btn.disabled = true; state.textContent = '執行中…';
+    try {
+      const r = await postJson(`/api/devices/${cur.device.ip}/setup`, {...cur.cred, action: it.id});
+      state.textContent = r.done ? '✔ 已完成' : '已執行';
+      if (r.reboot) state.textContent += '　' + t('需要重開機才會生效');
+      if (r.done) btn.classList.add('hidden');
+    } catch (e) {
+      state.textContent = e.message;
+    }
+    btn.disabled = false;
+  };
+  return h('div', {class: 'setup-row'},
+    h('div', {style: 'flex:1'}, h('div', {class: 'tt'}, it.title), h('div', {class: 'dt'}, it.desc)), state, btn);
 }
 
 $('#stTerm').onclick = () => setPane('term');

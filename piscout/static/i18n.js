@@ -19,7 +19,7 @@
   };
 
   const EXACT = {
-    '裝置': 'Devices', '總覽': 'Overview', '燒錄系統': 'Flash OS',
+    '裝置': 'Devices', '執行': 'Run', '總覽': 'Overview', '燒錄系統': 'Flash OS',
     '連線': 'Connect', '收起': 'Collapse', '重灌系統': 'Re-image',
     '終端機': 'Terminal', '遠端桌面': 'Remote desktop', '系統資訊': 'System info',
     '關閉連線': 'Close', '重新掃描': 'Rescan', '重新整理': 'Refresh',
@@ -150,6 +150,9 @@
     ['先到「裝置」連線一次並勾選「記住」，這裡才能顯示狀態。',
       'Connect once on "Devices" with "Remember" ticked so the status can be shown here.'],
     ['批次操作會對勾選的樹莓派使用已儲存的帳密。', 'Batch actions use the saved login of each selected Pi.'],
+    ['健康檢查', 'Health check'], ['快速設定', 'Quick setup'], ['正在檢查…', 'Checking…'],
+    ['重新檢查', 'Check again'], ['✔ 已完成', '✔ Done'], ['已執行', 'Applied'], ['執行中…', 'Working…'],
+    ['需要重開機才會生效', 'A reboot is needed to take effect'],
   ];
   SUB.sort((a, b) => b[0].length - a[0].length);
 

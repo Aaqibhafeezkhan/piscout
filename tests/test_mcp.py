@@ -7,7 +7,7 @@ from piscout import mcp
 
 def test_list_and_tools():
     r = mcp.handle({"id": 1, "method": "tools/list"})
-    assert [t["name"] for t in r["tools"]] == ["pi_list", "pi_run"]
+    assert [t["name"] for t in r["tools"]] == ["pi_list", "pi_run", "pi_health"]
 
 
 def test_run_trims_and_reports(monkeypatch):

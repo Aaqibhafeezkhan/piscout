@@ -26,6 +26,8 @@ Tested on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm):
 - **Connect** – click *Connect*, enter the login, and get an SSH terminal inside the app
 - **See the desktop** – view and control the Pi's desktop through the SSH tunnel
 - **Always-on status bubble** – a small panel in the top-right corner shows the Pi's temperature, load, memory, disk and uptime; the agent is installed automatically after the first connection, and you can collapse or drag the bubble anywhere
+- **Health check in plain words** – on the *System info* tab: under-voltage (the #1 beginner problem), overheating, SD card errors, full disk, low memory, failed services, wrong clock, each with advice. Read-only
+- **Quick setup** – one click to enable I2C / SPI and time sync, install common tools (htop, git, tree, ncdu, curl) or expand the filesystem. Only a fixed list of actions, nothing arbitrary
 - **Suggestions while you type** – the terminal shows a VS Code-style popup with commands, files and folders as you type; Up/Down to choose, Tab to accept, Esc to close
 - **Fast start** – the Pis seen last time appear immediately and the scan runs in the background
 - **Drag and drop files** – drop files onto the window while connected: on the terminal tab they go to the shell's current folder, on the remote desktop tab to the Pi's Desktop folder. Existing files are never overwritten (`name (1).ext`). Folders are not supported yet
@@ -169,7 +171,7 @@ Output is trimmed to keep token use low.
 
 (From source: `"command": "python", "args": ["-m", "piscout.mcp"]`.)
 
-Tools: `pi_list` (scan the LAN) and `pi_run` (run a shell command). Save a login for the Pi in piscout first.
+Tools: `pi_list` (scan the LAN), `pi_run` (run a shell command) and `pi_health` (read-only health check). Save a login for the Pi in piscout first.
 Only enable this for assistants you trust: they can run any command as that user.
 
 ## Status and roadmap
@@ -238,6 +240,8 @@ Have a different model or OS version? Please [report a compatibility result](../
 - **連線**：點「連線」輸入帳密，直接在程式裡開 SSH 終端機
 - **看桌面**：經 SSH 通道查看並操作樹莓派的桌面
 - **常駐狀態泡泡**：右上角的小面板隨時顯示樹莓派的溫度、負載、記憶體、磁碟與開機時間；第一次連線後會自動安裝 agent，泡泡可以收合，也能拖到畫面任何位置
+- **白話健康檢查**：在「系統資訊」分頁，檢查電源不足（新手最常見的問題）、過熱、SD 卡錯誤、磁碟快滿、記憶體不足、服務啟動失敗、時間不準，並附上建議；只讀取，不改任何東西
+- **一鍵快速設定**：一鍵開啟 I2C / SPI 與時間同步、安裝常用工具（htop、git、tree、ncdu、curl）、擴展檔案系統；只提供固定清單裡的動作，不能執行任意指令
 - **輸入時的補齊選單**：在終端機打字時，像 VS Code 一樣跳出指令、檔案、資料夾的候選；上下鍵選、Tab 接受、Esc 關閉
 - **啟動很快**：一打開就先顯示上次的樹莓派，掃描在背景進行
 - **拖曳傳檔**：連線後把檔案拖進視窗，在終端機分頁會傳到 shell 目前所在的資料夾，在遠端桌面分頁會傳到樹莓派的桌面資料夾；同名檔案不會被覆蓋（自動改成 `名稱 (1).副檔名`）；目前不支援整個資料夾
@@ -431,7 +435,7 @@ piscout 內附一個很小的 MCP 伺服器（只用標準函式庫），讓 AI 
 
 (From source: `"command": "python", "args": ["-m", "piscout.mcp"]`.)
 
-工具：`pi_list`（掃描區網）、`pi_run`（執行 shell 指令）。請先在 piscout 裡儲存該台樹莓派的帳密。
+工具：`pi_list`（掃描區網）、`pi_run`（執行 shell 指令）、`pi_health`（唯讀的健康檢查）。請先在 piscout 裡儲存該台樹莓派的帳密。
 只在你信任的 AI 助手上啟用：它能以該帳號執行任何指令。
 
 ## 驗證狀況與還沒做的

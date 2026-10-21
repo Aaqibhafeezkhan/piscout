@@ -20,7 +20,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import fleet, flasher, i18n, remote, remoteflash, scanner, transfer, vault
+from . import tools, fleet, flasher, i18n, remote, remoteflash, scanner, transfer, vault
 from .i18n import tr
 
 STATIC = Path(__file__).parent / "static"
@@ -268,6 +268,43 @@ async def api_install(host: str, login: Login):
     except remote.RemoteError as e:
         raise HTTPException(502, str(e))
     return {"installed": ok}
+
+
+def _with_client(host, login, fn):
+    client = remote.connect(host, login.username, login.password, login.key_path)
+    try:
+        return fn(client)
+    finally:
+        client.close()
+
+
+@app.post("/api/devices/{host}/health")
+async def api_health(host: str, login: Login):
+    """新手用的健康檢查：只讀取，回傳白話的結論與建議。"""
+    host = _check_host(host)
+    try:
+        return {"checks": await run_in_threadpool(_with_client, host, login, tools.health)}
+    except remote.RemoteError as e:
+        raise HTTPException(502, str(e))
+
+
+class SetupReq(Login):
+    action: Optional[str] = None
+
+
+@app.post("/api/devices/{host}/setup")
+async def api_setup(host: str, req: SetupReq):
+    """一鍵快速設定。沒給 action 就回傳各項目目前的狀態；有給就執行寫死清單裡的那一項。"""
+    host = _check_host(host)
+    if req.action is not None and req.action not in tools.ACTIONS:
+        raise HTTPException(400, tr("不支援的操作"))
+    try:
+        if req.action is None:
+            return {"items": await run_in_threadpool(_with_client, host, req, tools.setup_status)}
+        return await run_in_threadpool(
+            _with_client, host, req, lambda c: tools.setup_apply(c, req.action, req.password))
+    except remote.RemoteError as e:
+        raise HTTPException(502, str(e))
 
 
 # ------------------------------------------------------------ 終端機 / 遠端桌面
