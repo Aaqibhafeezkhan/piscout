@@ -4,6 +4,8 @@
 
 **English** · [繁體中文](#繁體中文)
 
+Website: [inkacuity.com/projects/piscout](https://inkacuity.com/projects/piscout) · 專案介紹頁
+
 > **Find and manage your Raspberry Pis from one Windows window.**
 > Scan the network, open an SSH terminal, see the desktop, check temperature and load of every Pi.
 > No router admin page, no separate tools.
