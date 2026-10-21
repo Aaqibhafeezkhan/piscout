@@ -35,7 +35,7 @@ Tested on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm):
 - **Drag and drop files** – drop files onto the window while connected: on the terminal tab they go to the shell's current folder, on the remote desktop tab to the Pi's Desktop folder. Existing files are never overwritten (`name (1).ext`). Folders are not supported yet
 - **Manage several** – temperature / load / memory of every Pi at a glance; reboot, shut down or update several at once
 - **Remembers you** – logins are encrypted with Windows DPAPI and the model is detected automatically
-- **Bilingual** – follows the system language (中文 / English), switchable at any time
+- **Multilingual** – ships with 中文 / English, follows the system language, switchable at any time. **Adding a language needs no code**: drop a JSON file into `piscout/static/locales/` ([how](docs/TRANSLATING.md))
 
 Also included, **use with care**:
 
@@ -249,7 +249,7 @@ Have a different model or OS version? Please [report a compatibility result](../
 - **拖曳傳檔**：連線後把檔案拖進視窗，在終端機分頁會傳到 shell 目前所在的資料夾，在遠端桌面分頁會傳到樹莓派的桌面資料夾；同名檔案不會被覆蓋（自動改成 `名稱 (1).副檔名`）；目前不支援整個資料夾
 - **管理多台**：一眼看到每台的溫度、負載、記憶體，並可批次重開機、關機、更新套件
 - **記住帳密**：以 Windows DPAPI 加密儲存，並自動偵測型號
-- **雙語介面**：自動偵測系統語言（中文 / English），也可手動切換
+- **多語言介面**：內建中文 / English，自動偵測系統語言，也可手動切換。**新增語言不用改程式**：把一個 JSON 檔放進 `piscout/static/locales/` 即可（[做法](docs/TRANSLATING.md)）
 
 另外也有，**請小心使用**：
 

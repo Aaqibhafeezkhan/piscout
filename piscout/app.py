@@ -16,7 +16,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -131,6 +131,15 @@ def index():
             .replace("__PISCOUT_DEMO__", "true" if DEMO else "false"),
         headers={"Cache-Control": "no-store"},
     )
+
+
+@app.get("/i18n-data.js")
+def i18n_data():
+    """把所有語言的介面翻譯交給前端（語言檔放在 static/locales/，放進去就會出現在語言選單）。"""
+    data = {code: {"name": loc.get("name") or code, "ui": loc.get("ui") or {}}
+            for code, loc in i18n.LOCALES.items()}
+    return Response("window.PISCOUT_LOCALES = " + json.dumps(data, ensure_ascii=False) + ";",
+                    media_type="application/javascript", headers={"Cache-Control": "no-store"})
 
 
 # ------------------------------------------------------------ 帳密儲存

@@ -1,0 +1,635 @@
+{
+ "name": "English",
+ "ui": {
+  "exact": {
+   "裝置": "Devices",
+   "執行": "Run",
+   "總覽": "Overview",
+   "燒錄系統": "Flash OS",
+   "連線": "Connect",
+   "收起": "Collapse",
+   "重灌系統": "Re-image",
+   "終端機": "Terminal",
+   "遠端桌面": "Remote desktop",
+   "系統資訊": "System info",
+   "關閉連線": "Close",
+   "重新掃描": "Rescan",
+   "重新整理": "Refresh",
+   "型號": "Model",
+   "系統": "OS",
+   "主機名稱": "Hostname",
+   "開機時間": "Uptime",
+   "CPU 溫度": "CPU temp",
+   "負載": "Load",
+   "記憶體": "Memory",
+   "磁碟": "Disk",
+   "使用者名稱": "Username",
+   "密碼": "Password",
+   "新密碼": "New password",
+   "樹莓派": "Raspberry Pi",
+   "用途": "Purpose",
+   "時區": "Time zone",
+   "鍵盤配置": "Keyboard layout",
+   "開始燒錄": "Start flashing",
+   "安裝 agent": "Install agent",
+   "安裝中…": "Installing…",
+   "讀取中…": "Loading…",
+   "連線中…": "Connecting…",
+   "掃描中…": "Scanning…",
+   "載入失敗": "Failed to load",
+   "SSH 開啟": "SSH on",
+   "SSH 未開": "SSH off",
+   "名稱": "Name",
+   "狀態": "Status",
+   "溫度": "Temp",
+   "來源": "Source",
+   "在線": "Online",
+   "離線": "Offline",
+   "無帳密": "No login",
+   "重新開機": "Reboot",
+   "關機": "Shut down",
+   "更新套件": "Update packages",
+   "自動更新": "Auto refresh",
+   "全選": "Select all"
+  },
+  "sub": [
+   [
+    "啟動中，正在掃描區網…",
+    "Starting… scanning the network"
+   ],
+   [
+    "正在掃描區網…",
+    "Scanning the network…"
+   ],
+   [
+    "清除已存帳密",
+    "Forget saved logins"
+   ],
+   [
+    "清除這台電腦上儲存的所有樹莓派帳號密碼",
+    "Remove all Raspberry Pi logins saved on this computer"
+   ],
+   [
+    "要清除這台電腦上儲存的所有樹莓派帳號密碼嗎？",
+    "Remove all Raspberry Pi logins saved on this computer?"
+   ],
+   [
+    "顯示非樹莓派",
+    "Show non-Pi devices"
+   ],
+   [
+    "1. 要重灌哪一台？",
+    "1. Which one to re-image?"
+   ],
+   [
+    "區網裡的樹莓派（SD 卡留在 Pi 上，從這裡遠端重灌）",
+    "A Raspberry Pi on the network (SD card stays in the Pi; re-image remotely)"
+   ],
+   [
+    "插在這台電腦上的 SD 卡",
+    "An SD card inserted in this computer"
+   ],
+   [
+    "目前的登入帳號",
+    "Current login username"
+   ],
+   [
+    "目前的登入密碼（也用來 sudo）",
+    "Current login password (also used for sudo)"
+   ],
+   [
+    "讀取這台的型號與系統",
+    "Read this Pi's model and OS"
+   ],
+   [
+    "必須是還開得起來、而且開著 SSH 的樹莓派。完全空白的 SD 卡在網路上看不到， 請改選「插在這台電腦上的 SD 卡」。重灌會清空這台 Pi 的所有資料。",
+    "The Pi must still boot and have SSH enabled. A completely blank SD card cannot be seen on the network; choose \"An SD card inserted in this computer\" instead. Re-imaging erases everything on the Pi."
+   ],
+   [
+    "2. 這是哪一款樹莓派？",
+    "2. Which Raspberry Pi model is it?"
+   ],
+   [
+    "型號（印在板子上）",
+    "Model (printed on the board)"
+   ],
+   [
+    "桌面版：有畫面，可遠端操作桌面",
+    "Desktop: with GUI, remote desktop works"
+   ],
+   [
+    "精簡版：只用終端機，省資源",
+    "Lite: terminal only, saves resources"
+   ],
+   [
+    "連線並勾選「記住」一次，之後這裡會自動顯示。",
+    "Connect once and tick \"Remember\"; this will then fill in automatically."
+   ],
+   [
+    "帳密沒能存起來：",
+    "Could not save the login: "
+   ],
+   [
+    "連線後會自動安裝 agent",
+    "The agent is installed automatically after you connect"
+   ],
+   [
+    "先連線到樹莓派，再把檔案拖進來",
+    "Connect to a Raspberry Pi first, then drop files here"
+   ],
+   [
+    "放開以傳到樹莓派的桌面",
+    "Release to send to the Pi desktop"
+   ],
+   [
+    "放開以傳到終端機目前所在的資料夾",
+    "Release to send to the terminal's current folder"
+   ],
+   [
+    "不支援資料夾，請先壓縮成 zip 再傳",
+    "Folders are not supported; zip it first"
+   ],
+   [
+    "準備傳送…",
+    "Preparing…"
+   ],
+   [
+    "目標資料夾：",
+    "Target folder: "
+   ],
+   [
+    "先顯示上次的樹莓派，正在背景重新掃描…",
+    "Showing the Pis from last time while scanning in the background…"
+   ],
+   [
+    "這次沒掃到",
+    "Not found this time"
+   ],
+   [
+    "上次記錄",
+    "From last time"
+   ],
+   [
+    "進階：遠端重灌（有風險）",
+    "Advanced: remote re-imaging (risky)"
+   ],
+   [
+    "更多系統選項（桌面或精簡版、換版本）",
+    "More OS options (Desktop or Lite, other versions)"
+   ],
+   [
+    "3. 重灌後的開機設定",
+    "3. Boot settings after re-imaging"
+   ],
+   [
+    "更多設定（主機名稱、國碼、時區、鍵盤、校驗）",
+    "More settings (hostname, country, timezone, keyboard, verify)"
+   ],
+   [
+    "Wi-Fi 名稱（有接網路線可留空）",
+    "Wi-Fi name (leave empty if using Ethernet)"
+   ],
+   [
+    "Wi-Fi 密碼",
+    "Wi-Fi password"
+   ],
+   [
+    "Wi-Fi 國碼",
+    "Wi-Fi country code"
+   ],
+   [
+    "本機燒錄時，寫完後讀回校驗",
+    "When flashing locally, verify by reading back"
+   ],
+   [
+    "SSH 一律會啟用。系統映像全部來自樹莓派官方網站。遠端重灌一定會校驗。",
+    "SSH is always enabled. All OS images come from the official Raspberry Pi website. Remote re-imaging is always verified."
+   ],
+   [
+    "沒有找到樹莓派，可以勾「顯示非樹莓派」看看其他設備。",
+    "No Raspberry Pi found. Tick \"Show non-Pi devices\" to see everything else."
+   ],
+   [
+    "這台樹莓派 SSH 沒有開，沒辦法遠端操作。可能還沒有系統，或沒啟用 SSH。",
+    "This Pi's SSH is off, so it cannot be controlled remotely. It may have no system yet, or SSH is not enabled."
+   ],
+   [
+    "可以把 SD 卡拿下來插到這台電腦，用「燒錄系統」重新燒錄。",
+    "Take the SD card out, put it in this computer and use \"Flash OS\"."
+   ],
+   [
+    " · 新款樹莓派（登入後可確認型號）",
+    " · Newer Raspberry Pi (log in to confirm the model)"
+   ],
+   [
+    "記住這台的帳號密碼",
+    "Remember this login"
+   ],
+   [
+    "密碼會用 Windows 的使用者金鑰加密後存在這台電腦，換電腦或換帳號就解不開。",
+    "The password is encrypted with your Windows user key and stored on this computer; it cannot be decrypted on another PC or account."
+   ],
+   [
+    "掃描失敗：",
+    "Scan failed: "
+   ],
+   [
+    "正在啟動遠端桌面…（第一次會需要幾秒）",
+    "Starting remote desktop… (the first time takes a few seconds)"
+   ],
+   [
+    "遠端桌面已中斷。",
+    "Remote desktop disconnected."
+   ],
+   [
+    "遠端桌面連線失敗或中斷。",
+    "Remote desktop connection failed or was interrupted."
+   ],
+   [
+    "agent 已在執行",
+    "agent is running"
+   ],
+   [
+    "（已自動套用對應的建議）",
+    " (matching recommendation applied)"
+   ],
+   [
+    "看起來是新款樹莓派。填入帳密後會自動讀取確切型號。",
+    "Looks like a newer Raspberry Pi. Enter the login and the exact model is read automatically."
+   ],
+   [
+    "填入帳密後會自動讀取型號；也可以自己在下面選。",
+    "Enter the login to read the model automatically, or choose it below."
+   ],
+   [
+    "還沒有掃描到樹莓派",
+    "No Raspberry Pi found yet"
+   ],
+   [
+    " · SSH 未開",
+    " · SSH off"
+   ],
+   [
+    "請先選一台樹莓派",
+    "Please choose a Raspberry Pi first"
+   ],
+   [
+    "讀取型號中…",
+    "Reading the model…"
+   ],
+   [
+    "型號未知",
+    "Unknown model"
+   ],
+   [
+    "，請自己選型號",
+    ", please choose the model yourself"
+   ],
+   [
+    "★ 推薦：",
+    "★ Recommended: "
+   ],
+   [
+    "（此型號不支援）",
+    " (not supported by this model)"
+   ],
+   [
+    "最佳建議：",
+    "Best choice: "
+   ],
+   [
+    " · 空白",
+    " · blank"
+   ],
+   [
+    " · 已有樹莓派系統",
+    " · has Raspberry Pi OS"
+   ],
+   [
+    " · 無法辨識",
+    " · unrecognized"
+   ],
+   [
+    "未命名",
+    "unnamed"
+   ],
+   [
+    "沒有偵測到可移除的磁碟，請插入 SD 卡",
+    "No removable disk detected. Insert an SD card."
+   ],
+   [
+    "目前不是系統管理員身分，可以先設定，但寫入時會失敗。請用「以系統管理員身分執行」開啟。",
+    "Not running as administrator. You can set things up, but writing will fail. Start the app with \"Run as administrator\"."
+   ],
+   [
+    "只列出 USB / SD 類的可移除磁碟，不會列出系統碟。",
+    "Only removable USB / SD disks are listed, never the system disk."
+   ],
+   [
+    "請先選好系統",
+    "Please choose an OS first"
+   ],
+   [
+    "請設定新密碼，不然重灌之後登不進去",
+    "Please set a new password, or you cannot log in after re-imaging"
+   ],
+   [
+    "請填目前的登入帳號",
+    "Please enter the current login username"
+   ],
+   [
+    "請先選好 SD 卡",
+    "Please choose an SD card first"
+   ],
+   [
+    "寫入並校驗完成，樹莓派正在重新開機。開機後我會自動掃描，找到就回到裝置頁。",
+    "Written and verified. The Pi is rebooting; I will scan automatically and return to Devices when it is back."
+   ],
+   [
+    "燒錄完成。把 SD 卡插進樹莓派開機，等一到兩分鐘，我會自動重新掃描。",
+    "Flashing finished. Put the SD card into the Pi and boot it; I will rescan automatically in a minute or two."
+   ],
+   [
+    "連線已結束",
+    "connection closed"
+   ],
+   [
+    "以系統管理員身分重新啟動",
+    "Restart as administrator"
+   ],
+   [
+    "正在以系統管理員身分重新啟動…",
+    "Restarting as administrator…"
+   ],
+   [
+    "寫入 SD 卡需要系統管理員權限。其他功能（掃描、終端機、遠端桌面）不需要。",
+    "Writing to an SD card needs administrator rights. Scanning, the terminal and remote desktop do not."
+   ],
+   [
+    "插在這台電腦上的 SD 卡（建議）",
+    "An SD card inserted in this computer (recommended)"
+   ],
+   [
+    "· 進階功能，預設關閉",
+    "· advanced feature, off by default"
+   ],
+   [
+    "啟用進階功能：遠端重灌（有風險）",
+    "Enable advanced feature: remote re-imaging (risky)"
+   ],
+   [
+    "遠端重灌是在「執行中」的樹莓派上覆寫它自己的 SD 卡。如果中途關閉程式、斷電、 斷網或電腦睡眠，那張卡會變成寫了一半、開不了機，而且無法從遠端修復，只能把卡拿到電腦上重燒。 請先準備讀卡機或備用的 SD 卡。",
+    "Remote re-imaging overwrites the SD card of a Pi that is running. If the app is closed, power or the network drops, or the computer sleeps midway, the card ends up half-written and the Pi will not boot. It cannot be repaired remotely; the card has to be re-flashed from a computer. Prepare a card reader or a spare SD card first."
+   ],
+   [
+    "遠端重灌是進階功能，請先啟用上方的「進階功能」並確認風險。",
+    "Remote re-imaging is an advanced feature. Enable it above and confirm the risk first."
+   ],
+   [
+    "我有讀卡機或備用的 SD 卡，萬一中途失敗可以用電腦重燒這張卡",
+    "I have a card reader or a spare SD card, so I can re-flash this card from a computer if it fails midway"
+   ],
+   [
+    "遠端重灌失敗時，這張卡需要用電腦重燒。請先勾選上方的確認。",
+    "If remote re-imaging fails, this card must be re-flashed from a computer. Please tick the confirmation above first."
+   ],
+   [
+    "這張卡現在只寫了一半，樹莓派開不了機。請把卡拿到電腦上，到「燒錄系統」選「插在這台電腦上的 SD 卡」重新燒錄。",
+    "This card is now half-written and the Pi cannot boot. Take the card to a computer, open \"Flash OS\", choose \"An SD card inserted in this computer\" and flash it again."
+   ],
+   [
+    "還沒有樹莓派。先到「裝置」掃描並連線一次，讓我記住帳密。",
+    "No Raspberry Pi yet. Scan and connect once on the \"Devices\" tab so I can remember the login."
+   ],
+   [
+    "沒有儲存帳密",
+    "No saved login"
+   ],
+   [
+    "先到「裝置」連線一次並勾選「記住」，這裡才能顯示狀態。",
+    "Connect once on \"Devices\" with \"Remember\" ticked so the status can be shown here."
+   ],
+   [
+    "批次操作會對勾選的樹莓派使用已儲存的帳密。",
+    "Batch actions use the saved login of each selected Pi."
+   ],
+   [
+    "健康檢查",
+    "Health check"
+   ],
+   [
+    "快速設定",
+    "Quick setup"
+   ],
+   [
+    "正在檢查…",
+    "Checking…"
+   ],
+   [
+    "重新檢查",
+    "Check again"
+   ],
+   [
+    "✔ 已完成",
+    "✔ Done"
+   ],
+   [
+    "已執行",
+    "Applied"
+   ],
+   [
+    "執行中…",
+    "Working…"
+   ],
+   [
+    "需要重開機才會生效",
+    "A reboot is needed to take effect"
+   ]
+  ],
+  "rx": [
+   {
+    "pattern": "^(.*) · 找到 (\\d+) 台設備，(\\d+) 台是樹莓派。如果你的樹莓派還沒有系統.*$",
+    "replace": "$1 · Found $2 device(s), $3 Raspberry Pi(s). If your Pi has no system yet, put its SD card into this computer and I will flash it for you."
+   },
+   {
+    "pattern": "^(.*) · 找到 (\\d+) 台設備，(\\d+) 台是樹莓派$",
+    "replace": "$1 · Found $2 device(s), $3 Raspberry Pi(s)"
+   },
+   {
+    "pattern": "下載約 (.+?)，寫入後 (.+?) · 來源：樹莓派官方網站",
+    "replace": "download ≈ $1, $2 after writing · source: official Raspberry Pi website"
+   },
+   {
+    "pattern": "磁碟 (\\d+)",
+    "replace": "Disk $1"
+   },
+   {
+    "pattern": "^確定清除 (\\S+) 並重灌$",
+    "replace": "Wipe $1 and re-image"
+   },
+   {
+    "pattern": "^確定清除磁碟 (\\d+) 並燒錄$",
+    "replace": "Wipe disk $1 and flash"
+   },
+   {
+    "pattern": "^(\\S+) 上的所有資料都會被刪除！過程中請不要斷電或斷網，約需 10–30 分鐘。$",
+    "replace": "All data on $1 will be erased! Do not power off or disconnect during the process. About 10–30 minutes."
+   },
+   {
+    "pattern": "^(.*) 上的所有資料都會被刪除！$",
+    "replace": "All data on $1 will be erased!"
+   },
+   {
+    "pattern": "(\\d+) 天 (\\d+) 小時 (\\d+) 分",
+    "replace": "$1d $2h $3m"
+   },
+   {
+    "pattern": "(\\d+) 小時 (\\d+) 分",
+    "replace": "$1h $2m"
+   },
+   {
+    "pattern": "^已選 (\\d+) 台$",
+    "replace": "$1 selected"
+   },
+   {
+    "pattern": "^完成：(\\d+) 台成功，(\\d+) 台失敗$",
+    "replace": "Done: $1 succeeded, $2 failed"
+   },
+   {
+    "pattern": "^確定要對 (\\d+) 台執行「(.+)」嗎？$",
+    "replace": "Run \"{{2}}\" on $1 device(s)?"
+   }
+  ]
+ },
+ "backend": {
+  "host 必須是 IP": "host must be an IP address",
+  "只能操作區網內的位址": "Only addresses on the local network are allowed",
+  "key 必須是 MAC 位址": "key must be a MAC address",
+  "kind 不對": "invalid kind",
+  "agent 沒有回應": "The agent did not respond",
+  "抓不到系統清單，網路有通嗎？（{e}）": "Could not fetch the OS list. Is the network up? ({e})",
+  "只能下載樹莓派官方網站的映像": "Only images from the official Raspberry Pi website can be downloaded",
+  "找不到這個系統映像": "That OS image was not found",
+  "燒錄功能目前只支援 Windows": "Flashing is only supported on Windows for now",
+  "讀取磁碟失敗：{err}": "Failed to read disks: {err}",
+  "精簡版：沒有桌面，佔空間小、開機快，只能用終端機操作。": "Lite: no desktop, small and fast to boot, terminal only.",
+  "官方預設的完整桌面版，可以用終端機，也可以遠端操作桌面。": "The official full desktop edition. Works with the terminal and remote desktop.",
+  "{label} 支援 64 位元，官方建議用 64 位元版。": "{label} supports 64-bit; the official recommendation is the 64-bit edition.",
+  "{label} 只支援 32 位元版。": "{label} only supports the 32-bit edition.",
+  "這款記憶體偏少，如果覺得卡，可以改選精簡版。": "This model has little RAM. If it feels slow, pick the Lite edition.",
+  "下載失敗：{e}": "Download failed: {e}",
+  "映像檔損毀：{e}": "The image file is corrupted: {e}",
+  "沒有寫入磁碟的權限，請用系統管理員身分執行": "No permission to write to the disk. Run as administrator.",
+  "寫入磁碟失敗：{e}": "Failed to write to the disk: {e}",
+  "下載的映像檔校驗碼不符，已放棄。請刪掉快取後重試": "The downloaded image checksum does not match; aborted. Delete the cache and try again.",
+  "寫入後讀回校驗失敗（約在 {mb} MB 處），這張 SD 卡或讀卡機可能有問題，請換一張卡或換個 USB 孔再試": "Read-back verification failed (around {mb} MB). The SD card or card reader may be faulty; try another card or another USB port.",
+  "檔名不合法": "Invalid file name",
+  "無法寫入 {dir}：{e}": "Cannot write to {dir}: {e}",
+  "主機名稱只能用英文、數字和 -": "The hostname may only contain letters, digits and '-'",
+  "使用者名稱只能用小寫英文、數字、_ 和 -": "The username may only contain lowercase letters, digits, '_' and '-'",
+  "請設定密碼": "Please set a password",
+  "時區格式不對，例如 Asia/Taipei": "Invalid time zone, e.g. Asia/Taipei",
+  "鍵盤配置請填兩個小寫字母，例如 us": "Keyboard layout must be two lowercase letters, e.g. us",
+  "Wi-Fi 名稱太長": "The Wi-Fi name is too long",
+  "Wi-Fi 密碼要 8 到 63 個字元": "The Wi-Fi password must be 8 to 63 characters",
+  "Wi-Fi 國碼請填兩個大寫字母，例如 TW": "Wi-Fi country code must be two uppercase letters, e.g. TW",
+  "寫完了，但 Windows 沒有掛出 boot 分割區，沒辦法寫入設定": "Write finished, but Windows did not mount the boot partition, so the settings could not be written",
+  "需要系統管理員權限才能寫入磁碟，請用「以系統管理員身分執行」開啟": "Administrator rights are required to write to the disk. Start the app with \"Run as administrator\".",
+  "發生未預期的錯誤：{e}": "Unexpected error: {e}",
+  "找不到那顆磁碟，或容量跟你選的不一樣，請重新整理後再選": "That disk was not found, or its size differs from what you selected. Refresh and select again.",
+  "已經有一個燒錄工作在進行了": "A flashing job is already in progress",
+  "沒有這個工作": "No such job",
+  "準備映像（校驗並寫入開機設定）": "Preparing image (verifying and writing boot settings)",
+  "連線並檢查樹莓派": "Connecting and checking the Pi",
+  "寫入樹莓派的 SD 卡": "Writing to the Pi's SD card",
+  "完成，樹莓派重新開機中": "Done. The Pi is rebooting",
+  "準備中": "Preparing",
+  "下載系統映像": "Downloading OS image",
+  "清除磁碟": "Wiping the disk",
+  "寫入 SD 卡": "Writing to the SD card",
+  "校驗": "Verifying",
+  "寫入開機設定": "Writing boot settings",
+  "完成": "Done",
+  "帳號或密碼不對（或這台沒開密碼登入）": "Wrong username or password (or password login is disabled on this Pi)",
+  "連不上 {host}：{e}": "Cannot connect to {host}: {e}",
+  "{host} 拒絕連線：這台沒有開啟 SSH。請在樹莓派上啟用 SSH（raspi-config → Interface Options → SSH，或燒錄時勾選啟用 SSH）。": "{host} refused the connection: SSH is not enabled on this Pi. Enable SSH on the Pi (raspi-config → Interface Options → SSH, or enable it when flashing).",
+  "連線 {host} 逾時：請確認樹莓派已開機，而且和這台電腦在同一個網路。": "Connecting to {host} timed out: make sure the Pi is powered on and on the same network as this computer.",
+  "{host} 一建立 SSH 連線就被切斷：樹莓派可能剛開機還沒準備好、負載過高，或它的系統損壞。請等一分鐘再試，仍不行就重新開機。": "{host} closed the SSH connection immediately: the Pi may still be booting, overloaded, or its system may be damaged. Wait a minute and retry; if it keeps failing, reboot it.",
+  "找不到 {host}：請確認這台電腦和樹莓派在同一個網路，並重新掃描。": "{host} was not found: make sure this computer and the Pi are on the same network, then rescan.",
+  "沒有取得系統管理員權限": "Administrator permission was not granted",
+  "找不到桌面 session。這台可能是 Lite 版（沒有桌面），或桌面還沒登入完成，請稍等一下再試。": "No desktop session found. This may be a Lite edition (no desktop), or the desktop has not finished logging in. Wait a moment and try again.",
+  "這台沒有 wayvnc，可能是沒有桌面環境，或用的是舊的 X11 桌面。建議重新燒錄 Raspberry Pi OS 桌面版（64-bit）。": "wayvnc is not installed. There may be no desktop environment, or it uses the old X11 desktop. Consider re-flashing Raspberry Pi OS with desktop (64-bit).",
+  "遠端桌面啟動失敗：{why}": "Failed to start remote desktop: {why}",
+  "原因不明": "unknown reason",
+  "讀取系統資訊失敗：{why}": "Failed to read system info: {why}",
+  "這台沒有 python3？": "python3 missing?",
+  "安裝失敗（{step}）：{err}": "Install failed ({step}): {err}",
+  "{cmd} 指令失敗：{err}": "Command failed ({cmd}): {err}",
+  "這個映像不是 MBR 格式，沒辦法預先寫入開機設定": "This image is not MBR-formatted, so boot settings cannot be pre-written",
+  "第一個分割區不是 FAT32，沒辦法預先寫入開機設定": "The first partition is not FAT32, so boot settings cannot be pre-written",
+  "映像檔比預期的短": "The image file is shorter than expected",
+  "映像檔校驗碼不符（下載可能不完整），已放棄": "Image checksum mismatch (the download may be incomplete); aborted",
+  "映像大小異常": "Unexpected image size",
+  "Pi 上缺少必要工具：{tools}": "The Pi is missing required tools: {tools}",
+  "這台是 {model}，但「{image}」不支援這個型號，寫進去會開不了機。請回上一步改選建議的系統": "This is a {model}, but \"{image}\" does not support it and would not boot. Go back and choose the recommended system.",
+  "認不出開機磁碟（{disk}），為了安全不動手": "Could not identify the boot disk ({disk}); refusing to continue for safety",
+  "空白": "empty",
+  "這張卡只有 {have:.1f} GB，放不下 {need:.1f} GB 的映像。請改選比較小的版本（例如精簡版）": "This card is only {have:.1f} GB and cannot hold the {need:.1f} GB image. Choose a smaller edition (e.g. Lite).",
+  "Pi 的可用記憶體太少，不適合在線上覆寫": "The Pi has too little free memory to be overwritten while running",
+  "這台需要 sudo 密碼，請填寫登入密碼": "This Pi needs a sudo password. Please enter the login password.",
+  "sudo 驗證失敗，密碼不對或這個帳號沒有 sudo 權限": "sudo authentication failed: wrong password, or this account has no sudo rights",
+  "無法在記憶體裡準備寫入工具（/dev/shm 可能不允許執行）：{why}": "Could not prepare the write tools in memory (/dev/shm may not allow execution): {why}",
+  "找不到動態載入器": "Dynamic loader not found",
+  "Pi 上的寫入腳本沒有啟動：{out}": "The write script did not start on the Pi: {out}",
+  "傳輸中斷：{e}。Pi 上的卡可能只寫了一半，需要拔下來用電腦重燒": "Transfer interrupted: {e}. The card may be half-written; take it out and re-flash it from a computer.",
+  "寫入後讀回的校驗碼不一致，我沒有重新開機。Pi 目前的系統可能已損壞，請再試一次，或把卡拿下來用電腦重燒": "The checksum read back does not match, so I did not reboot. The Pi's system may be damaged. Try again, or take the card out and re-flash it from a computer.",
+  "dd 寫入失敗：{log}": "dd failed: {log}",
+  "沒有收到 Pi 的完成回報。如果它之後有重新開機，通常代表成功，請掃描確認": "No completion report from the Pi. If it rebooted afterwards it usually succeeded; scan to confirm.",
+  "不支援的操作": "Unsupported action",
+  "沒有儲存帳密": "No saved login",
+  "遠端重灌是進階功能，請先在「燒錄系統」頁啟用並確認風險": "Remote re-imaging is an advanced feature. Enable it on the \"Flash OS\" tab and confirm the risk first.",
+  "操作逾時": "The operation timed out",
+  "電源電壓不足（現在）": "Under-voltage right now",
+  "樹莓派正在被電源拖累，可能卡頓、當機或損壞 SD 卡。請換官方電源供應器，並避免太細太長的線。": "The power supply is struggling; expect lag, crashes or SD card damage. Use the official power supply and avoid thin or long cables.",
+  "開機以來曾經電壓不足": "Under-voltage happened since boot",
+  "電源曾經不穩。若發生過當機或卡頓，請換官方電源供應器與品質好的線。": "Power was unstable at some point. If you saw crashes or lag, switch to the official power supply and a good cable.",
+  "電源正常": "Power is fine",
+  "正在降速保護": "Being throttled",
+  "溫度太高或電壓不足，CPU 被強制降速。請加散熱片或風扇，並改善通風。": "It is too hot or under-volted, so the CPU is slowed down. Add a heatsink or fan and improve airflow.",
+  "開機以來曾經降速": "Was throttled since boot",
+  "曾經過熱或電壓不足，建議加強散熱。": "It overheated or was under-volted at some point; better cooling is recommended.",
+  "CPU 溫度 {t} °C，太高了": "CPU temperature {t} °C, too high",
+  "請加散熱片或風扇，並改善通風。": "Add a heatsink or fan and improve airflow.",
+  "CPU 溫度 {t} °C，偏高": "CPU temperature {t} °C, a bit high",
+  "長時間高負載建議加散熱片。": "A heatsink is recommended for long heavy loads.",
+  "CPU 溫度 {t} °C": "CPU temperature {t} °C",
+  "儲存空間快滿了（已用 {p}%）": "Storage almost full ({p}% used)",
+  "空間滿了系統會出問題。請刪掉不用的檔案，或換更大的 SD 卡。": "A full disk breaks things. Delete unused files or use a bigger SD card.",
+  "儲存空間偏少（已用 {p}%）": "Storage running low ({p}% used)",
+  "建議清理檔案。": "Consider cleaning up files.",
+  "儲存空間足夠（已用 {p}%）": "Enough storage ({p}% used)",
+  "記憶體幾乎用完（剩 {p}%）": "Memory almost exhausted ({p}% left)",
+  "請關掉不需要的程式，或考慮加大 swap。": "Close programs you do not need, or consider a bigger swap.",
+  "記憶體偏少（剩 {p}%）": "Memory is low ({p}% left)",
+  "請留意正在執行的程式。": "Keep an eye on what is running.",
+  "記憶體充足（剩 {p}%）": "Plenty of memory ({p}% left)",
+  "系統記錄到 {n} 筆 SD 卡讀寫錯誤": "The system logged {n} SD card read/write errors",
+  "SD 卡或電源可能有問題。請先備份重要資料，再換一張卡或改善供電。": "The SD card or the power may be faulty. Back up important data, then replace the card or improve the power.",
+  "沒有 SD 卡讀寫錯誤": "No SD card errors",
+  "有 {n} 個服務啟動失敗：{names}": "{n} services failed to start: {names}",
+  "可以在終端機用 systemctl status 服務名稱 查看原因。": "In the terminal, run systemctl status <service> to see why.",
+  "所有服務都正常": "All services are fine",
+  "時間沒有同步": "Clock is not synchronized",
+  "時間不準會讓 apt 更新和 HTTPS 出現憑證錯誤。可以到「系統資訊」分頁的「快速設定」開啟時間同步。": "A wrong clock breaks apt updates and HTTPS certificates. Turn on time sync in System info > Quick setup.",
+  "開啟 I2C": "Enable I2C",
+  "接感測器、OLED 螢幕常用的介面。": "Common interface for sensors and OLED screens.",
+  "開啟 SPI": "Enable SPI",
+  "接 LED 燈條、顯示器等硬體常用的介面。": "Common interface for LED strips, displays and similar hardware.",
+  "開啟時間同步": "Enable time sync",
+  "自動校準時間，避免更新和憑證出錯。": "Keeps the clock correct so updates and certificates work.",
+  "安裝常用工具": "Install common tools",
+  "htop（看資源）、git、tree、ncdu（看哪些檔案佔空間）、curl。": "htop (resource monitor), git, tree, ncdu (what uses space), curl.",
+  "把檔案系統擴展到整張卡": "Expand the filesystem to the whole card",
+  "新燒錄的系統通常已自動擴展；若空間比卡小很多才需要。重開機後生效。": "Freshly flashed systems usually expand automatically; only needed if the space is much smaller than the card. Takes effect after a reboot."
+ }
+}

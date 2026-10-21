@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>piscout</title>
+<script src="/i18n-data.js"></script>
 <script src="/static/i18n.js"></script>
 <link rel="stylesheet" href="/static/vendor/xterm/xterm.css">
 <style>
@@ -126,7 +127,7 @@
 </div>
 <main>
   <div class="row"><h1>piscout</h1>
-    <select id="langSel" title="Language"><option value="zh">中文</option><option value="en">English</option></select>
+    <select id="langSel" title="Language"></select>
   </div>
   <nav>
     <button id="tabDevices" class="on">裝置</button>
@@ -1468,6 +1469,7 @@ document.querySelectorAll('#overview .act').forEach(btn => {
 $('#fleetRefresh').addEventListener('click', refreshFleet);
 
 /* ================= 語言 ================= */
+$('#langSel').replaceChildren(...(window.PISCOUT_LANGS || []).map(l => h('option', {value: l.code}, l.name)));
 $('#langSel').value = window.PISCOUT_LANG || 'zh';
 $('#langSel').addEventListener('change', e => window.setLang(e.target.value));
 
