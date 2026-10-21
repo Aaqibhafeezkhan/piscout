@@ -726,7 +726,9 @@ async function startDesktop() {
 
 async function showInfo() {
   const pane = $('#infoPane');
-  pane.replaceChildren(h('div', {class: 'muted'}, '讀取中…'));
+  // 泡泡剛讀過的資料先拿來顯示，不用等；下面再去更新一次
+  const known = fleetRows[sess.device.ip];
+  pane.replaceChildren(known && known.ok && known.stats ? infoRows(known.stats) : h('div', {class: 'muted'}, '讀取中…'));
   const err = h('div', {class: 'err'});
   try {
     const info = await postJson(`/api/devices/${sess.device.ip}/info`, sess.cred);

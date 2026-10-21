@@ -234,11 +234,7 @@ async def api_scan():
 
 
 def _info(host, login):
-    client = remote.connect(host, login.username, login.password, login.key_path)
-    try:
-        return remote.get_info(client)
-    finally:
-        client.close()
+    return _with_client(host, login, remote.get_info)
 
 
 def _install(host, login):
@@ -271,6 +267,11 @@ async def api_install(host: str, login: Login):
 
 
 def _with_client(host, login, fn):
+    """終端機分頁已經連著的話就直接用那條 SSH（省掉登入的時間，樹莓派上很明顯），沒有才另外連。"""
+    shared = TERMS.get(host)
+    transport = shared.get_transport() if shared is not None else None
+    if transport is not None and transport.is_active():
+        return fn(shared)
     client = remote.connect(host, login.username, login.password, login.key_path)
     try:
         return fn(client)

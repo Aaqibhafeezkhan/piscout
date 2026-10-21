@@ -1,4 +1,5 @@
 """透過 SSH 操作樹莓派：讀系統資訊、安裝 agent。"""
+import hashlib
 import json
 from pathlib import Path
 
@@ -142,12 +143,22 @@ def _run_script(client, script, timeout=40):
     )
 
 
+def _agent_tmp():
+    # 檔名帶內容的雜湊：同一份就不用每次重傳，agent 改版了路徑也會跟著變
+    return f"/tmp/piscout_agent_{hashlib.sha1(AGENT_SRC.read_bytes()).hexdigest()[:8]}.py"
+
+
 def _put_agent(client):
-    sftp = client.open_sftp()
-    try:
-        sftp.put(str(AGENT_SRC), "/tmp/piscout_agent.py")
-    finally:
-        sftp.close()
+    """把 agent 放到樹莓派的 /tmp，回傳路徑。已經放過同一份就跳過（SFTP 在樹莓派上很慢）。"""
+    path = _agent_tmp()
+    code, _, _ = run(client, f"test -f {path}", timeout=10)
+    if code != 0:
+        sftp = client.open_sftp()
+        try:
+            sftp.put(str(AGENT_SRC), path)
+        finally:
+            sftp.close()
+    return path
 
 
 def agent_installed(client):
@@ -156,8 +167,8 @@ def agent_installed(client):
 
 
 def get_info(client):
-    _put_agent(client)
-    code, out, err = run(client, "python3 /tmp/piscout_agent.py --once")
+    path = _put_agent(client)
+    code, out, err = run(client, f"python3 {path} --once")
     if code != 0:
         raise RemoteError(tr("讀取系統資訊失敗：{why}",
                              why=err.strip() or tr("這台沒有 python3？")))
@@ -167,7 +178,7 @@ def get_info(client):
 
 
 def install_agent(client, sudo_password=None):
-    _put_agent(client)
+    agent_path = _put_agent(client)
     sftp = client.open_sftp()
     try:
         with sftp.open("/tmp/piscout-agent.service", "w") as f:
@@ -177,7 +188,7 @@ def install_agent(client, sudo_password=None):
 
     steps = [
         f"mkdir -p {REMOTE_DIR}",
-        f"cp /tmp/piscout_agent.py {REMOTE_DIR}/agent.py",
+        f"cp {agent_path} {REMOTE_DIR}/agent.py",
         f"cp /tmp/piscout-agent.service /etc/systemd/system/{SERVICE}.service",
         "systemctl daemon-reload",
         f"systemctl enable --now {SERVICE}",

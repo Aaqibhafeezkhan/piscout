@@ -160,7 +160,11 @@ def _is_done(client, spec):
 
 
 def setup_status(client):
-    return [{"id": k, "title": tr(v["title"]), "desc": tr(v["desc"]), "done": _is_done(client, v)}
+    """所有項目的狀態一次查完（一次往返，比一項一項查快很多）。"""
+    script = chr(10).join('echo "%s=$( { %s; } 2>/dev/null | head -1 )"' % (k, v["status"]) for k, v in ACTIONS.items())
+    code, out, _ = remote._run_script(client, script, timeout=30)
+    raw = parse(out)
+    return [{"id": k, "title": tr(v["title"]), "desc": tr(v["desc"]), "done": raw.get(k) == "0"}
             for k, v in ACTIONS.items()]
 
 

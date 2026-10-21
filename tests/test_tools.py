@@ -93,8 +93,17 @@ def test_setup_status_and_apply(monkeypatch):
         return 0, "0\n", ""
 
     monkeypatch.setattr(remote, "run", fake_run)
+    scripts = []
+
+    def fake_script(client, script, timeout=40):
+        scripts.append(script)
+        return 0, "\n".join(["i2c=1", "spi=0", "ntp=0", "tools=0", "expand="]), ""
+
+    monkeypatch.setattr(remote, "_run_script", fake_script)
     items = {i["id"]: i for i in tools.setup_status(object())}
+    assert len(scripts) == 1                       # 所有項目一次往返查完
     assert items["i2c"]["done"] is False and items["tools"]["done"] is True
+    assert items["expand"]["done"] is False
     calls.clear()
     # 套用後會重新檢查狀態；這裡的 get_i2c 還是回 1，所以 done 仍是 False
     r = tools.setup_apply(object(), "i2c", "pw")
