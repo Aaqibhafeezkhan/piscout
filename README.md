@@ -1,5 +1,7 @@
 # piscout
 
+[![ci](https://github.com/MilkteaTW1/piscout/actions/workflows/ci.yml/badge.svg)](https://github.com/MilkteaTW1/piscout/actions/workflows/ci.yml) [![release](https://img.shields.io/github/v/release/MilkteaTW1/piscout)](https://github.com/MilkteaTW1/piscout/releases) [![license](https://img.shields.io/github/license/MilkteaTW1/piscout)](LICENSE) ![platform](https://img.shields.io/badge/platform-Windows-0078D6)
+
 **English** · [繁體中文](#繁體中文)
 
 > **Find and manage your Raspberry Pis from one Windows window.**
