@@ -176,6 +176,13 @@ Output is trimmed to keep token use low.
 Tools: `pi_list` (scan the LAN), `pi_run` (run a shell command) and `pi_health` (read-only health check). Save a login for the Pi in piscout first.
 Only enable this for assistants you trust: they can run any command as that user.
 
+## Translations
+
+piscout ships with 中文 and English. **Adding a language needs no code**: it is a single JSON file in
+`piscout/static/locales/`. Run `python tools/i18n_check.py --new ja 日本語` to get a template, fill it in (anything
+left empty shows English), check it with `python tools/i18n_check.py`, and open a pull request.
+Full guide: [docs/TRANSLATING.md](docs/TRANSLATING.md). **Help wanted:** [add your language (#11)](https://github.com/MilkteaTW1/piscout/issues/11).
+
 ## Status and roadmap
 
 **Tested on real hardware** (Raspberry Pi 3 Model B Rev 1.2, Raspberry Pi OS Debian 12 "Bookworm"):
@@ -439,6 +446,13 @@ piscout 內附一個很小的 MCP 伺服器（只用標準函式庫），讓 AI 
 
 工具：`pi_list`（掃描區網）、`pi_run`（執行 shell 指令）、`pi_health`（唯讀的健康檢查）。請先在 piscout 裡儲存該台樹莓派的帳密。
 只在你信任的 AI 助手上啟用：它能以該帳號執行任何指令。
+
+## 翻譯
+
+piscout 目前有中文和 English。**新增語言不用寫程式**，只要在 `piscout/static/locales/` 放一個 JSON 檔：
+執行 `python tools/i18n_check.py --new ja 日本語` 產生範本，填上翻譯（留空的會顯示英文），用
+`python tools/i18n_check.py` 檢查後送 PR。完整說明見 [docs/TRANSLATING.md](docs/TRANSLATING.md)。
+**徵求幫手：**[新增你的語言（#11）](https://github.com/MilkteaTW1/piscout/issues/11)。
 
 ## 驗證狀況與還沒做的
 

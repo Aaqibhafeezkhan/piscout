@@ -1,13 +1,10 @@
-## piscout v0.1.6
+## piscout v0.1.7
 
-Windows desktop tool for Raspberry Pi on your LAN: auto-discovery, built-in SSH terminal, remote desktop, overview and batch actions, SD card flashing, bilingual UI (中文 / English).
+Windows desktop tool for Raspberry Pi on your LAN: auto-discovery, built-in SSH terminal, remote desktop, overview and batch actions, SD card flashing, multilingual UI (中文 / English, more welcome).
 
-### What changed since v0.1.5
-- **Health check in plain words**: under-voltage, overheating, SD card errors, full disk, low memory, failed services and a wrong clock are checked every minute while you are connected. Problems show up as short warnings in the status bubble (click one for the advice); the bubble now starts collapsed and shows ⚠️/❌ next to the temperature. Read-only.
-- **Quick setup** on the *System info* tab: enable I2C / SPI and time sync, install common tools (htop, git, tree, ncdu, curl), expand the filesystem. A fixed list of actions only.
-- **Much faster system info**: reuses the terminal's SSH connection, uploads the agent only once, and reads the quick-setup state in one round trip.
-- MCP gets a read-only `pi_health` tool.
-- Tab no longer moves focus out of the terminal when you accept a suggestion.
+### What changed since v0.1.6
+- **Paste into the terminal from other windows**: Ctrl+V (or Shift+Insert) pastes what you copied anywhere on your PC; right-click pastes (or copies if text is selected); Ctrl+C copies a selection (without a selection it still interrupts the program).
+- **Languages are now plain files**: translations moved to `piscout/static/locales/*.json`. Adding a language needs **no code**, see [docs/TRANSLATING.md](docs/TRANSLATING.md). A checker (`tools/i18n_check.py`) and a template generator are included, and untranslated sentences fall back to English. Want to add yours? [Issue #11](https://github.com/MilkteaTW1/piscout/issues/11).
 
 ### Download
 `piscout.exe` (below). Verify with `piscout.exe.sha256`.
@@ -34,8 +31,7 @@ A completely blank SD card that has never booted cannot be reached over the netw
 ---
 
 ## 繁體中文
-相較 v0.1.5：**白話健康檢查**（電源不足、過熱、SD 卡錯誤、磁碟快滿、記憶體不足、服務失敗、時間不準），連線時每分鐘檢查，有問題會以簡短警告顯示在狀態泡泡裡（點一下看建議）；泡泡預設縮小，溫度旁會有 ⚠️/❌ 提醒；只讀取，不改設定。
-**快速設定**（系統資訊分頁）：開啟 I2C / SPI 與時間同步、安裝常用工具、擴展檔案系統，只提供固定清單的動作。
-**系統資訊大幅變快**：重用終端機的 SSH 連線、agent 只上傳一次、快速設定狀態一次查完。MCP 新增唯讀的 `pi_health`。接受補齊建議時，Tab 不會再把焦點移出終端機。
+相較 v0.1.6：**可以從別的視窗貼進終端機**：Ctrl+V（或 Shift+Insert）貼上電腦上任何地方複製的文字；右鍵有選取就複製、沒選取就貼上；選取後 Ctrl+C 複製（沒選取時仍是中斷程式）。
+**語言改成獨立檔案**：翻譯搬到 `piscout/static/locales/*.json`，新增語言不用寫程式，見 [docs/TRANSLATING.md](docs/TRANSLATING.md)；附檢查工具與範本產生器，沒翻的句子會顯示英文。想新增你的語言？見 [issue #11](https://github.com/MilkteaTW1/piscout/issues/11)。
 本機 SD 卡燒錄已在真機驗證（Raspberry Pi 3 Model B）。**尚未在真機驗證：**遠端重灌的完整寫入（進階功能，預設關閉）、其他型號。
 檔案沒有簽章，SmartScreen 可能警告，按「其他資訊 → 仍要執行」。

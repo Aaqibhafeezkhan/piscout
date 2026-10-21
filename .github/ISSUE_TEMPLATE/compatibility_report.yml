@@ -25,7 +25,7 @@ body:
     id: version
     attributes:
       label: piscout version
-      placeholder: "v0.1.6"
+      placeholder: "v0.1.7"
     validations:
       required: true
   - type: checkboxes
