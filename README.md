@@ -58,7 +58,7 @@ The Devices screenshot uses the simulated device; the Flash OS screenshot uses t
 
 Download `piscout-setup.exe` from [Releases](../../releases) and run it: it installs per user (no administrator
 rights), adds a Start menu entry and an optional desktop shortcut, and the installer follows your Windows language.
-Prefer no installer? `piscout.exe` runs on its own (or build it yourself, see below).
+Prefer no installer? Build `piscout.exe` yourself, see below.
 When a newer release is published, the app tells you and updates itself with one click (*Update now*, checksum
 verified). Turn the check off with *Don't remind me* or `PISCOUT_NO_UPDATE_CHECK=1`; see [PRIVACY](docs/PRIVACY.md).
 Normal use (scanning, terminal, remote desktop, overview) does **not** need administrator rights.
@@ -276,7 +276,7 @@ Have a different model or OS version? Please [report a compatibility result](../
 
 到 [Releases](../../releases) 下載 `piscout-setup.exe` 執行即可：安裝在你自己的帳號下（不需要系統管理員權限），
 會建立開始功能表項目與可選的桌面捷徑，安裝畫面會跟著你的 Windows 語言。
-不想安裝也可以直接用單檔 `piscout.exe`（或依下方「從原始碼執行」自行打包）。
+不想安裝也可以依下方「從原始碼執行」自行打包單檔 `piscout.exe`。
 有新版本發佈時，程式會提醒你，按「立即更新」就在程式裡自動更新（會核對 SHA-256）。可選「不再提醒」或設定 `PISCOUT_NO_UPDATE_CHECK=1` 關閉，詳見 [隱私權政策](docs/PRIVACY.md)。
 一般使用（掃描、終端機、遠端桌面、總覽）不需要系統管理員權限；只有「本機燒錄」寫入 SD 卡時，才會請你以系統管理員身分重新啟動。
 

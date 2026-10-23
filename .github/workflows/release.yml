@@ -49,7 +49,7 @@ jobs:
       - name: Checksum
         shell: pwsh
         run: |
-          foreach ($f in 'piscout.exe', 'piscout-setup.exe') {
+          foreach ($f in 'piscout-setup.exe') {
             $h = (Get-FileHash "dist\$f" -Algorithm SHA256).Hash.ToLower()
             "$h  $f" | Set-Content -Encoding ascii "dist\$f.sha256"
           }
@@ -60,7 +60,5 @@ jobs:
           files: |
             dist/piscout-setup.exe
             dist/piscout-setup.exe.sha256
-            dist/piscout.exe
-            dist/piscout.exe.sha256
           body_path: .github/release-notes.md
           prerelease: true

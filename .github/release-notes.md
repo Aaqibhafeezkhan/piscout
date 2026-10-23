@@ -8,7 +8,7 @@ Windows desktop tool for Raspberry Pi on your LAN: auto-discovery, built-in SSH 
 - The installer now picks Portuguese (Brazil) and Japanese automatically when Windows uses them.
 
 ### Download
-`piscout-setup.exe` (recommended) or the single-file `piscout.exe`. Verify with the `.sha256` files.
+`piscout-setup.exe`. Verify it with `piscout-setup.exe.sha256`.
 
 > Neither is **code-signed**, so Windows SmartScreen may warn: *More info → Run anyway*.
 > They are built by GitHub Actions from this repository's source at the tagged commit.
