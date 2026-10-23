@@ -35,7 +35,7 @@ BUNDLED = {
     "sl": "Slovenian", "es": "Spanish", "sv": "Swedish", "ta": "Tamil", "th": "Thai", "tr": "Turkish",
     "uk": "Ukrainian",
 }
-PREFERRED = {"pt": 0x0816, "zh": 0x0404, "zh-tw": 0x0404, "zh-cn": 0x0804, "en": 0x0409, "no": 0x0414, "nb": 0x0414}
+PREFERRED = {"pt": 0x0816, "pt-br": 0x0416, "ja": 0x0411, "zh": 0x0404, "zh-tw": 0x0404, "zh-cn": 0x0804, "en": 0x0409, "no": 0x0414, "nb": 0x0414}
 
 
 def lcid(code):
