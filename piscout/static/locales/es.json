@@ -1,0 +1,653 @@
+{
+  "name": "Español",
+  "ui": {
+    "exact": {
+      "裝置": "Dispositivos",
+      "執行": "Ejecutar",
+      "總覽": "Resumen",
+      "燒錄系統": "Grabar sistema operativo",
+      "連線": "Conectar",
+      "收起": "Contraer",
+      "重灌系統": "Reinstalar el sistema",
+      "終端機": "Terminal",
+      "遠端桌面": "Escritorio remoto",
+      "系統資訊": "Información del sistema",
+      "關閉連線": "Cerrar",
+      "重新掃描": "Volver a escanear",
+      "重新整理": "Actualizar",
+      "型號": "Modelo",
+      "系統": "Sistema operativo",
+      "主機名稱": "Nombre del equipo",
+      "開機時間": "Tiempo encendido",
+      "CPU 溫度": "Temp. de CPU",
+      "負載": "Carga",
+      "記憶體": "Memoria",
+      "磁碟": "Disco",
+      "使用者名稱": "Nombre de usuario",
+      "密碼": "Contraseña",
+      "新密碼": "Nueva contraseña",
+      "樹莓派": "Raspberry Pi",
+      "用途": "Uso",
+      "時區": "Zona horaria",
+      "鍵盤配置": "Distribución del teclado",
+      "開始燒錄": "Iniciar grabación",
+      "安裝 agent": "Instalar agente",
+      "安裝中…": "Instalando…",
+      "讀取中…": "Cargando…",
+      "連線中…": "Conectando…",
+      "掃描中…": "Buscando…",
+      "載入失敗": "Error al cargar",
+      "SSH 開啟": "SSH activado",
+      "SSH 未開": "SSH desactivado",
+      "名稱": "Nombre",
+      "狀態": "Estado",
+      "溫度": "Temp.",
+      "來源": "Origen",
+      "在線": "En línea",
+      "離線": "Desconectado",
+      "無帳密": "Sin inicio de sesión",
+      "重新開機": "Reiniciar",
+      "關機": "Apagar",
+      "更新套件": "Actualizar paquetes",
+      "自動更新": "Actualización automática",
+      "全選": "Seleccionar todo",
+      "已複製": "Copiado",
+      "有新版本可用：": "Hay una nueva versión disponible:",
+      "略過這版": "Omitir esta versión",
+      "不再提醒": "No volver a recordármelo",
+      "立即更新": "Actualizar ahora",
+      "更新中…": "Actualizando…",
+      "更新中，程式會自動重開": "Actualizando; la aplicación se reiniciará"
+    },
+    "sub": [
+      [
+        "啟動中，正在掃描區網…",
+        "Iniciando… buscando en la red local"
+      ],
+      [
+        "正在掃描區網…",
+        "Buscando en la red local…"
+      ],
+      [
+        "清除已存帳密",
+        "Olvidar credenciales guardadas"
+      ],
+      [
+        "清除這台電腦上儲存的所有樹莓派帳號密碼",
+        "Eliminar todas las credenciales de Raspberry Pi guardadas en este equipo"
+      ],
+      [
+        "要清除這台電腦上儲存的所有樹莓派帳號密碼嗎？",
+        "¿Eliminar todas las credenciales de Raspberry Pi guardadas en este equipo?"
+      ],
+      [
+        "顯示非樹莓派",
+        "Mostrar dispositivos que no son Raspberry Pi"
+      ],
+      [
+        "1. 要重灌哪一台？",
+        "1. ¿Cuál quieres reinstalar?"
+      ],
+      [
+        "區網裡的樹莓派（SD 卡留在 Pi 上，從這裡遠端重灌）",
+        "Una Raspberry Pi en la red (la tarjeta SD permanece en la Pi; reinstalación remota)"
+      ],
+      [
+        "插在這台電腦上的 SD 卡",
+        "Una tarjeta SD conectada a este equipo"
+      ],
+      [
+        "目前的登入帳號",
+        "Nombre de usuario actual"
+      ],
+      [
+        "目前的登入密碼（也用來 sudo）",
+        "Contraseña actual (también se usa para sudo)"
+      ],
+      [
+        "讀取這台的型號與系統",
+        "Leer el modelo y el sistema operativo de esta Pi"
+      ],
+      [
+        "必須是還開得起來、而且開著 SSH 的樹莓派。完全空白的 SD 卡在網路上看不到， 請改選「插在這台電腦上的 SD 卡」。重灌會清空這台 Pi 的所有資料。",
+        "La Pi debe poder arrancar y tener SSH activado. Una tarjeta SD completamente vacía no aparece en la red; elige «Una tarjeta SD conectada a este equipo». La reinstalación borra todos los datos de la Pi."
+      ],
+      [
+        "2. 這是哪一款樹莓派？",
+        "2. ¿Qué modelo de Raspberry Pi es?"
+      ],
+      [
+        "型號（印在板子上）",
+        "Modelo (impreso en la placa)"
+      ],
+      [
+        "桌面版：有畫面，可遠端操作桌面",
+        "Escritorio: con interfaz gráfica y escritorio remoto"
+      ],
+      [
+        "精簡版：只用終端機，省資源",
+        "Lite: solo terminal, consume menos recursos"
+      ],
+      [
+        "連線並勾選「記住」一次，之後這裡會自動顯示。",
+        "Conéctate una vez y marca «Recordar»; después se completará automáticamente."
+      ],
+      [
+        "帳密沒能存起來：",
+        "No se pudieron guardar las credenciales: "
+      ],
+      [
+        "連線後會自動安裝 agent",
+        "El agente se instala automáticamente al conectarte"
+      ],
+      [
+        "先連線到樹莓派，再把檔案拖進來",
+        "Conéctate primero a una Raspberry Pi y luego arrastra los archivos aquí"
+      ],
+      [
+        "放開以傳到樹莓派的桌面",
+        "Suelta para enviar al escritorio de la Pi"
+      ],
+      [
+        "放開以傳到終端機目前所在的資料夾",
+        "Suelta para enviar a la carpeta actual del terminal"
+      ],
+      [
+        "不支援資料夾，請先壓縮成 zip 再傳",
+        "No se admiten carpetas; comprímela en un archivo ZIP primero"
+      ],
+      [
+        "準備傳送…",
+        "Preparando…"
+      ],
+      [
+        "目標資料夾：",
+        "Carpeta de destino: "
+      ],
+      [
+        "先顯示上次的樹莓派，正在背景重新掃描…",
+        "Mostrando las Raspberry Pi de la última vez mientras se busca en segundo plano…"
+      ],
+      [
+        "這次沒掃到",
+        "No se encontró esta vez"
+      ],
+      [
+        "上次記錄",
+        "De la última vez"
+      ],
+      [
+        "進階：遠端重灌（有風險）",
+        "Avanzado: reinstalación remota (arriesgada)"
+      ],
+      [
+        "更多系統選項（桌面或精簡版、換版本）",
+        "Más opciones del sistema operativo (Desktop o Lite, otras versiones)"
+      ],
+      [
+        "3. 重灌後的開機設定",
+        "3. Configuración de arranque tras reinstalar"
+      ],
+      [
+        "更多設定（主機名稱、國碼、時區、鍵盤、校驗）",
+        "Más ajustes (nombre del equipo, país, zona horaria, teclado y verificación)"
+      ],
+      [
+        "Wi-Fi 名稱（有接網路線可留空）",
+        "Nombre de la red Wi-Fi (déjalo vacío si usas Ethernet)"
+      ],
+      [
+        "Wi-Fi 密碼",
+        "Contraseña Wi-Fi"
+      ],
+      [
+        "Wi-Fi 國碼",
+        "Código de país de Wi-Fi"
+      ],
+      [
+        "本機燒錄時，寫完後讀回校驗",
+        "Al grabar localmente, verificar leyendo los datos"
+      ],
+      [
+        "SSH 一律會啟用。系統映像全部來自樹莓派官方網站。遠端重灌一定會校驗。",
+        "SSH siempre está activado. Todas las imágenes del sistema proceden del sitio web oficial de Raspberry Pi. La reinstalación remota siempre se verifica."
+      ],
+      [
+        "沒有找到樹莓派，可以勾「顯示非樹莓派」看看其他設備。",
+        "No se encontró ninguna Raspberry Pi. Marca «Mostrar dispositivos que no son Raspberry Pi» para ver los demás dispositivos."
+      ],
+      [
+        "這台樹莓派 SSH 沒有開，沒辦法遠端操作。可能還沒有系統，或沒啟用 SSH。",
+        "SSH está desactivado en esta Pi, por lo que no se puede controlar de forma remota. Puede que aún no tenga un sistema instalado o que SSH no esté activado."
+      ],
+      [
+        "可以把 SD 卡拿下來插到這台電腦，用「燒錄系統」重新燒錄。",
+        "Extrae la tarjeta SD, conéctala a este equipo y usa «Grabar sistema operativo»."
+      ],
+      [
+        " · 新款樹莓派（登入後可確認型號）",
+        ""
+      ],
+      [
+        "記住這台的帳號密碼",
+        "Recordar estas credenciales"
+      ],
+      [
+        "密碼會用 Windows 的使用者金鑰加密後存在這台電腦，換電腦或換帳號就解不開。",
+        "La contraseña se cifra con la clave de tu usuario de Windows y se guarda en este equipo; no se puede descifrar en otro PC o cuenta."
+      ],
+      [
+        "掃描失敗：",
+        "Error al buscar: "
+      ],
+      [
+        "正在啟動遠端桌面…（第一次會需要幾秒）",
+        "Iniciando el escritorio remoto… (la primera vez tarda unos segundos)"
+      ],
+      [
+        "遠端桌面已中斷。",
+        "Se ha desconectado el escritorio remoto."
+      ],
+      [
+        "遠端桌面連線失敗或中斷。",
+        "La conexión al escritorio remoto ha fallado o se ha interrumpido."
+      ],
+      [
+        "agent 已在執行",
+        "el agente está en ejecución"
+      ],
+      [
+        "（已自動套用對應的建議）",
+        " (se aplicó la recomendación correspondiente)"
+      ],
+      [
+        "看起來是新款樹莓派。填入帳密後會自動讀取確切型號。",
+        "Parece una Raspberry Pi reciente. Introduce las credenciales para detectar automáticamente el modelo exacto."
+      ],
+      [
+        "填入帳密後會自動讀取型號；也可以自己在下面選。",
+        "Introduce las credenciales para detectar el modelo automáticamente o selecciónalo abajo."
+      ],
+      [
+        "還沒有掃描到樹莓派",
+        "Todavía no se ha encontrado ninguna Raspberry Pi"
+      ],
+      [
+        " · SSH 未開",
+        " · SSH desactivado"
+      ],
+      [
+        "請先選一台樹莓派",
+        "Selecciona primero una Raspberry Pi"
+      ],
+      [
+        "讀取型號中…",
+        "Leyendo el modelo…"
+      ],
+      [
+        "型號未知",
+        "Modelo desconocido"
+      ],
+      [
+        "，請自己選型號",
+        ", selecciona el modelo manualmente"
+      ],
+      [
+        "★ 推薦：",
+        "★ Recomendado: "
+      ],
+      [
+        "（此型號不支援）",
+        " (este modelo no es compatible)"
+      ],
+      [
+        "最佳建議：",
+        "Mejor opción: "
+      ],
+      [
+        " · 空白",
+        " · vacía"
+      ],
+      [
+        " · 已有樹莓派系統",
+        " · tiene Raspberry Pi OS"
+      ],
+      [
+        " · 無法辨識",
+        " · no reconocida"
+      ],
+      [
+        "未命名",
+        "sin nombre"
+      ],
+      [
+        "沒有偵測到可移除的磁碟，請插入 SD 卡",
+        "No se ha detectado ningún disco extraíble. Inserta una tarjeta SD."
+      ],
+      [
+        "目前不是系統管理員身分，可以先設定，但寫入時會失敗。請用「以系統管理員身分執行」開啟。",
+        "La aplicación no se está ejecutando como administrador. Puedes configurar todo, pero la escritura fallará. Iníciala con «Ejecutar como administrador»."
+      ],
+      [
+        "只列出 USB / SD 類的可移除磁碟，不會列出系統碟。",
+        "Solo se muestran discos extraíbles USB/SD, nunca el disco del sistema."
+      ],
+      [
+        "請先選好系統",
+        "Selecciona primero un sistema operativo"
+      ],
+      [
+        "請設定新密碼，不然重灌之後登不進去",
+        "Establece una contraseña nueva o no podrás iniciar sesión después de reinstalar"
+      ],
+      [
+        "請填目前的登入帳號",
+        "Introduce el nombre de usuario actual"
+      ],
+      [
+        "請先選好 SD 卡",
+        "Selecciona primero una tarjeta SD"
+      ],
+      [
+        "寫入並校驗完成，樹莓派正在重新開機。開機後我會自動掃描，找到就回到裝置頁。",
+        "Escritura y verificación completadas. La Pi se está reiniciando; volveré a buscar automáticamente y regresaré a Dispositivos cuando esté lista."
+      ],
+      [
+        "燒錄完成。把 SD 卡插進樹莓派開機，等一到兩分鐘，我會自動重新掃描。",
+        "La grabación ha terminado. Inserta la tarjeta SD en la Pi y enciéndela; volveré a buscar automáticamente en uno o dos minutos."
+      ],
+      [
+        "連線已結束",
+        "conexión cerrada"
+      ],
+      [
+        "以系統管理員身分重新啟動",
+        "Reiniciar como administrador"
+      ],
+      [
+        "正在以系統管理員身分重新啟動…",
+        "Reiniciando como administrador…"
+      ],
+      [
+        "寫入 SD 卡需要系統管理員權限。其他功能（掃描、終端機、遠端桌面）不需要。",
+        "Para escribir en una tarjeta SD se necesitan permisos de administrador. La búsqueda, el terminal y el escritorio remoto no los necesitan."
+      ],
+      [
+        "插在這台電腦上的 SD 卡（建議）",
+        "Una tarjeta SD conectada a este equipo (recomendado)"
+      ],
+      [
+        "· 進階功能，預設關閉",
+        "· función avanzada, desactivada de forma predeterminada"
+      ],
+      [
+        "啟用進階功能：遠端重灌（有風險）",
+        "Activar función avanzada: reinstalación remota (arriesgada)"
+      ],
+      [
+        "遠端重灌是在「執行中」的樹莓派上覆寫它自己的 SD 卡。如果中途關閉程式、斷電、 斷網或電腦睡眠，那張卡會變成寫了一半、開不了機，而且無法從遠端修復，只能把卡拿到電腦上重燒。 請先準備讀卡機或備用的 SD 卡。",
+        ""
+      ],
+      [
+        "遠端重灌是進階功能，請先啟用上方的「進階功能」並確認風險。",
+        "La reinstalación remota es una función avanzada. Actívala arriba y confirma primero que aceptas el riesgo."
+      ],
+      [
+        "我有讀卡機或備用的 SD 卡，萬一中途失敗可以用電腦重燒這張卡",
+        "Tengo un lector de tarjetas o una tarjeta SD de repuesto para volver a grabarla desde un ordenador si falla el proceso"
+      ],
+      [
+        "遠端重灌失敗時，這張卡需要用電腦重燒。請先勾選上方的確認。",
+        "Si falla la reinstalación remota, habrá que volver a grabar esta tarjeta desde un ordenador. Marca primero la confirmación anterior."
+      ],
+      [
+        "這張卡現在只寫了一半，樹莓派開不了機。請把卡拿到電腦上，到「燒錄系統」選「插在這台電腦上的 SD 卡」重新燒錄。",
+        "Esta tarjeta se ha grabado solo en parte y la Pi no puede arrancar. Conecta la tarjeta a un ordenador, abre «Grabar sistema operativo», selecciona «Una tarjeta SD conectada a este equipo» y vuelve a grabarla."
+      ],
+      [
+        "還沒有樹莓派。先到「裝置」掃描並連線一次，讓我記住帳密。",
+        "Todavía no hay ninguna Raspberry Pi. Busca dispositivos y conéctate una vez en la pestaña «Dispositivos» para guardar las credenciales."
+      ],
+      [
+        "沒有儲存帳密",
+        "No hay credenciales guardadas"
+      ],
+      [
+        "先到「裝置」連線一次並勾選「記住」，這裡才能顯示狀態。",
+        "Conéctate una vez desde «Dispositivos» con «Recordar» marcado para mostrar aquí el estado."
+      ],
+      [
+        "批次操作會對勾選的樹莓派使用已儲存的帳密。",
+        "Las acciones por lotes usan las credenciales guardadas de cada Pi seleccionada."
+      ],
+      [
+        "健康檢查",
+        "Comprobación del estado"
+      ],
+      [
+        "快速設定",
+        "Configuración rápida"
+      ],
+      [
+        "正在檢查…",
+        "Comprobando…"
+      ],
+      [
+        "重新檢查",
+        "Volver a comprobar"
+      ],
+      [
+        "✔ 已完成",
+        "✔ Hecho"
+      ],
+      [
+        "已執行",
+        "Aplicado"
+      ],
+      [
+        "執行中…",
+        "En curso…"
+      ],
+      [
+        "需要重開機才會生效",
+        "Es necesario reiniciar para aplicar los cambios"
+      ]
+    ],
+    "rx": [
+      {
+        "pattern": "^(.*) · 找到 (\\d+) 台設備，(\\d+) 台是樹莓派。如果你的樹莓派還沒有系統.*$",
+        "replace": ""
+      },
+      {
+        "pattern": "^(.*) · 找到 (\\d+) 台設備，(\\d+) 台是樹莓派$",
+        "replace": ""
+      },
+      {
+        "pattern": "下載約 (.+?)，寫入後 (.+?) · 來源：樹莓派官方網站",
+        "replace": "descarga ≈ $1, $2 tras la grabación · fuente: sitio web oficial de Raspberry Pi"
+      },
+      {
+        "pattern": "磁碟 (\\d+)",
+        "replace": "Disco $1"
+      },
+      {
+        "pattern": "^確定清除 (\\S+) 並重灌$",
+        "replace": "Borrar $1 y reinstalar el sistema"
+      },
+      {
+        "pattern": "^確定清除磁碟 (\\d+) 並燒錄$",
+        "replace": "Borrar el disco $1 y grabar"
+      },
+      {
+        "pattern": "^(\\S+) 上的所有資料都會被刪除！過程中請不要斷電或斷網，約需 10–30 分鐘。$",
+        "replace": "¡Se borrarán todos los datos de $1! No apagues ni desconectes el equipo durante el proceso. Aproximadamente 10–30 minutos."
+      },
+      {
+        "pattern": "^(.*) 上的所有資料都會被刪除！$",
+        "replace": "¡Se borrarán todos los datos de $1!"
+      },
+      {
+        "pattern": "(\\d+) 天 (\\d+) 小時 (\\d+) 分",
+        "replace": "$1 d $2 h $3 min"
+      },
+      {
+        "pattern": "(\\d+) 小時 (\\d+) 分",
+        "replace": "$1 h $2 min"
+      },
+      {
+        "pattern": "^已選 (\\d+) 台$",
+        "replace": "$1 seleccionados"
+      },
+      {
+        "pattern": "^完成：(\\d+) 台成功，(\\d+) 台失敗$",
+        "replace": "Completado: $1 correctos, $2 fallidos"
+      },
+      {
+        "pattern": "^確定要對 (\\d+) 台執行「(.+)」嗎？$",
+        "replace": "¿Ejecutar \"{{2}}\" en $1 dispositivo(s)?"
+      }
+    ]
+  },
+  "backend": {
+    "host 必須是 IP": "",
+    "只能操作區網內的位址": "",
+    "key 必須是 MAC 位址": "",
+    "kind 不對": "",
+    "agent 沒有回應": "",
+    "抓不到系統清單，網路有通嗎？（{e}）": "",
+    "只能下載樹莓派官方網站的映像": "",
+    "找不到這個系統映像": "",
+    "燒錄功能目前只支援 Windows": "",
+    "讀取磁碟失敗：{err}": "",
+    "精簡版：沒有桌面，佔空間小、開機快，只能用終端機操作。": "",
+    "官方預設的完整桌面版，可以用終端機，也可以遠端操作桌面。": "",
+    "{label} 支援 64 位元，官方建議用 64 位元版。": "",
+    "{label} 只支援 32 位元版。": "",
+    "這款記憶體偏少，如果覺得卡，可以改選精簡版。": "",
+    "下載失敗：{e}": "",
+    "映像檔損毀：{e}": "",
+    "沒有寫入磁碟的權限，請用系統管理員身分執行": "",
+    "寫入磁碟失敗：{e}": "",
+    "下載的映像檔校驗碼不符，已放棄。請刪掉快取後重試": "",
+    "寫入後讀回校驗失敗（約在 {mb} MB 處），這張 SD 卡或讀卡機可能有問題，請換一張卡或換個 USB 孔再試": "",
+    "檔名不合法": "",
+    "無法寫入 {dir}：{e}": "",
+    "主機名稱只能用英文、數字和 -": "",
+    "使用者名稱只能用小寫英文、數字、_ 和 -": "",
+    "請設定密碼": "",
+    "時區格式不對，例如 Asia/Taipei": "",
+    "鍵盤配置請填兩個小寫字母，例如 us": "",
+    "Wi-Fi 名稱太長": "",
+    "Wi-Fi 密碼要 8 到 63 個字元": "",
+    "Wi-Fi 國碼請填兩個大寫字母，例如 TW": "",
+    "寫完了，但 Windows 沒有掛出 boot 分割區，沒辦法寫入設定": "",
+    "需要系統管理員權限才能寫入磁碟，請用「以系統管理員身分執行」開啟": "",
+    "發生未預期的錯誤：{e}": "",
+    "找不到那顆磁碟，或容量跟你選的不一樣，請重新整理後再選": "",
+    "已經有一個燒錄工作在進行了": "",
+    "沒有這個工作": "",
+    "準備映像（校驗並寫入開機設定）": "",
+    "連線並檢查樹莓派": "",
+    "寫入樹莓派的 SD 卡": "",
+    "完成，樹莓派重新開機中": "",
+    "準備中": "",
+    "下載系統映像": "",
+    "清除磁碟": "",
+    "寫入 SD 卡": "",
+    "校驗": "",
+    "寫入開機設定": "",
+    "完成": "",
+    "帳號或密碼不對（或這台沒開密碼登入）": "",
+    "連不上 {host}：{e}": "",
+    "{host} 拒絕連線：這台沒有開啟 SSH。請在樹莓派上啟用 SSH（raspi-config → Interface Options → SSH，或燒錄時勾選啟用 SSH）。": "",
+    "連線 {host} 逾時：請確認樹莓派已開機，而且和這台電腦在同一個網路。": "",
+    "{host} 一建立 SSH 連線就被切斷：樹莓派可能剛開機還沒準備好、負載過高，或它的系統損壞。請等一分鐘再試，仍不行就重新開機。": "",
+    "找不到 {host}：請確認這台電腦和樹莓派在同一個網路，並重新掃描。": "",
+    "沒有取得系統管理員權限": "",
+    "找不到桌面 session。這台可能是 Lite 版（沒有桌面），或桌面還沒登入完成，請稍等一下再試。": "",
+    "這台沒有 wayvnc，可能是沒有桌面環境，或用的是舊的 X11 桌面。建議重新燒錄 Raspberry Pi OS 桌面版（64-bit）。": "",
+    "遠端桌面啟動失敗：{why}": "",
+    "原因不明": "",
+    "讀取系統資訊失敗：{why}": "",
+    "這台沒有 python3？": "",
+    "安裝失敗（{step}）：{err}": "",
+    "{cmd} 指令失敗：{err}": "",
+    "這個映像不是 MBR 格式，沒辦法預先寫入開機設定": "",
+    "第一個分割區不是 FAT32，沒辦法預先寫入開機設定": "",
+    "映像檔比預期的短": "",
+    "映像檔校驗碼不符（下載可能不完整），已放棄": "",
+    "映像大小異常": "",
+    "Pi 上缺少必要工具：{tools}": "",
+    "這台是 {model}，但「{image}」不支援這個型號，寫進去會開不了機。請回上一步改選建議的系統": "",
+    "認不出開機磁碟（{disk}），為了安全不動手": "",
+    "空白": "",
+    "這張卡只有 {have:.1f} GB，放不下 {need:.1f} GB 的映像。請改選比較小的版本（例如精簡版）": "",
+    "Pi 的可用記憶體太少，不適合在線上覆寫": "",
+    "這台需要 sudo 密碼，請填寫登入密碼": "",
+    "sudo 驗證失敗，密碼不對或這個帳號沒有 sudo 權限": "",
+    "無法在記憶體裡準備寫入工具（/dev/shm 可能不允許執行）：{why}": "",
+    "找不到動態載入器": "",
+    "Pi 上的寫入腳本沒有啟動：{out}": "",
+    "傳輸中斷：{e}。Pi 上的卡可能只寫了一半，需要拔下來用電腦重燒": "",
+    "寫入後讀回的校驗碼不一致，我沒有重新開機。Pi 目前的系統可能已損壞，請再試一次，或把卡拿下來用電腦重燒": "",
+    "dd 寫入失敗：{log}": "",
+    "沒有收到 Pi 的完成回報。如果它之後有重新開機，通常代表成功，請掃描確認": "",
+    "不支援的操作": "",
+    "沒有儲存帳密": "",
+    "遠端重灌是進階功能，請先在「燒錄系統」頁啟用並確認風險": "",
+    "操作逾時": "",
+    "電源電壓不足（現在）": "",
+    "樹莓派正在被電源拖累，可能卡頓、當機或損壞 SD 卡。請換官方電源供應器，並避免太細太長的線。": "",
+    "開機以來曾經電壓不足": "",
+    "電源曾經不穩。若發生過當機或卡頓，請換官方電源供應器與品質好的線。": "",
+    "電源正常": "",
+    "正在降速保護": "",
+    "溫度太高或電壓不足，CPU 被強制降速。請加散熱片或風扇，並改善通風。": "",
+    "開機以來曾經降速": "",
+    "曾經過熱或電壓不足，建議加強散熱。": "",
+    "CPU 溫度 {t} °C，太高了": "",
+    "請加散熱片或風扇，並改善通風。": "",
+    "CPU 溫度 {t} °C，偏高": "",
+    "長時間高負載建議加散熱片。": "",
+    "CPU 溫度 {t} °C": "",
+    "儲存空間快滿了（已用 {p}%）": "",
+    "空間滿了系統會出問題。請刪掉不用的檔案，或換更大的 SD 卡。": "",
+    "儲存空間偏少（已用 {p}%）": "",
+    "建議清理檔案。": "",
+    "儲存空間足夠（已用 {p}%）": "",
+    "記憶體幾乎用完（剩 {p}%）": "",
+    "請關掉不需要的程式，或考慮加大 swap。": "",
+    "記憶體偏少（剩 {p}%）": "",
+    "請留意正在執行的程式。": "",
+    "記憶體充足（剩 {p}%）": "",
+    "系統記錄到 {n} 筆 SD 卡讀寫錯誤": "",
+    "SD 卡或電源可能有問題。請先備份重要資料，再換一張卡或改善供電。": "",
+    "沒有 SD 卡讀寫錯誤": "",
+    "有 {n} 個服務啟動失敗：{names}": "",
+    "可以在終端機用 systemctl status 服務名稱 查看原因。": "",
+    "所有服務都正常": "",
+    "時間沒有同步": "",
+    "時間不準會讓 apt 更新和 HTTPS 出現憑證錯誤。可以到「系統資訊」分頁的「快速設定」開啟時間同步。": "",
+    "開啟 I2C": "",
+    "接感測器、OLED 螢幕常用的介面。": "",
+    "開啟 SPI": "",
+    "接 LED 燈條、顯示器等硬體常用的介面。": "",
+    "開啟時間同步": "",
+    "自動校準時間，避免更新和憑證出錯。": "",
+    "安裝常用工具": "",
+    "htop（看資源）、git、tree、ncdu（看哪些檔案佔空間）、curl。": "",
+    "把檔案系統擴展到整張卡": "",
+    "新燒錄的系統通常已自動擴展；若空間比卡小很多才需要。重開機後生效。": "",
+    "版本格式不正確": "",
+    "從原始碼執行時不能自動更新，請用 git pull": "",
+    "下載更新失敗：{e}": "",
+    "更新檔驗證失敗，已取消": ""
+  },
+  "installer": {
+    "custom": {
+      "TaskDesktop": "Crear un acceso directo en el escritorio",
+      "TaskGroup": "Accesos directos:",
+      "RunApp": "Iniciar piscout"
+    }
+  }
+}
