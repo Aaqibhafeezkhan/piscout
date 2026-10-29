@@ -4,6 +4,8 @@
 
 **English** · [繁體中文](#繁體中文)
 
+**[⬇ Download piscout-setup.exe | 下載安裝程式](https://github.com/MilkteaTW1/piscout/releases/latest/download/piscout-setup.exe)** (Windows, free, MIT)
+
 Website: [inkacuity.com/projects/piscout](https://inkacuity.com/projects/piscout) · 專案介紹頁
 
 > **Find and manage your Raspberry Pis from one Windows window.**
