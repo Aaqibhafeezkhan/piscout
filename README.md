@@ -190,6 +190,10 @@ left empty shows English), check it with `python tools/i18n_check.py`, and open 
 The same file also translates the Windows installer (`installer` section; the installer follows the user's Windows
 language, and Inno Setup's built-in languages need only 3 short texts). Full guide: [docs/TRANSLATING.md](docs/TRANSLATING.md). **Help wanted:** [add your language (#11)](https://github.com/MilkteaTW1/piscout/issues/11).
 
+## Need something custom?
+
+Custom features, integrations or setup help are available. See [墨鋒 Inkacuity](https://inkacuity.com/projects/piscout) or email [ink@inkacuity.com](mailto:ink@inkacuity.com).
+
 ## Status and roadmap
 
 **Tested on real hardware** (Raspberry Pi 3 Model B Rev 1.2, Raspberry Pi OS Debian 12 "Bookworm"):
@@ -463,6 +467,10 @@ piscout 目前有中文和 English。**新增語言不用寫程式**，只要在
 執行 `python tools/i18n_check.py --new ja 日本語` 產生範本，填上翻譯（留空的會顯示英文），用
 `python tools/i18n_check.py` 檢查後送 PR。同一個檔案也能翻譯 Windows 安裝程式（`installer` 區塊，安裝畫面會跟著使用者的 Windows 語言；Inno Setup 內建的語言只要翻 3 句）。完整說明見 [docs/TRANSLATING.md](docs/TRANSLATING.md)。
 **徵求幫手：**[新增你的語言（#11）](https://github.com/MilkteaTW1/piscout/issues/11)。
+
+## 需要客製？
+
+想要專屬功能、整合或部署協助？歡迎找我，詳情請見 [墨鋒 Inkacuity](https://inkacuity.com/projects/piscout)，或寄信到 [ink@inkacuity.com](mailto:ink@inkacuity.com)。
 
 ## 驗證狀況與還沒做的
 
