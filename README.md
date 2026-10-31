@@ -187,6 +187,10 @@ Only enable this for assistants you trust: they can run any command as that user
 
 ## Translations
 
+![Translation status per language](docs/i18n-status.svg)
+
+Regenerate the chart with `python tools/i18n_status.py` after a locale changes.
+
 piscout ships with 中文 and English. **Adding a language needs no code**: it is a single JSON file in
 `piscout/static/locales/`. Run `python tools/i18n_check.py --new ja 日本語` to get a template, fill it in (anything
 left empty shows English), check it with `python tools/i18n_check.py`, and open a pull request.

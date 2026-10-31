@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="240" viewBox="0 0 640 240" role="img" aria-label="Translation status">
+<style>
+.t{font:14px -apple-system,Segoe UI,Helvetica,Arial,sans-serif;fill:#24292f}.m{fill:#57606a;font-size:12px}
+.bg{fill:#eaeef2}.fg{fill:#2da44e}
+@media (prefers-color-scheme: dark){.t{fill:#e6edf3}.m{fill:#9198a1}.bg{fill:#30363d}.fg{fill:#3fb950}}
+</style>
+<text class="t" x="0" y="34">English <tspan class="m">en</tspan></text>
+<rect class="bg" x="150" y="23" width="300" height="14" rx="7"/>
+<rect class="fg" x="150" y="23" width="300" height="14" rx="7"/>
+<text class="m" x="462" y="34">306/306 (100%)</text>
+<text class="t" x="0" y="64">繁體中文 <tspan class="m">zh</tspan></text>
+<rect class="bg" x="150" y="53" width="300" height="14" rx="7"/>
+<rect class="fg" x="150" y="53" width="300" height="14" rx="7"/>
+<text class="m" x="462" y="64">306/306 (100%)</text>
+<text class="t" x="0" y="94">বাংলা <tspan class="m">bn</tspan></text>
+<rect class="bg" x="150" y="83" width="300" height="14" rx="7"/>
+<rect class="fg" x="150" y="83" width="164" height="14" rx="7"/>
+<text class="m" x="462" y="94">167/306 (55%)</text>
+<text class="t" x="0" y="124">Español <tspan class="m">es</tspan></text>
+<rect class="bg" x="150" y="113" width="300" height="14" rx="7"/>
+<rect class="fg" x="150" y="113" width="160" height="14" rx="7"/>
+<text class="m" x="462" y="124">163/306 (53%)</text>
+<text class="t" x="0" y="154">हिन्दी <tspan class="m">hi</tspan></text>
+<rect class="bg" x="150" y="143" width="300" height="14" rx="7"/>
+<rect class="fg" x="150" y="143" width="125" height="14" rx="7"/>
+<text class="m" x="462" y="154">127/306 (42%)</text>
+<text class="t" x="0" y="184">العربية <tspan class="m">ar</tspan></text>
+<rect class="bg" x="150" y="173" width="300" height="14" rx="7"/>
+<rect class="fg" x="150" y="173" width="96" height="14" rx="7"/>
+<text class="m" x="462" y="184">98/306 (32%)</text>
+<text class="t" x="0" y="214">اردو <tspan class="m">ur</tspan></text>
+<rect class="bg" x="150" y="203" width="300" height="14" rx="7"/>
+<rect class="fg" x="150" y="203" width="96" height="14" rx="7"/>
+<text class="m" x="462" y="214">98/306 (32%)</text>
+</svg>
