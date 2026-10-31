@@ -29,6 +29,7 @@ Website: [inkacuity.com/projects/piscout](https://inkacuity.com/projects/piscout
 Tested on a real Raspberry Pi 3 Model B (Raspberry Pi OS Bookworm):
 
 - **Find** – scans the LAN on launch and recognizes Raspberry Pis, no IP hunting
+- **Add by hand** – if the scan cannot see your Pi (router AP isolation, another subnet), type its IP or name (`raspberrypi.local`) and connect directly; only private-network addresses are accepted
 - **Connect** – click *Connect*, enter the login, and get an SSH terminal inside the app
 - **See the desktop** – view and control the Pi's desktop through the SSH tunnel
 - **Always-on status bubble** – a small panel in the top-right corner shows the Pi's temperature, load, memory, disk and uptime; the agent is installed automatically after the first connection, and you can collapse or drag the bubble anywhere

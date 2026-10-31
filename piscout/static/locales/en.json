@@ -57,7 +57,11 @@
    "不再提醒": "Don't remind me",
    "立即更新": "Update now",
    "更新中…": "Updating…",
-   "更新中，程式會自動重開": "Updating, the app will restart"
+   "更新中，程式會自動重開": "Updating, the app will restart",
+   "掃不到？直接輸入樹莓派的 IP 或名稱（例如 192.168.1.20、raspberrypi.local）：": "Not found? Enter the Pi's IP or name (for example 192.168.1.20 or raspberrypi.local):",
+   "新增": "Add",
+   "移除": "Remove",
+   "手動新增": "Added manually"
   },
   "sub": [
    [
@@ -641,7 +645,9 @@
   "版本格式不正確": "Invalid version",
   "從原始碼執行時不能自動更新，請用 git pull": "Cannot self-update when running from source; use git pull",
   "下載更新失敗：{e}": "Update download failed: {e}",
-  "更新檔驗證失敗，已取消": "Update file failed verification, cancelled"
+  "更新檔驗證失敗，已取消": "Update file failed verification, cancelled",
+  "請輸入 IP 或主機名稱": "Enter an IP address or a host name",
+  "找不到 {name}：請確認名稱或 IP 沒有打錯，而且這台電腦和樹莓派在同一個網路。": "Could not find {name}: check that the name or IP is typed correctly and that this computer and the Pi are on the same network."
  },
  "installer": {
   "custom": {

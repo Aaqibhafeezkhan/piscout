@@ -123,6 +123,23 @@ def _check_host(host):
     return str(ip)
 
 
+@app.get("/api/resolve")
+async def api_resolve(name: str):
+    """手動新增裝置：把使用者輸入的 IP 或主機名稱（例如 raspberrypi.local）變成區網 IP。"""
+    name = name.strip()
+    if not name or len(name) > 253:
+        raise HTTPException(400, tr("請輸入 IP 或主機名稱"))
+    try:
+        return {"ip": _check_host(name)}
+    except HTTPException:
+        pass
+    try:
+        infos = await run_in_threadpool(socket.getaddrinfo, name, 22, socket.AF_INET, socket.SOCK_STREAM)
+    except OSError:
+        raise HTTPException(404, tr("找不到 {name}：請確認名稱或 IP 沒有打錯，而且這台電腦和樹莓派在同一個網路。", name=name))
+    return {"ip": _check_host(infos[0][4][0])}
+
+
 @app.get("/")
 def index():
     html = (STATIC / "index.html").read_text(encoding="utf-8")

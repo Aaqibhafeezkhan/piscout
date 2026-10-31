@@ -154,6 +154,14 @@
         <button class="primary" id="scan">重新掃描</button>
       </div>
     </div>
+    <div class="row" style="margin-top:10px">
+      <div class="muted">掃不到？直接輸入樹莓派的 IP 或名稱（例如 192.168.1.20、raspberrypi.local）：</div>
+      <div class="btnrow">
+        <input id="manualHost" placeholder="192.168.1.20" style="width:200px">
+        <button id="manualAdd">新增</button>
+      </div>
+    </div>
+    <div class="err" id="manualErr"></div>
     <div id="list"></div>
   </section>
 
@@ -395,7 +403,8 @@ function card(d) {
   const box = h('div', {class: 'card'});
   const tags = [];
   if (d.is_pi) tags.push(h('span', {class: 'tag pi'}, 'Raspberry Pi'));
-  if (d.cached) tags.push(h('span', {class: 'tag'}, d.missing ? '這次沒掃到' : '上次記錄'));
+  if (d.manual) tags.push(h('span', {class: 'tag'}, '手動新增'));
+  else if (d.cached) tags.push(h('span', {class: 'tag'}, d.missing ? '這次沒掃到' : '上次記錄'));
   else tags.push(h('span', {class: 'tag'}, d.ssh_open ? 'SSH 開啟' : 'SSH 未開'));
   box.append(h('div', {class: 'row'},
     h('div', {},
@@ -403,6 +412,7 @@ function card(d) {
       h('div', {class: 'muted'}, d.ip + ' · ' + d.mac +
         (d.model ? ' · ' + d.model : d.hint_model ? ' · 新款樹莓派（登入後可確認型號）' : ''))),
     h('div', {class: 'row'}, tags,
+      d.manual ? h('button', {onclick: () => removeManual(d)}, '移除') : '',
       d.is_pi && d.ssh_open && advanced
         ? h('button', {onclick: () => startReflash(d.ip)}, '重灌系統') : '',
       h('button', {class: d.is_pi && (d.ssh_open || d.cached) ? 'primary' : '',
@@ -466,6 +476,7 @@ function persistKnown() {
   const list = devices.filter(d => d.is_pi).map(d => ({
     ip: d.ip, mac: d.mac, hostname: d.hostname, ssh_open: d.ssh_open, is_pi: true,
     hint_model: d.hint_model || null, model: d.model || '', model_id: d.model_id || null,
+    manual: !!d.manual,
     last_seen: d.missing || d.cached ? (d.last_seen || now) : now,
   }));
   try { localStorage.setItem(KNOWN_KEY, JSON.stringify(list)); } catch (e) {}
@@ -484,7 +495,9 @@ async function doScan() {
       const d = byMac[k.mac];
       if (d && !d.model) { d.model = k.model || ''; d.model_id = k.model_id || null; }
     }
-    const missing = known.filter(k => !byMac[k.mac]).map(k => ({...k, cached: true, missing: true}));
+    const scannedIps = new Set(r.devices.map(d => d.ip));
+    const missing = known.filter(k => !byMac[k.mac] && !(k.manual && scannedIps.has(k.ip)))
+      .map(k => k.manual ? {...k, cached: true} : {...k, cached: true, missing: true});
     devices = [...r.devices, ...missing];
     persistKnown();
     const pis = devices.filter(d => d.is_pi).length;
@@ -503,6 +516,40 @@ $('#forget').addEventListener('click', async () => {
   render();
 });
 $('#showAll').addEventListener('change', render);
+
+/* 手動新增：掃不到時（AP 隔離、跨網段、換過網卡）的備援。沒有 MAC，就用 IP 組一個固定的假 MAC 當帳密的 key。 */
+function manualMac(ip) {
+  return '02:00:' + ip.split('.').map(n => (+n).toString(16).padStart(2, '0')).join(':');
+}
+async function addManual() {
+  const input = $('#manualHost'), err = $('#manualErr'), btn = $('#manualAdd');
+  const name = input.value.trim();
+  err.textContent = '';
+  if (!name) return;
+  btn.disabled = true;
+  try {
+    const {ip} = await api('/api/resolve?name=' + encodeURIComponent(name));
+    if (!devices.some(d => d.ip === ip)) {
+      devices.push({ip, mac: manualMac(ip), hostname: name === ip ? '' : name, ssh_open: true,
+                    is_pi: true, hint_model: null, manual: true, cached: true});
+      persistKnown();
+    }
+    input.value = '';
+    openIp = ip;
+    render();
+  } catch (e) {
+    err.textContent = e.message;
+  }
+  btn.disabled = false;
+}
+function removeManual(d) {
+  devices = devices.filter(x => x !== d);
+  if (openIp === d.ip) openIp = null;
+  persistKnown();
+  render();
+}
+$('#manualAdd').addEventListener('click', addManual);
+$('#manualHost').addEventListener('keydown', e => { if (e.key === 'Enter') addManual(); });
 
 /* ================= 連線視窗 ================= */
 let sess = null;  // {device, cred, term, termWs, rfb, deskWs}
