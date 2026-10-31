@@ -97,7 +97,16 @@ pip install -r requirements.txt
 python run_gui.py
 ```
 
-Build an exe: `pip install pyinstaller` then `build.bat`. Run tests: `pytest`.
+Build the app: `pip install pyinstaller` then `build.bat` (the result is the folder `dist\piscout`). Run tests: `pytest`.
+
+### Scan from the command line (Windows, macOS, Linux)
+
+```bash
+python -m piscout scan                       # Raspberry Pis on this machine's /24
+python -m piscout scan --network 10.0.0.0/24 --all --json
+```
+
+It needs only Python 3.9+ and the `piscout` folder (no pip packages; `zeroconf`, if installed, adds host names). It sweeps port 22, then reads the ARP table (`arp -a`, or `ip neigh` on Linux systems without `arp`). It does not need administrator rights.
 
 ## How it differs from other tools
 
@@ -155,7 +164,7 @@ It reads the model (from `/proc/device-tree/model` after login) and picks the ma
 No. Use Imager to write a card in your computer. piscout is for managing Pis that are already on the network, and also includes a local flasher for convenience.
 
 **Does it work on Linux or macOS?**
-Not yet; the app and the local flasher target Windows. The scanner, terminal and remote-flash modules are plain Python and could be ported.
+The app and the local flasher are Windows-only. The LAN scan also runs on Linux and macOS as a command-line tool with only the Python standard library: `python -m piscout scan` (see "Scan from the command line" below). The terminal and remote-flash modules are plain Python and could be ported.
 
 **Is it safe to expose?**
 It binds to `127.0.0.1` only. Do not publish its port. See the security notes above.
@@ -400,7 +409,7 @@ Pi 上」之後的事——找到它、連進去、看畫面、換系統。網�
 不能。Imager 負責把卡寫好；piscout 負責卡已經在 Pi 上之後的管理，也附了方便的本機燒錄。
 
 **支援 Linux / macOS 嗎？**
-目前只支援 Windows（含本機燒錄）。掃描、終端機、遠端重灌都是純 Python，之後可以移植。
+視窗版和本機燒錄只支援 Windows。區網掃描另外可以在 Linux、macOS 用命令列執行，只需要 Python 標準函式庫：`python -m piscout scan`（見英文版「Scan from the command line」）。終端機、遠端重灌都是純 Python，之後可以移植。
 
 ## 從原始碼執行
 
