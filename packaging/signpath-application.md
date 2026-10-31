@@ -50,7 +50,7 @@ declined or asked to come back later. If that happens: keep releasing from CI, c
 |---|---|
 | License | MIT (OSI approved) |
 | Build | `.github/workflows/release.yml`, `windows-latest`, from the tagged commit |
-| Artifact to sign | `piscout.exe` (PyInstaller one-file build) |
+| Artifact to sign | `piscout.exe` (PyInstaller one-folder build; the installer ships the whole `dist\piscout` folder) |
 | Reproduce | `pip install -r requirements.txt pyinstaller`, then `build.bat` |
 | Third-party code | xterm.js (MIT), noVNC (MPL-2.0), see `THIRD_PARTY_NOTICES.md` |
 | Telemetry | none |

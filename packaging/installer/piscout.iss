@@ -1,13 +1,13 @@
 ; Inno Setup script for the piscout installer.
-; Build:  python packaging/installer/build_installer.py --version 0.1.8   (needs dist/piscout.exe)
+; Build:  python packaging/installer/build_installer.py --version 0.1.8   (needs the dist\piscout folder from build.bat)
 ; Installs per user (no administrator rights needed), adds a Start menu entry and an optional desktop shortcut,
 ; and registers an uninstaller under Settings > Apps. Saved logins live in %LOCALAPPDATA%\piscout and are kept.
 
 #ifndef MyAppVersion
   #define MyAppVersion "0.0.0"
 #endif
-#ifndef SourceExe
-  #define SourceExe "..\..\dist\piscout.exe"
+#ifndef SourceDir
+  #define SourceDir "..\..\dist\piscout"
 #endif
 
 [Setup]
@@ -54,7 +54,7 @@ RunApp=Start piscout
 Name: "desktopicon"; Description: "{cm:TaskDesktop}"; GroupDescription: "{cm:TaskGroup}"
 
 [Files]
-Source: "{#SourceExe}"; DestDir: "{app}"; DestName: "piscout.exe"; Flags: ignoreversion
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\piscout"; Filename: "{app}\piscout.exe"

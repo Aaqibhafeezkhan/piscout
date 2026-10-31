@@ -28,7 +28,7 @@ jobs:
 
       - name: Build exe
         run: >
-          pyinstaller --noconfirm --clean --onefile --windowed
+          pyinstaller --noconfirm --clean --onedir --windowed
           --name piscout
           --icon packaging/installer/piscout.ico
           --add-data "piscout/static;piscout/static"
