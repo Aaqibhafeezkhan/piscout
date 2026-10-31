@@ -36,7 +36,7 @@ _auto_tried = set()
 def _auto_install(host, saved):
     """第一次用 SSH 連上就順手把 agent 裝好，之後不用登入也能讀狀態。"""
     try:
-        client = remote.connect(host, saved["username"], saved["password"], timeout=8)
+        client = remote.connect_saved(host, saved, timeout=8)
         try:
             if not remote.agent_installed(client):
                 remote.install_agent(client, sudo_password=saved["password"])
@@ -60,7 +60,7 @@ def stats_one(host, mac, lang):
         return {"ip": host, "mac": mac, "ok": False, "nologin": True,
                 "error": tr("沒有儲存帳密")}
     try:
-        client = remote.connect(host, saved["username"], saved["password"], timeout=6)
+        client = remote.connect_saved(host, saved, timeout=6)
     except remote.RemoteError as e:
         return {"ip": host, "mac": mac, "ok": False, "error": str(e)}
     try:
@@ -118,7 +118,7 @@ def act_one(host, mac, action, lang):
     if not saved or not saved.get("password"):
         return {"ip": host, "ok": False, "error": tr("沒有儲存帳密")}
     try:
-        client = remote.connect(host, saved["username"], saved["password"], timeout=8)
+        client = remote.connect_saved(host, saved, timeout=8)
     except remote.RemoteError as e:
         return {"ip": host, "ok": False, "error": str(e)}
     try:

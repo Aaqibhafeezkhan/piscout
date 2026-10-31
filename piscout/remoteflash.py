@@ -378,7 +378,7 @@ def _run(job, host, login, image, cfg):
         )
 
         progress("connect", 0, 0)
-        client = remote.connect(host, login["username"], login.get("password"), login.get("key_path"))
+        client = remote.connect_saved(host, login)
         client.get_transport().set_keepalive(15)  # 長時間傳輸不要被中間設備斷線
         disk, mode = check_pi(client, login.get("password"), image)
         ldso = stage_tools(client)

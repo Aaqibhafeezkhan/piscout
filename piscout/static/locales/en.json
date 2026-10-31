@@ -61,7 +61,10 @@
    "掃不到？直接輸入樹莓派的 IP 或名稱（例如 192.168.1.20、raspberrypi.local）：": "Not found? Enter the Pi's IP or name (for example 192.168.1.20 or raspberrypi.local):",
    "新增": "Add",
    "移除": "Remove",
-   "手動新增": "Added manually"
+   "手動新增": "Added manually",
+   "進階：SSH 連接埠、金鑰檔": "Advanced: SSH port, key file",
+   "SSH 連接埠": "SSH port",
+   "金鑰檔路徑（選填，有金鑰時密碼欄填金鑰的密語）": "Key file path (optional; if you use a key, the password field is its passphrase)"
   },
   "sub": [
    [

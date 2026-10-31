@@ -377,11 +377,12 @@ async function loadSaved(mac) {
   if (!mac) return {};
   try { return await api('/api/vault/' + mac); } catch (e) { return {}; }
 }
-function saveLogin(mac, username, password) {
-  if (!mac || !username) return;
+function saveLogin(mac, cred) {
+  if (!mac || !cred.username) return;
   api('/api/vault/' + mac, {
     method: 'PUT', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({username, password: password || null}),
+    body: JSON.stringify({username: cred.username, password: cred.password || null,
+                          port: cred.port || 22, key_path: cred.key_path || null}),
   }).catch(e => alert(t('帳密沒能存起來：') + e.message));
 }
 
@@ -430,22 +431,33 @@ function card(d) {
 function loginForm(d) {
   const user = h('input', {placeholder: '使用者名稱', value: localStorage.getItem('user') || 'pi'});
   const pass = h('input', {type: 'password', placeholder: '密碼'});
+  const port = h('input', {type: 'number', min: 1, max: 65535, value: 22, style: 'width:90px'});
+  const keyPath = h('input', {placeholder: 'C:/Users/you/.ssh/id_ed25519', style: 'flex:1'});
   const err = h('div', {class: 'err'});
   const go = h('button', {class: 'primary'}, '連線');
   const remember = h('input', {type: 'checkbox'});
   remember.checked = true;
+  const adv = h('details', {style: 'margin-top:8px'},
+    h('summary', {class: 'muted'}, '進階：SSH 連接埠、金鑰檔'),
+    h('div', {class: 'row', style: 'margin-top:6px'},
+      h('label', {class: 'muted', style: 'display:flex;gap:6px;align-items:center'}, h('span', {}, 'SSH 連接埠'), port),
+      h('label', {class: 'muted', style: 'flex:1;display:flex;gap:6px;align-items:center'},
+        h('span', {}, '金鑰檔路徑（選填，有金鑰時密碼欄填金鑰的密語）'), keyPath)));
   loadSaved(d.mac).then(s => {
     if (s.username) user.value = s.username;
     if (s.password) pass.value = s.password;
+    if (s.port && s.port !== 22) { port.value = s.port; adv.open = true; }
+    if (s.key_path) { keyPath.value = s.key_path; adv.open = true; }
   });
   async function connect() {
     err.textContent = '';
     go.disabled = true; go.textContent = '連線中…';
     try {
       localStorage.setItem('user', user.value);
-      const cred = {username: user.value, password: pass.value || null};
+      const cred = {username: user.value, password: pass.value || null,
+                    port: +port.value || 22, key_path: keyPath.value.trim() || null};
       await openSession(d, cred);
-      if (remember.checked) saveLogin(d.mac, cred.username, cred.password);
+      if (remember.checked) saveLogin(d.mac, cred);
       learnModel(d, cred);
     } catch (e) {
       err.textContent = e.message;
@@ -456,6 +468,7 @@ function loginForm(d) {
   pass.addEventListener('keydown', e => { if (e.key === 'Enter') connect(); });
   return h('div', {},
     h('div', {class: 'form'}, user, pass, go),
+    adv,
     h('label', {class: 'toggle', style: 'margin-top:8px'}, remember, '記住這台的帳號密碼'),
     h('div', {class: 'muted', style: 'margin-top:4px'},
       '密碼會用 Windows 的使用者金鑰加密後存在這台電腦，換電腦或換帳號就解不開。'),
@@ -1112,7 +1125,7 @@ async function probeRemote() {
     const d = devices.find(x => x.ip === ip);
     if (d) {
       d.model = info.model || ''; d.model_id = info.model_id; d.os = info.os || '';
-      saveLogin(d.mac, $('#rUser').value, $('#rPass').value);
+      saveLogin(d.mac, {username: $('#rUser').value, password: $('#rPass').value});
     }
     await applyDeviceModel();
     if (!(d && d.model)) { note.className = 'warn'; note.textContent = `${info.model || '型號未知'}，請自己選型號`; }
@@ -1304,7 +1317,7 @@ function watch(job, remote) {
             ? '寫入並校驗完成，樹莓派正在重新開機。開機後我會自動掃描，找到就回到裝置頁。'
             : '燒錄完成。把 SD 卡插進樹莓派開機，等一到兩分鐘，我會自動重新掃描。';
           if (remote && lastRemoteMac) {
-            saveLogin(lastRemoteMac, $('#f_username').value, $('#f_password').value);
+            saveLogin(lastRemoteMac, {username: $('#f_username').value, password: $('#f_password').value});
           }
           waitForPi();
         } else {

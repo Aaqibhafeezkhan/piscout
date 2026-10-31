@@ -54,10 +54,10 @@ def _save(data):
     tmp.replace(p)
 
 
-def put(key, username, password):
+def put(key, username, password, port=22, key_path=None):
     with _lock:
         data = _load()
-        entry = {"username": username, "password": None}
+        entry = {"username": username, "password": None, "port": int(port or 22), "key_path": key_path or None}
         if password and os.name == "nt":
             blob = _dpapi(password.encode("utf-8"), True)
             entry["password"] = base64.b64encode(blob).decode()
@@ -76,7 +76,8 @@ def get(key):
             password = _dpapi(base64.b64decode(entry["password"]), False).decode("utf-8")
         except (OSError, ValueError):
             password = None  # 換了電腦或帳號就解不開，當作沒存
-    return {"username": entry.get("username", ""), "password": password}
+    return {"username": entry.get("username", ""), "password": password,
+            "key_path": entry.get("key_path"), "port": entry.get("port") or 22}
 
 
 def delete(key=None):

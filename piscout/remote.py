@@ -46,13 +46,14 @@ def connect_error_message(host, e):
     return tr("連不上 {host}：{e}", host=host, e=e)
 
 
-def connect(host, username, password=None, key_path=None, timeout=8):
+def connect(host, username, password=None, key_path=None, timeout=8, port=22):
     client = paramiko.SSHClient()
     # 區網內第一次連線，沒辦法事先知道 host key，所以直接接受
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
         client.connect(
             host,
+            port=int(port or 22),
             username=username,
             password=password or None,
             key_filename=key_path or None,
@@ -66,6 +67,12 @@ def connect(host, username, password=None, key_path=None, timeout=8):
     except (OSError, paramiko.SSHException) as e:
         raise RemoteError(connect_error_message(host, e))
     return client
+
+
+def connect_saved(host, saved, timeout=8):
+    """用「記住的帳密」連線：帶上它存的 SSH 連接埠和金鑰檔。"""
+    return connect(host, saved["username"], saved.get("password"), saved.get("key_path"),
+                   timeout=timeout, port=saved.get("port") or 22)
 
 
 def run(client, cmd, sudo_password=None, timeout=60):

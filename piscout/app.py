@@ -18,7 +18,7 @@ from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconn
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from . import clipboard, tools, updates, fleet, flasher, i18n, remote, remoteflash, scanner, transfer, vault
 from .i18n import tr
@@ -74,6 +74,7 @@ class Login(BaseModel):
     username: str
     password: Optional[str] = None
     key_path: Optional[str] = None
+    port: int = Field(22, ge=1, le=65535)
 
 
 class SessionReq(BaseModel):
@@ -81,6 +82,7 @@ class SessionReq(BaseModel):
     username: str
     password: Optional[str] = None
     key_path: Optional[str] = None
+    port: int = Field(22, ge=1, le=65535)
 
 
 class FlashConfig(BaseModel):
@@ -100,6 +102,7 @@ class RemoteFlashReq(BaseModel):
     username: str
     password: Optional[str] = None
     key_path: Optional[str] = None
+    port: int = Field(22, ge=1, le=65535)
     image_url: str
     config: FlashConfig
 
@@ -191,6 +194,8 @@ def i18n_data():
 class SavedLogin(BaseModel):
     username: str
     password: Optional[str] = None
+    key_path: Optional[str] = None
+    port: int = Field(22, ge=1, le=65535)
 
 
 def _mac(key):
@@ -241,12 +246,12 @@ async def api_fleet_action(req: FleetActionReq):
 
 @app.get("/api/vault/{key}")
 def api_vault_get(key: str):
-    return vault.get(_mac(key)) or {"username": "", "password": None}
+    return vault.get(_mac(key)) or {"username": "", "password": None, "key_path": None, "port": 22}
 
 
 @app.put("/api/vault/{key}")
 def api_vault_put(key: str, body: SavedLogin):
-    vault.put(_mac(key), body.username, body.password)
+    vault.put(_mac(key), body.username, body.password, body.port, body.key_path)
     return {"ok": True}
 
 
@@ -291,7 +296,7 @@ def _info(host, login):
 
 
 def _install(host, login):
-    client = remote.connect(host, login.username, login.password, login.key_path)
+    client = remote.connect(host, login.username, login.password, login.key_path, port=login.port)
     try:
         return remote.install_agent(client, sudo_password=login.password)
     finally:
@@ -325,7 +330,7 @@ def _with_client(host, login, fn):
     transport = shared.get_transport() if shared is not None else None
     if transport is not None and transport.is_active():
         return fn(shared)
-    client = remote.connect(host, login.username, login.password, login.key_path)
+    client = remote.connect(host, login.username, login.password, login.key_path, port=login.port)
     try:
         return fn(client)
     finally:
@@ -384,7 +389,7 @@ def _expire_sessions():
 
 
 def _open_session(host, req):
-    client = remote.connect(host, req.username, req.password, req.key_path)
+    client = remote.connect(host, req.username, req.password, req.key_path, port=req.port)
     try:
         port = remote.start_desktop(client) if req.kind == "desktop" else None
     except Exception:
@@ -553,6 +558,7 @@ class UploadReq(BaseModel):
     username: str
     password: Optional[str] = None
     key_path: Optional[str] = None
+    port: int = Field(22, ge=1, le=65535)
 
 
 def _close_upload(u):
@@ -581,7 +587,7 @@ def _reported_dir(sftp, host):
 
 
 def _open_upload(host, req):
-    client = remote.connect(host, req.username, req.password, req.key_path)
+    client = remote.connect(host, req.username, req.password, req.key_path, port=req.port)
     try:
         sftp = client.open_sftp()
         directory = _reported_dir(sftp, host) if req.mode == "term" else ""
@@ -750,7 +756,7 @@ async def api_flash_remote(req: RemoteFlashReq):
         raise HTTPException(400, tr("遠端重灌是進階功能，請先在「燒錄系統」頁啟用並確認風險"))
     host = _check_host(req.host)
     login = {"username": req.username, "password": req.password or None,
-             "key_path": req.key_path}
+             "key_path": req.key_path, "port": req.port}
     try:
         job_id = await run_in_threadpool(
             remoteflash.start_job, host, login, req.image_url, req.config.model_dump()

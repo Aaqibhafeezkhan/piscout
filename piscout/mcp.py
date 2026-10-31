@@ -42,7 +42,7 @@ def _client(host):
     saved = vault.get(mac) if mac else None
     if not saved:
         raise ValueError("no saved login for this device; save one in piscout first")
-    c = _clients[host] = remote.connect(host, saved["username"], saved.get("password"))
+    c = _clients[host] = remote.connect_saved(host, saved)
     return c
 
 
